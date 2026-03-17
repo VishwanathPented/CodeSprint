@@ -1,5 +1,5 @@
 # Use a more official and stable Node image
-FROM node:18-bullseye
+FROM node:20-bullseye
 
 # Install OpenJDK 17 and clean up to keep image small
 RUN apt-get update && \
