@@ -26,9 +26,13 @@ export default function Dashboard() {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
-        setRoadmap(data);
+        if (Array.isArray(data)) {
+          setRoadmap(data);
+        } else {
+          console.error("Roadmap data is not an array:", data);
+        }
       } catch (err) {
-        console.error(err);
+        console.error("Fetch roadmap error:", err);
       } finally {
         setLoading(false);
       }
@@ -54,7 +58,7 @@ export default function Dashboard() {
             Dashboard
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium">
-            Welcome back, {user?.name.split(' ')[0]}! Ready to code?
+            Welcome back, {user?.name?.split(' ')[0] || 'Explorer'}! Ready to code?
           </p>
         </div>
       </div>
