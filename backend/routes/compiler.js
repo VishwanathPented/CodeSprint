@@ -8,6 +8,10 @@ const router = express.Router();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const tempDir = path.resolve(__dirname, '../temp');
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+}
 
 router.post('/execute', (req, res) => {
   const { code } = req.body;
@@ -15,10 +19,7 @@ router.post('/execute', (req, res) => {
     return res.status(400).json({ isError: true, output: "No code provided." });
   }
 
-  const tempDir = path.resolve(__dirname, '../temp');
-  if (!fs.existsSync(tempDir)) {
-    fs.mkdirSync(tempDir, { recursive: true });
-  }
+
 
   const sessionId = Math.random().toString(36).substring(7);
   const sessionDir = path.join(tempDir, sessionId);
