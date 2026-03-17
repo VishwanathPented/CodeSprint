@@ -74,15 +74,24 @@ router.post('/execute', (req, res) => {
 // @route   GET /api/compiler/debug
 // @desc    Check environment dependencies
 router.get('/debug', (req, res) => {
-  exec('javac -version && java -version && which javac && which java', (error, stdout, stderr) => {
-    res.json({
-      error: error ? error.message : null,
-      stdout,
-      stderr,
-      tempDirExists: fs.existsSync(tempDir),
-      nodeVersion: process.version,
-      platform: process.platform,
-      envPath: process.env.PATH
+  const diagnostics = {};
+  exec('javac -version', (e1, so1, se1) => {
+    diagnostics.javac_version = { error: e1?.message, stdout: so1, stderr: se1 };
+    exec('which javac', (e2, so2, se2) => {
+      diagnostics.javac_path = { error: e2?.message, stdout: so2, stderr: se2 };
+      exec('java -version', (e3, so3, se3) => {
+        diagnostics.java_version = { error: e3?.message, stdout: so3, stderr: se3 };
+        res.json({
+          ...diagnostics,
+          tempDir,
+          tempDirExists: fs.existsSync(tempDir),
+          nodeVersion: process.version,
+          platform: process.platform,
+          envPath: process.env.PATH,
+          cwd: process.cwd(),
+          uid: process.getuid ? process.getuid() : 'n/a'
+        });
+      });
     });
   });
 });
