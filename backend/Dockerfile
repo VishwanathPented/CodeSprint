@@ -1,8 +1,8 @@
-FROM node:20-slim
+FROM node:20
 
 # Install Java (JDK 17)
 RUN apt-get update && \
-    apt-get install -y default-jdk && \
+    apt-get install -y openjdk-17-jdk && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

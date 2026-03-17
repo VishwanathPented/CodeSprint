@@ -44,7 +44,8 @@ router.post('/execute', (req, res) => {
 
     if (error) {
       // Return compilation or execution error
-      return res.json({ isError: true, output: stderr || error.message });
+      const errorMsg = stderr || stdout || error.message;
+      return res.json({ isError: true, output: errorMsg });
     }
     
     // Return standard output
