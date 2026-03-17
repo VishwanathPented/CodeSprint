@@ -60,6 +60,14 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
+
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <Layout>
+                <AdminDashboard />
+              </Layout>
+            </ProtectedRoute>
+          } />
           
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

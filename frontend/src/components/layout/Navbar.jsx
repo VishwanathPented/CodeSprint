@@ -30,10 +30,10 @@ export default function Navbar() {
                 </Link>
               )}
               <div className="flex items-center gap-2 pl-4 border-l border-slate-200 dark:border-slate-700">
-                <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center text-primary-700 dark:text-primary-400">
-                  {user.name.charAt(0).toUpperCase()}
+                <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center text-primary-700 dark:text-primary-400 font-bold">
+                  {user?.name?.charAt(0).toUpperCase() || 'U'}
                 </div>
-                <span className="hidden sm:inline-block">{user.name}</span>
+                <span className="hidden sm:inline-block font-medium">{user?.name}</span>
               </div>
               <button 
                 onClick={handleLogout}

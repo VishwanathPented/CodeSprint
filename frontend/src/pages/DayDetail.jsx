@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import VideoModule from '../components/day/VideoModule';
-import { CheckCircle2, Trophy } from 'lucide-react';
+import McqModule from '../components/day/McqModule';
+import CodeModule from '../components/day/CodeModule';
+import AptitudeModule from '../components/day/AptitudeModule';
+import { CheckCircle2, Trophy, Loader2 } from 'lucide-react';
 import { API_URL } from '../utils/config';
 
 export default function DayDetail() {
@@ -19,7 +22,7 @@ export default function DayDetail() {
   const [codeAttempted, setCodeAttempted] = useState(false);
   const [aptitudeScore, setAptitudeScore] = useState(null);
 
-  const isAlreadyCompleted = user?.completedDays.includes(Number(id));
+  const isAlreadyCompleted = user?.completedDays?.includes(Number(id));
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -82,8 +85,13 @@ export default function DayDetail() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-slate-500">Loading Content...</div>;
-  if (!content) return <div className="p-8 text-center text-red-500">Content not found.</div>;
+  if (loading || !user) return (
+    <div className="flex flex-col items-center justify-center p-20 space-y-4">
+      <Loader2 className="animate-spin text-primary-500" size={40} />
+      <p className="text-slate-500 font-medium">Loading your lesson...</p>
+    </div>
+  );
+  if (!content) return <div className="p-8 text-center text-red-500 font-bold">Content not found.</div>;
 
   return (
     <div className="max-w-7xl mx-auto w-full px-4 py-8 space-y-10">

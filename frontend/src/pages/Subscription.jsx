@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Check, ShieldCheck, Zap, Star } from 'lucide-react';
+import { Check, ShieldCheck, Zap, Star, Rocket, CreditCard, CheckCircle2 } from 'lucide-react';
 import { API_URL } from '../utils/config';
 
 export default function Subscription() {
   const { token, user, updateProgress } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(user?.isSubscribed);
+  const [success, setSuccess] = useState(user?.isSubscribed || false);
   const navigate = useNavigate();
 
   const handleSubscribe = async () => {
