@@ -47,7 +47,7 @@ router.post('/execute', (req, res) => {
   // Step 1: Compile - Use absolute path and memory limit
   const javacPath = '/usr/bin/javac';
   // -J-Xmx keeps javac internal memory low
-  const compileCmd = `${javacPath} -J-Xmx256M "${filePath}"`;
+  const compileCmd = `${javacPath} -J-Xmx128M "${filePath}"`;
   
   exec(compileCmd, { timeout: 7000 }, (compileError, compileStdout, compileStderr) => {
     if (compileError) {
@@ -67,7 +67,7 @@ router.post('/execute', (req, res) => {
 
     // Step 2: Execute - Use absolute path and memory limit
     const javaPath = '/usr/bin/java';
-    const runCmd = `${javaPath} -Xmx256M -cp "${sessionDir}" Main`;
+    const runCmd = `${javaPath} -Xmx128M -cp "${sessionDir}" Main`;
     exec(runCmd, { timeout: 5000 }, (runError, runStdout, runStderr) => {
       // Cleanup after execution
       try { fs.rmSync(sessionDir, { recursive: true, force: true }); } catch (e) {}
