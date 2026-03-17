@@ -1,28 +1,29 @@
-FROM node:20
+# Use a more official and stable Node image
+FROM node:18-bullseye
 
-# Install Java (JDK 17)
+# Install OpenJDK 17 and clean up to keep image small
 RUN apt-get update && \
-    apt-get install -y openjdk-17-jdk && \
+    apt-get install -y openjdk-17-jdk-headless && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Verify Java installation
-RUN java -version && javac -version
-
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
-# Copy package files
+# Ensure we have a temp directory for Java compilation with correct permissions
+RUN mkdir -p /app/temp && chmod 777 /app/temp
+
+# Copy package management files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install production dependencies
+RUN npm install --production
 
-# Copy the rest of the backend files
+# Copy the rest of the application
 COPY . .
 
-# Expose port
-EXPOSE 5001
+# Expose the API port
+EXPOSE 5000
 
-# Start the server
-CMD ["npm", "start"]
+# Start with node directly for better signal handling
+CMD ["node", "server.js"]

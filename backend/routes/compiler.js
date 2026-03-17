@@ -53,4 +53,19 @@ router.post('/execute', (req, res) => {
   });
 });
 
+// @route   GET /api/compiler/debug
+// @desc    Check environment dependencies
+router.get('/debug', (req, res) => {
+  exec('javac -version && java -version', (error, stdout, stderr) => {
+    res.json({
+      error: error ? error.message : null,
+      stdout,
+      stderr,
+      tempDirExists: fs.existsSync(path.join(__dirname, '../temp')),
+      nodeVersion: process.version,
+      platform: process.platform
+    });
+  });
+});
+
 export default router;
