@@ -1,7 +1,8 @@
 import { Flame, Target, Trophy } from 'lucide-react';
 
 export default function ProgressHeader({ user }) {
-  const percentage = Math.round((user.completedDays.length / 50) * 100);
+  if (!user) return null;
+  const percentage = Math.round(((user.completedDays?.length || 0) / 50) * 100);
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 w-full">

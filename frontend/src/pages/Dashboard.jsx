@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { API_URL } from '../utils/config';
 
 export default function Dashboard() {
-  const { user, token } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
   const [roadmap, setRoadmap] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -36,8 +36,8 @@ export default function Dashboard() {
     if (token) fetchRoadmap();
   }, [token]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-full flex-grow">
+  if (loading || authLoading || !user) return (
+    <div className="flex items-center justify-center h-full flex-grow py-20">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
     </div>
   );
