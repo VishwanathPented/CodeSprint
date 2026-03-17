@@ -33,7 +33,11 @@ app.use('/api/admin', adminRoutes);
 
 // Root route
 app.get('/', (req, res) => {
-  res.send('CodeSprint 50 Backend MVP');
+  res.json({
+    message: 'CodeSprint 50 Backend Live',
+    deployedAt: '2026-03-18 01:59:00 UTC',
+    status: 'Ready'
+  });
 });
 
 // Database Connection
