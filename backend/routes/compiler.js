@@ -44,11 +44,12 @@ router.post('/execute', (req, res) => {
     return res.status(500).json({ isError: true, output: `FS Error: ${err.message}` });
   }
 
-  // Step 1: Compile - Use absolute path for javac to be safe
+  // Step 1: Compile - Use absolute path and memory limit
   const javacPath = '/usr/bin/javac';
-  const compileCmd = `${javacPath} "${filePath}"`;
+  // -J-Xmx keeps javac internal memory low
+  const compileCmd = `${javacPath} -J-Xmx256M "${filePath}"`;
   
-  exec(compileCmd, { timeout: 5000 }, (compileError, compileStdout, compileStderr) => {
+  exec(compileCmd, { timeout: 7000 }, (compileError, compileStdout, compileStderr) => {
     if (compileError) {
       const dirContents = fs.existsSync(sessionDir) ? fs.readdirSync(sessionDir) : 'Dir missing';
       const fileExists = fs.existsSync(filePath);
@@ -56,7 +57,7 @@ router.post('/execute', (req, res) => {
       
       const response = {
         isError: true,
-        output: `Compilation Error (Code ${compileError.code}):\n${errorMsg}\n\nDEBUG INFO:\n- File Exists: ${fileExists}\n- Folder Contents: ${JSON.stringify(dirContents)}\n- Command Used: ${compileCmd}`
+        output: `Compilation Error (Code ${compileError.code || 'N/A'}, Signal ${compileError.signal || 'NONE'}):\n${errorMsg}\n\nDEBUG INFO:\n- File Exists: ${fileExists}\n- Folder Contents: ${JSON.stringify(dirContents)}\n- Command Used: ${compileCmd}`
       };
       
       // Cleanup on compilation failure
@@ -64,9 +65,9 @@ router.post('/execute', (req, res) => {
       return res.json(response);
     }
 
-    // Step 2: Execute - Use absolute path for java
+    // Step 2: Execute - Use absolute path and memory limit
     const javaPath = '/usr/bin/java';
-    const runCmd = `${javaPath} -cp "${sessionDir}" Main`;
+    const runCmd = `${javaPath} -Xmx256M -cp "${sessionDir}" Main`;
     exec(runCmd, { timeout: 5000 }, (runError, runStdout, runStderr) => {
       // Cleanup after execution
       try { fs.rmSync(sessionDir, { recursive: true, force: true }); } catch (e) {}
@@ -75,7 +76,7 @@ router.post('/execute', (req, res) => {
         const errorMsg = runStderr || runStdout || runError.message;
         return res.json({ 
           isError: true, 
-          output: `Runtime Error:\n${errorMsg}\n\nCommand: ${runCmd}` 
+          output: `Runtime Error (Code ${runError.code || 'N/A'}, Signal ${runError.signal || 'NONE'}):\n${errorMsg}\n\nCommand: ${runCmd}` 
         });
       }
 
