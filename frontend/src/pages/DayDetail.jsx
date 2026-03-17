@@ -5,6 +5,7 @@ import VideoModule from '../components/day/VideoModule';
 import McqModule from '../components/day/McqModule';
 import CodeModule from '../components/day/CodeModule';
 import AptitudeModule from '../components/day/AptitudeModule';
+import CommentSection from '../components/day/CommentSection';
 import { CheckCircle2, Trophy, Loader2 } from 'lucide-react';
 import { API_URL } from '../utils/config';
 
@@ -137,6 +138,10 @@ export default function DayDetail() {
           </button>
         </div>
       )}
+
+      <div className="pt-8 border-t border-slate-200 dark:border-slate-700">
+        <CommentSection dayNumber={content.dayNumber} />
+      </div>
     </div>
   );
 }

@@ -21,10 +21,22 @@ const protect = async (req, res, next) => {
   }
 };
 
-// @route   GET /api/user/profile
-// @desc    Get user profile and progress
 router.get('/profile', protect, async (req, res) => {
   res.json(req.user);
+});
+
+// @route   GET /api/user/leaderboard
+// @desc    Get top users by streak and score
+router.get('/leaderboard', async (req, res) => {
+  try {
+    const topUsers = await User.find({})
+      .select('name streak completedDays')
+      .sort({ streak: -1, 'completedDays.length': -1 })
+      .limit(10);
+    res.json(topUsers);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 // @route   POST /api/user/complete-day

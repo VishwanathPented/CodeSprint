@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ProgressHeader from '../components/dashboard/ProgressHeader';
 import RoadmapTimeline from '../components/dashboard/RoadmapTimeline';
+import Leaderboard from '../components/dashboard/Leaderboard';
 import { Sparkles, Linkedin, Check, Rocket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { API_URL } from '../utils/config';
@@ -85,15 +86,25 @@ export default function Dashboard() {
 
       <ProgressHeader user={user} />
 
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
-          Your Coding Journey
-        </h2>
-        <RoadmapTimeline 
-          days={roadmap} 
-          currentDay={user?.currentDay} 
-          completedDays={user?.completedDays || []} 
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
+        <div className="lg:col-span-2">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight flex items-center gap-2">
+            <Rocket className="text-primary-500" size={24} />
+            Your Coding Journey
+          </h2>
+          <RoadmapTimeline 
+            days={roadmap} 
+            currentDay={user?.currentDay} 
+            completedDays={user?.completedDays || []} 
+          />
+        </div>
+        
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
+            Leaderboard
+          </h2>
+          <Leaderboard />
+        </div>
       </div>
 
     </div>
