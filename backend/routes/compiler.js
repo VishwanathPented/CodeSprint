@@ -17,8 +17,13 @@ router.post('/execute', (req, res) => {
     return res.status(400).json({ isError: true, output: "No code provided." });
   }
 
-    const sessionId = Math.random().toString(36).substring(7);
-    const sessionDir = path.join(tempDir, sessionId);
+  const tempDir = path.join(__dirname, '../temp');
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+  }
+
+  const sessionId = Math.random().toString(36).substring(7);
+  const sessionDir = path.join(tempDir, sessionId);
     if (!fs.existsSync(sessionDir)) {
       fs.mkdirSync(sessionDir);
     }
