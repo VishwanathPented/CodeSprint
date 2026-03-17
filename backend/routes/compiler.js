@@ -32,20 +32,31 @@ router.post('/execute', (req, res) => {
   
   try {
     fs.writeFileSync(filePath, code);
+    // Verify file was actually written
+    if (!fs.existsSync(filePath)) {
+      throw new Error("File was not created on disk.");
+    }
+    const stats = fs.statSync(filePath);
+    if (stats.size === 0) {
+      throw new Error("File was created but is empty.");
+    }
   } catch (err) {
-    return res.status(500).json({ isError: true, output: `Failed to create source file: ${err.message}` });
+    return res.status(500).json({ isError: true, output: `FS Error: ${err.message}` });
   }
 
-  // Step 1: Compile
-  const compileCmd = `javac "${filePath}"`;
+  // Step 1: Compile - Use absolute path for javac to be safe
+  const javacPath = '/usr/bin/javac';
+  const compileCmd = `${javacPath} "${filePath}"`;
   
   exec(compileCmd, { timeout: 5000 }, (compileError, compileStdout, compileStderr) => {
     if (compileError) {
       const dirContents = fs.existsSync(sessionDir) ? fs.readdirSync(sessionDir) : 'Dir missing';
+      const fileExists = fs.existsSync(filePath);
       const errorMsg = compileStderr || compileStdout || compileError.message;
+      
       const response = {
         isError: true,
-        output: `Compilation Error (Code ${compileError.code}):\n${errorMsg}\n\nFiles: ${JSON.stringify(dirContents)}\nCommand: ${compileCmd}`
+        output: `Compilation Error (Code ${compileError.code}):\n${errorMsg}\n\nDEBUG INFO:\n- File Exists: ${fileExists}\n- Folder Contents: ${JSON.stringify(dirContents)}\n- Command Used: ${compileCmd}`
       };
       
       // Cleanup on compilation failure
@@ -53,8 +64,9 @@ router.post('/execute', (req, res) => {
       return res.json(response);
     }
 
-    // Step 2: Execute
-    const runCmd = `java -cp "${sessionDir}" Main`;
+    // Step 2: Execute - Use absolute path for java
+    const javaPath = '/usr/bin/java';
+    const runCmd = `${javaPath} -cp "${sessionDir}" Main`;
     exec(runCmd, { timeout: 5000 }, (runError, runStdout, runStderr) => {
       // Cleanup after execution
       try { fs.rmSync(sessionDir, { recursive: true, force: true }); } catch (e) {}
