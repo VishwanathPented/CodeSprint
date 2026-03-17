@@ -35,7 +35,7 @@ app.use('/api/admin', adminRoutes);
 app.get('/', (req, res) => {
   res.json({
     message: 'CodeSprint 50 Backend Live',
-    deployedAt: '2026-03-18 02:20:00 UTC',
+    deployedAt: '2026-03-18 02:25:00 UTC',
     status: 'Ready'
   });
 });

@@ -41,14 +41,16 @@ router.post('/execute', (req, res) => {
   
   exec(compileCmd, { timeout: 5000 }, (compileError, compileStdout, compileStderr) => {
     if (compileError) {
+      const dirContents = fs.existsSync(sessionDir) ? fs.readdirSync(sessionDir) : 'Dir missing';
+      const errorMsg = compileStderr || compileStdout || compileError.message;
+      const response = {
+        isError: true,
+        output: `Compilation Error (Code ${compileError.code}):\n${errorMsg}\n\nFiles: ${JSON.stringify(dirContents)}\nCommand: ${compileCmd}`
+      };
+      
       // Cleanup on compilation failure
       try { fs.rmSync(sessionDir, { recursive: true, force: true }); } catch (e) {}
-      
-      const errorMsg = compileStderr || compileStdout || compileError.message;
-      return res.json({ 
-        isError: true, 
-        output: `Compilation Error:\n${errorMsg}\n\nCommand: ${compileCmd}` 
-      });
+      return res.json(response);
     }
 
     // Step 2: Execute
