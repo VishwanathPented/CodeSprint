@@ -35,6 +35,16 @@ function App() {
           <Route path="/login" element={<Layout><Login /></Layout>} />
           <Route path="/signup" element={<Layout><Signup /></Layout>} />
           
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/" element={<Navigate to="/dashboard" />} />
+          
           <Route path="/day/:id" element={
             <ProtectedRoute>
               <Layout>
