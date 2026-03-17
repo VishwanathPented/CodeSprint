@@ -1,0 +1,398 @@
+ 
+Year       II  Course  Code:  228DSC116         Cr edits   4 
+Semest er     III 
+Course  Title:  Pr ogr amming    in  
+Java 
+Hours    52  
+Formati  ve   Assessment    
+Mar ks:  
+Summati  ve 
+Assessment    Mar ks:  
+Dur ation  of  ES A:  03  hrs.  
+Course  
+Pr er equisit
+es  
+Students   should  ha ve basic pr ogramming   kno wledge,  including  variables,  
+loops,  and  contr ol structur es. Familiarity  with  object-orient ed  concepts   
+and  logical pr oblem-sol ving  skills  is recommended.    
+Course  
+Objecti ve 
+This  course  aims  to intr oduce  students   to Java pr ogramming   with  a focus  
+on  object-orient ed  principles,  exception  handling,  GUI  de velopment  , and  
+multithr eading.  It pr epar es  students   to build  robust , reusable,  and  
+inter active applications   using  Java. 
+Course  
+Out comes   
+At the end  of the course,  the students   should  be  able  to: De velop  Java 
+applications   using  OOP  concepts,  handle  exceptions  effectively, design  
+GUIs  with  Swing,  and  implement   multithr eaded  pr ograms.  The y will  also  
+gain experience  using  core Java libraries and  building  inter active, 
+platform-independent    applications.  
+ 
+Unit  No      Course  Content                                Hours  
+UNIT   – 1 
+Unit  1 – Java Basics  & OOP  Intr oduction   
+Hist ory of Java, Java Featur es, JVM,  JRE,  JDK  Ar chit ectur e, Basic  
+syntax,  Sample   Java Pr ogram , Ex ecution  of Java Pr ogram , 
+Differ ence  betw een  C/C++  and  Java, Data  types,  Type  casting,  
+Type  Con version , Arrays: One-Dimensional,    Multi-Dimensional   , 
+Oper ators:  Arithmetic,  Relational,  Logical,  Bitwise , Contr ol 
+Stat ements:  if, switch, loops  (for, while, do-w hile), br eak.  
+13  
+UNIT   – 2 
+Unit  2 – Classes,  Inheritanc  e and  Interfac es  
+Classes  and  Objects , Construct ors, this  keyw or d, Method   
+Ov er loading , Static  methods   and  variables , Garbage  Collection , 
+Inheritance  and  its types,  Method   Ov erriding , Abstr act Classes  
+and  Interfaces , Lambda   Expr essions.   
+13  
+UNIT   – 3 
+Unit  3 Packages,Ex  ception  Handling   & Multithr  eading   : 
+Intr oduction   to API,  Java Packages: CLA SSPATH, import , 
+java.lang, java.util, Intr oduction   to Errors and  its types,  
+Ex ception  and  its types,  Ex ception  Handling   ,Creating  Custom  
+Ex ceptions,  Intr oduction   to Multithr eading,  Life cy cle of a 
+Thr ead,  Cr eating  Thr eads:  Extending  Thr ead,  Implementing    
+Runnable,   Synchr onization:  synchr onized  methods   and  block s. 
+    13  
+ 
+UNIT   – 4 
+Unit  4:Intr oduction   to GUI  
+GUI  intr oduction,  Console  based  Vs GUI  based  applications,  
+Intr oduction   to Swing,  Swing  Components,   Swing  Containers  : 
+JFrame,  JPanel, JDialog,  Applet  and  its Life Cycle, Event 
+Handling   Basics:  Action Events  , Item  Events , Text Events , 
+Windo w Events , La yout Managers:   FlowLa yout, Bor derLa yout, 
+GridLa yout 
+13  
+----------------Page (0) Break----------------
+Text  books:   
+1. Pr ogramming   with  JAVA-  balagurusam  y, E 
+Refer enc es : 
+1.  The  complet e Refer ence  Java–Schildt , Her bert . 
+2.  Sun  Certified  Pr ogrammer   for  Java 5–  Kath y Sier a, Bert  Bates. 
+3.  Java Pr ogramming:   Steven  Holzner . 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+----------------Page (1) Break----------------
+COURSE TITLE : Program m ing in Java Lab 
+COURSE CODE : 228DSC117 
+ 
+1.    W rite a Java pr ogram  to read an  array of integers  and  sort  it in ascending  or der. 
+2.    W rite a Java pr ogram  to demonstr  ate the concept  of a class and  object . 
+3.    W rite a Java pr ogram  to demonstr  ate the concept  of construct ors.  
+4.   W rite a Java pr ogram  to demonstr  ate method   over loading.  
+5.   W rite a Java pr ogram  to demonstr  ate method   overriding.  
+6.    W rite a Java pr ogram  to demonstr  ate the usage  of this  and  super  keyw or ds. 
+7.   W rite a Java pr ogram  to implement   an  inner  class and  demonstr  ate its access  
+      pr otection. 
+8.   W rite a Java pr ogram  to demonstr  ate the wor king  of multiple  catch  block s. 
+9.   W rite a Java pr ogram  to demonstr  ate inheritance  using  abstr act classes  and  abstr act 
+Methods.   
+10.   W rite a Java pr ogram  to demonstr  ate multiple  inheritance  using  interfaces. 
+11.   W rite a Java pr ogram  to demonstr  ate the wor king  of try, catch, and  finally block s in 
+exception  handling.  
+12.   W rite a Java pr ogram  to demonstr  ate the use of pack ages. 
+13.   W rite a Java pr ogram  to create and  start a thread.  
+14.   W rite a JavaFX  application  to displa y "Hello  Wor ld". 
+15.   W rite a JavaFX  pr ogram  to create a GUI  using  butt ons and  implement   event handling.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+----------------Page (2) Break----------------
+Python Program m ing 
+ 
+Year 
+ 
+I    Course  Code:  228DSC118      Cr edits            
+Semest er  
+ 
+I 
+Course  Title:  Python   
+Pr ogr amming    
+Hours          50  
+   Formati  ve Assessment    
+Mar ks:  
+Summati  ve 
+Assessment    Mar ks:  
+Dur ation  of  ES A:   
+Course  
+Pr er equisit
+es  
+ 
+A course  on  “Programming   for  Pr oblem  Solving  using  C”.  
+Course  
+Objecti ve 
+   Thr oug hout  the course,  students   will  be  expect ed  to demonstr  ate their  
+understanding   of Pr ogramming   by being  able  to do  each  of the follo wing:   
+● Learn  Syntax  and  Semantics   and  create Functions   in Python.      
+● Handle   Strings  and  Files in Python.      
+● Understand    Lists,  Dictionaries   and  Regular  expressions  in Python.      
+● Implement   Object  Orient ed  Pr ogramming   concepts   in Python.      
+● Build  Web  Services  and  intr oduction   to Netw or k and  Database   
+Pr ogramming   in Python.  
+Course  
+Out comes   
+   On  completion   of this  course,  the students   should  be  able  to:  
+● Ex amine  Python   syntax  and  semantics  and  be  fluent  in the use of 
+Python   flow contr ol and functions.          
+● Demonstr  ate pr oficiency  in handling   Strings  and  File  Systems.    
+● Cr eate, run and  manipulat  e Python   Pr ograms  using  core data  
+structur es  like Lists,  Dictionaries   and  use Regular  Expr essions.      
+● Interpr et the concepts   of Object-Orient  ed  Pr ogramming   as  used  in 
+Python.  ∙ Implement   exemplary  applications   relat ed  to Netw or k 
+Pr ogramming,   Web  Services  and    Databases   in Python.  
+Unit  No  
+ 
+Course  Content 
+Hour
+s 
+UNIT   – 1 
+   Intr oduction   featur es  of python,  Installation,  Ex ecution  of python  
+pr ogram, Python virtual      machine.   Basic  Concepts:  Data  types,  
+Variables,  Oper ators and  its types,  Mathematical    functions,  Input  
+Output  stat ements.  Contr ol Structur es: if stat ements,  while  loop, 
+for  loop, nest ed  loop, br eak,  continue,  pass, assert , return  
+stat ements.       Functions    Defining   functions,   function   with  
+paramet ers,  return  values  and  return stat    ements,  Lamda  functions,  
+Local  and  Global  scope,  Recursion.  
+12  
+UNIT   – 2 
+ 
+Arr ays,  Strings,   Lists,   Tuples   and   Dictionaries    Arrays: 
+Advantages  of arrays, creating  an  array, importing  an  array 
+module,  Inde xing  and  Slicing on  array. Strings:      Cr eating  the 
+strings,  Inde xing  and  Slicing the strings.  Wor king  with  lists: Cr eate, 
+Access,  Updat e and  Delet e the lists, Inde xing  and  slicing oper ations  
+on  lists. Wor king with     Tuples:  Cr eate, Access,  Updat e and  Delet e 
+the Tuple, Basic  oper ations  on  Tuples.     Dictionaries:  Oper ations  on  
+Dictionaries,  Dictionaries   methods.   
+12  
+----------------Page (3) Break----------------
+Textbook:  
+1.  Dr. R. Nageswara Rao “Core Python Programming” 2nd edition, 
+Dreamtech  press.2019  
+ 
+REFERENCES:  
+1.  Allen  Downey,  Jeffrey  Elkner,  Chris  Meyers  “Learning W ith 
+Python”,Ddreamtech  press.2019  
+2. Charles Dierbach - “Introduction To Computer Science Using Python”, 
+W iley  publication. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+UNIT   – 3 
+   Intr oduction   to OOP s in  python  Pr oblems   in pr ocedur e orient ed  
+appr oach,  featur es of   OOP s, Cr eating  classes  and  objects.  Files and  
+exception  Handling   Opening  and closing    files, reading  and  
+writing  files. Ex ception:  What  is Ex ception?  Ex ception handling,       
+except  clause,  try, finally clause,  user  defined  exceptions.        
+12  
+UNIT   – 4 
+   GUI  Pr ogr amming    (Tkint er) and  Database   connecti vity: 
+Intr oduction,  La yout management       with  pack,  grid  and  place,  
+Widgets  and  attribut es: Frame,  Label,  Butt on, Check  butt on, Radio  
+butt on, Entry , List  bo x, Text. Events  and  bindings,  dr awing  
+on can  vas  (line, oval, rectang le, ar c.). Database:  Installing  mysql, 
+connection,  accessing  connect or  module   using  connect , cursor , 
+execut e & close functions,  Reading sing     le & multiple  results  of 
+query  execution.  
+14  
+----------------Page (4) Break----------------
+COURSE TITLE : Python Program m ing Lab 
+COURSE CODE : 228DSC119 
+ 
+1.   W rite a pr ogram  to demonstr  ate differ ent number   data  types  in Python.      
+2.   W rite a pr ogram  to perf orm  differ ent Arithmetic   Oper ations  on  numbers   in 
+Python.   
+3.   W rite a pr ogram  to create, concat enat e and  print a string  and  accessing  
+sub-string   from  a given  string.     
+4.   W rite a python  script  to print the curr ent date in the follo wing  format  “Sun 
+Sept  29  02:26:23   IST 2025”     
+5.   W rite a python  pr ogram  to find  the factorial of a number   using  Recursion.  
+6.   W rite a python  pr ogram  to print Fibonacci  series. 
+7.   W rite a python  pr ogram  to check  palindr omes.  
+8.   W rite a Python   script  that  prints  prime  numbers   less  than  30. 
+9.   W rite a python  pr ogram  on  Lambda   functions  with  differ ent methods.    
+10.  W rite a pr ogram  to create, append,  and  remo ve lists in python.     
+11.  W rite a pr ogram  to demonstr  ate wor king  with  tuples  in python.     
+12.  W rite a pr ogram  to demonstr  ate wor king  with  dictionaries   in python.     
+13.  W rite a Python   pr ogram  to demonstr  ate Nest ed  if stat ements.      
+14.  W rite a Python   pr ogram  to construct  a patt ern using  a loop.    
+15.  W rite a python  pr ogram  to demonstr  ate Inde xing  and  Slicing of an  array. 
+16.  Python   pr ogram  on  variable  length  and  default  ar guments.       
+17.  W rite a python  pr ogram  to perf orm  the follo wing  file 
+oper ations:      
+a.   Open  a file in writ e and  binary  mode     
+b.   Displa y file name     
+c.   W rite text to file   
+d.   To read from  the file   
+18.  Python   pr ogram  on  exception  handling.       
+19.  W rite a pr ogram  to connect  to database   MySql  and  perf orm  CR UD oper   ations.      
+20.  W rite a Titkint er  pr ogram  to dr aw the oper ation of gr aphics  shapes.      
+ 
+ 
+----------------Page (5) Break----------------
+ 
+Year    1  CourseCode: 228DSC120  Credits     4 
+Sem este
+r 
+II  
+Course Title: Operating 
+System   
+Hours      50 
+Form ative 
+Assessm ent 
+Marks: 20 
+Sum m ative 
+Assessm ent  Marks: 
+80 
+Duration of ESA: 03 hrs. 
+Course 
+Prerequ
+isites 
+Basic  Programming  Knowledge  Data  Structures  & 
+Algorithms Mathematical Foundations 
+Course 
+Objectiv
+e 
+To introduce the concept of Operating system. 
+To acquire the fundamental knowledge of the operating 
+system architecture and components 
+To know the various operations performed by the 
+operating system. 
+Course 
+Outcom
+es 
+At the end of the course, the students should be able to:  
+Understand the basic working process of an operating 
+system. 
+ Understand the importance of process and scheduling. 
+ Understand the problems in process synchronization and 
+memory management. 
+Unit No              Course Content 
+Hou
+rs 
+UNIT – 1 
+DEFINITION –Introduction, Types of Operating 
+System, Functions of Operating system, Operating 
+System structure. Operating system components 
+and services, System Programs, Virtual Machine. 
+ PROCESS MANAGEMENT 
+Process concept (program, process and thread), 
+process   scheduling,   Cooperating   process, 
+Inter-process  communication,  CPU  Scheduling 
+Criteria, scheduling algorithm (FCFS, SJF, Round 
+Robin ,priority scheduling). 
+15 
+UNIT – 2 
+PROCESS SYNCHRONIZATION AND DEADLOCK 
+process synchronization – semaphores, critical 
+section   problems,   classic   problems   of 
+synchronization critical region. 
+DEADLOCK:    System   model,   deadlock 
+characterization, methods for handling deadlock ( 
+deadlock prevention, avoidance and detection) 
+using resource allocation graph , Recovery from 
+deadlock. 
+13 
+----------------Page (6) Break----------------
+UNIT – 3 
+MEMORY MANAGEMENT 
+Logical and physical address space, swapping 
+contiguous allocation, Paging, Segmentation.  
+VIRTUAL  MEMORY  MANAGEMENT:  Demand 
+paging, Page replacement , page replacement 
+algorithm(FIFO,LRU,ORU)  allocation  of  frames, 
+thrashing , page size and other considerations and 
+demand segmentation. 
+12 
+UNIT – 4 
+FILE MANAGEMENT (System, Secondary storage 
+structure): 
+ File concepts, Access methods, Directory structure, 
+Protection and consistency, semantics, File system 
+structure,  Allocation  methods,  free  space 
+management, Directory Implementation,  
+Efficiency and performance, recovery. 
+DISK  MANAGEMENT:  Disk  structure  and 
+Scheduling methods, Disk management, Swap – 
+Space management. Protection and Security: Goals 
+of protection, Domain protection, Access matrix 
+security problem,  
+Authentication,  One  time  password,  program 
+threats, system threats. 
+15 
+ 
+ 
+Text books: 
+1.  Operating System by Milan Milinkovic, McGraw Hill. (5th Edition) 
+2.  Abraham Siberschatz and Peter Bear Galvin, Operating System 
+Concepts, Fifth Edition, Addision – Wesley 19989 (Chapter 1,3.1 , 3.2, 
+3.3, 3.4, 3.6, 4, 5, 6 (Except 6.8, 6.9),7,8,9,10,11,13,(Except 13.6) 19 
+(Except 19.6),20(Except 20.8,20.9), 22,23) 
+3.  Nutt: Operating system, 3/e Person Education 2004 
+References: 
+1.  Operating System by Madnick and Donoval, McGraw Hill. 
+2.  Operating Systems: Internals and Design Principles, by W illiam 
+Stallings, seventh 
+edition 
+3.  Operating System Concepts by James L Peterson. (2nd Edition) 
+4.  Operating System Design and Implementation by Andrew S 
+Tenenbaum. (3rd 
+----------------Page (7) Break----------------
+5.  Edition) 
+ 
+ 
+ 
+ 
+----------------Page (8) Break----------------

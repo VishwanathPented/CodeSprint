@@ -1,0 +1,97 @@
+import express from 'express';
+import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
+
+const router = express.Router();
+
+// Simple auth middleware for user routes
+const protect = async (req, res, next) => {
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.id).select('-password');
+      next();
+    } catch (error) {
+      res.status(401).json({ message: 'Not authorized, token failed' });
+    }
+  } else {
+    res.status(401).json({ message: 'Not authorized, no token' });
+  }
+};
+
+// @route   GET /api/user/profile
+// @desc    Get user profile and progress
+router.get('/profile', protect, async (req, res) => {
+  res.json(req.user);
+});
+
+// @route   POST /api/user/complete-day
+// @desc    Mark current day as complete and unlock next day
+router.post('/complete-day', protect, async (req, res) => {
+  try {
+    const user = req.user;
+    const { dayNumber, mcqScore, codingAttempted, aptitudeScore } = req.body;
+    
+    // Only allow completing the current unlocked day
+    if (dayNumber !== user.currentDay) {
+      return res.status(400).json({ message: 'Can only complete current active day' });
+    }
+    
+    // Check if subscription needed (mock feature, say free up to day 5)
+    if (dayNumber >= 5 && !user.isSubscribed) {
+      return res.status(403).json({ message: 'Subscription required to proceed beyond Day 5' });
+    }
+
+    // Save score
+    user.scores.push({
+      dayNumber,
+      mcqScore,
+      codingAttempted,
+      aptitudeScore
+    });
+
+    if (!user.completedDays.includes(dayNumber)) {
+      user.completedDays.push(dayNumber);
+      user.currentDay += 1; // Unlock next day
+      
+      // Basic streak logic
+      const today = new Date().setHours(0,0,0,0);
+      const lastActive = user.lastActiveDate ? new Date(user.lastActiveDate).setHours(0,0,0,0) : null;
+      
+      if (!lastActive) {
+        user.streak = 1;
+      } else {
+        const diffTime = Math.abs(today - lastActive);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        
+        if (diffDays === 1) {
+          user.streak += 1;
+        } else if (diffDays > 1) {
+          user.streak = 1; // Reset streak
+        }
+      }
+      user.lastActiveDate = new Date();
+    }
+    
+    await user.save();
+    res.json({ message: `Day ${dayNumber} completed! Day ${user.currentDay} unlocked.`, user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   POST /api/user/subscribe
+// @desc    Mock subscription payment
+router.post('/subscribe', protect, async (req, res) => {
+  try {
+    req.user.isSubscribed = true;
+    await req.user.save();
+    res.json({ message: 'Subscription successful. Full course unlocked.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+export default router;
