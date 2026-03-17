@@ -37,7 +37,7 @@ app.use('/api/comments', commentRoutes);
 app.get('/', (req, res) => {
   res.json({
     message: 'CodeSprint 50 Backend Live',
-    deployedAt: '2026-03-18 04:00:00 UTC',
+    deployedAt: '2026-03-18 04:30:00 UTC',
     status: 'Ready'
   });
 });
