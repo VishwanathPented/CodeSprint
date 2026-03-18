@@ -4,7 +4,8 @@ import ProgressHeader from '../components/dashboard/ProgressHeader';
 import RoadmapTimeline from '../components/dashboard/RoadmapTimeline';
 import Leaderboard from '../components/dashboard/Leaderboard';
 import GithubRepoLinker from '../components/dashboard/GithubRepoLinker';
-import { Sparkles, Linkedin, Check, Rocket, Github, AlertCircle, Share2 } from 'lucide-react';
+import WarmupModal from '../components/dashboard/WarmupModal';
+import { Sparkles, Linkedin, Check, Rocket, Github, AlertCircle, Share2, Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { API_URL } from '../utils/config';
 
@@ -13,6 +14,7 @@ export default function Dashboard() {
   const [roadmap, setRoadmap] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [isWarmupOpen, setIsWarmupOpen] = useState(false);
 
   const handleShare = () => {
     const profileUrl = `${window.location.origin}/u/${user?.username}`;
@@ -94,11 +96,19 @@ export default function Dashboard() {
         </div>
 
         <button 
+          onClick={() => setIsWarmupOpen(true)}
+          className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 text-white font-bold py-4 px-6 rounded-xl transition shadow-xl shadow-slate-900/10 flex items-center justify-center gap-2 flex-1 border border-slate-800 dark:border-white"
+        >
+          <Brain size={20} className="text-blue-400 dark:text-blue-600 animate-pulse" />
+          Daily Warmup
+        </button>
+
+        <button 
           onClick={handleShare}
-          className="bg-[#0077b5] hover:bg-[#006396] text-white font-bold py-4 px-6 rounded-xl transition shadow-md shadow-[#0077b5]/20 flex items-center justify-center gap-2"
+          className="bg-[#0077b5] hover:bg-[#006396] text-white font-bold py-4 px-6 rounded-xl transition shadow-md shadow-[#0077b5]/20 flex items-center justify-center gap-2 flex-1"
         >
           <Linkedin size={20} />
-          Share on LinkedIn
+          Share Pro
         </button>
       </div>
 
@@ -142,6 +152,7 @@ export default function Dashboard() {
         </div>
       </div>
 
+      <WarmupModal isOpen={isWarmupOpen} onClose={() => setIsWarmupOpen(false)} />
     </div>
   );
 }

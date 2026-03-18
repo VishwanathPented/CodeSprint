@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
+import Day from '../models/Day.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -98,6 +99,39 @@ router.put('/update-repo', protect, async (req, res) => {
     req.user.githubRepo = githubRepo;
     await req.user.save();
     res.json({ message: 'GitHub Repository updated successfully', user: req.user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   GET /api/user/warmup
+// @desc    Get 3 random MCQs from completed days
+router.get('/warmup', protect, async (req, res) => {
+  try {
+    const user = req.user;
+    
+    if (!user.completedDays || user.completedDays.length === 0) {
+      return res.json({ mcqs: [] });
+    }
+
+    const days = await Day.find({ dayNumber: { $in: user.completedDays } });
+    
+    let allMcqs = [];
+    days.forEach(day => {
+      if (day.mcqs && day.mcqs.length > 0) {
+        day.mcqs.forEach(mcq => {
+          allMcqs.push({
+            ...mcq.toObject(),
+            sourceDay: day.dayNumber
+          });
+        });
+      }
+    });
+
+    const shuffled = allMcqs.sort(() => 0.5 - Math.random());
+    const selectedMcqs = shuffled.slice(0, 3);
+
+    res.json({ mcqs: selectedMcqs });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

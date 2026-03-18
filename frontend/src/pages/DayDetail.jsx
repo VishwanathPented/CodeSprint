@@ -7,7 +7,8 @@ import GithubSubmissionModule from '../components/day/GithubSubmissionModule';
 import AptitudeModule from '../components/day/AptitudeModule';
 import CommentSection from '../components/day/CommentSection';
 import AITutorBot from '../components/day/AITutorBot';
-import { CheckCircle2, Trophy, Loader2 } from 'lucide-react';
+import { CheckCircle2, Trophy, Loader2, Sparkles } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { API_URL } from '../utils/config';
 
 export default function DayDetail() {
@@ -24,6 +25,11 @@ export default function DayDetail() {
   const [codeAttempted, setCodeAttempted] = useState(false);
   const [githubLink, setGithubLink] = useState('');
   const [aptitudeScore, setAptitudeScore] = useState(null);
+
+  // ELI5 State
+  const [isEli5, setIsEli5] = useState(false);
+  const [eli5Loading, setEli5Loading] = useState(false);
+  const [eli5Text, setEli5Text] = useState('');
 
   const isAlreadyCompleted = user?.completedDays?.includes(Number(id));
   const persistKey = `day_${id}_progress_${user?._id}`;
@@ -88,6 +94,44 @@ export default function DayDetail() {
 
   const isDayFinished = videoWatched && mcqScore !== null && codeAttempted && aptitudeScore !== null;
 
+  const fetchEli5 = async () => {
+    if (isEli5) {
+      setIsEli5(false);
+      return;
+    }
+    if (eli5Text) {
+      setIsEli5(true);
+      return;
+    }
+
+    setEli5Loading(true);
+    try {
+      const res = await fetch(`${API_URL}/ai/eli5`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          topicTitle: content.topicTitle,
+          description: content.description
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setEli5Text(data.simplifiedText);
+        setIsEli5(true);
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to connect to AI Tutor.');
+    } finally {
+      setEli5Loading(false);
+    }
+  };
+
   const handleCompleteDay = async () => {
     if (isAlreadyCompleted) {
       navigate('/');
@@ -133,12 +177,44 @@ export default function DayDetail() {
 
   return (
     <div className="max-w-7xl mx-auto w-full px-4 py-8 space-y-10">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-400 text-sm font-bold rounded-full mb-4 uppercase tracking-wider">
-          Day {content.dayNumber}
+      <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden">
+        <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-4">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-400 text-sm font-bold rounded-full mb-4 uppercase tracking-wider">
+              Day {content.dayNumber}
+            </div>
+            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{content.topicTitle}</h1>
+          </div>
+          
+          <button 
+            onClick={fetchEli5}
+            disabled={eli5Loading}
+            className={`shrink-0 px-4 py-2 border rounded-xl font-bold flex items-center gap-2 transition ${isEli5 ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-300 shadow-inner' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700 dark:border-slate-700 dark:text-slate-300 shadow-sm'}`}
+          >
+            {eli5Loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} className={isEli5 ? 'text-indigo-500' : 'text-amber-500'} />}
+            {isEli5 ? 'Read Original' : 'Explain Like I\'m 5'}
+          </button>
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{content.topicTitle}</h1>
-        <p className="text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">{content.description}</p>
+
+        {isEli5 && eli5Text ? (
+          <div className="prose prose-sm dark:prose-invert max-w-3xl bg-indigo-50/50 dark:bg-indigo-900/20 p-5 rounded-xl border border-indigo-100 dark:border-indigo-800/50 animate-in fade-in slide-in-from-top-2">
+             <div className="flex items-center gap-2 mb-4 border-b border-indigo-200/50 dark:border-indigo-800/50 pb-2">
+               <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+               <span className="text-[10px] uppercase font-black tracking-widest text-indigo-700 dark:text-indigo-400">Simplified by Sprint-AI</span>
+             </div>
+             <ReactMarkdown
+                components={{
+                  strong: ({children}) => <strong className="font-black text-indigo-900 dark:text-indigo-200">{children}</strong>,
+                  p: ({children}) => <p className="mb-3 text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{children}</p>,
+                  ul: ({children}) => <ul className="list-disc ml-4 space-y-2 mb-3 text-slate-700 dark:text-slate-300">{children}</ul>,
+                }}
+             >
+                {eli5Text}
+             </ReactMarkdown>
+          </div>
+        ) : (
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl animate-in fade-in block">{content.description}</p>
+        )}
       </div>
 
       <div className="space-y-6">

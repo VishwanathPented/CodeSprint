@@ -164,4 +164,38 @@ router.post('/grade-github', protect, async (req, res) => {
   }
 });
 
+// @route   POST /api/ai/eli5
+// @desc    Rewrite complex explanations into simple analogies
+router.post('/eli5', protect, async (req, res) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ message: 'AI is not configured.' });
+
+  const { topicTitle, description } = req.body;
+  if (!topicTitle || !description) return res.status(400).json({ message: 'Missing content to simplify.' });
+
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+    const systemPrompt = `
+      You are the beloved Sprint-AI Tutor. 
+      The student is confused by the following academic computer science concept:
+      
+      TOPIC: ${topicTitle}
+      TEXTBOOK TEXT: ${description}
+      
+      Rewrite this explanation using an extremely simple, beginner-friendly everyday analogy. 
+      (Explain it like I am 5). 
+      Use Markdown formatting (bolding, bullet points). Keep your explanation engaging, concise, and fun.
+    `;
+
+    const result = await model.generateContent(systemPrompt);
+    res.json({ simplifiedText: result.response.text() });
+
+  } catch (error) {
+    console.error('ELI5 Error:', error);
+    res.status(500).json({ message: 'AI failed to simplify. Please try again.' });
+  }
+});
+
 export default router;
