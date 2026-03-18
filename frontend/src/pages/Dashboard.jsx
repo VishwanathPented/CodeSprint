@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { API_URL } from '../utils/config';
 
 export default function Dashboard() {
-  const { user, token, loading: authLoading } = useAuth();
+  const { user, token, loading: authLoading, updateProgress } = useAuth();
   const [roadmap, setRoadmap] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
