@@ -18,7 +18,7 @@ router.post('/tutor', protect, async (req, res) => {
     });
   }
   
-  const { message, dayTopic, dayNumber } = req.body;
+  const { message, dayTopic, dayNumber, rubberDuckMode } = req.body;
   const user = await User.findById(req.user._id);
 
   // 1. Check Rate Limit (5 per day)
@@ -41,7 +41,7 @@ router.post('/tutor', protect, async (req, res) => {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
-    const systemPrompt = `
+    let systemPrompt = `
       You are "Sprint-AI", a world-class Java Professor for the "CodeSprint 50" challenge.
       The student is currently on Day ${dayNumber}: ${dayTopic}.
       
@@ -52,6 +52,20 @@ router.post('/tutor', protect, async (req, res) => {
       4. Keep responses concise and encouraging.
       5. Use Markdown for formatting.
     `;
+
+    if (rubberDuckMode) {
+      systemPrompt = `
+        You are "Sprint-AI", currently operating in "Rubber Duck Debugging Mode".
+        The student is on Day ${dayNumber}: ${dayTopic}.
+
+        STRICT RUBBER DUCK RULES:
+        1. YOU MUST NEVER GIVE THE ANSWER, DIRECT HINTS, OR CODE.
+        2. Your ONLY job is to ask the student Socratic questions that force them to explain their own logic.
+        3. If they share code, ask them to explain line-by-line what it does.
+        4. Keep responses extremely short, punchy, and inquisitive (1-2 sentences). You are a highly inquisitive rubber duck.
+        5. Use Markdown.
+      `;
+    }
 
     const result = await model.generateContent([systemPrompt, message]);
     const responseText = result.response.text();
@@ -161,6 +175,74 @@ router.post('/grade-github', protect, async (req, res) => {
     res.status(500).json({ 
       message: 'The AI Evaluator encountered an error validating your code. Ensure it is a valid text file.'
     });
+  }
+});
+
+// @route   POST /api/ai/grade-refactor
+// @desc    Fetch raw code from Github and evaluate it purely on Clean Code principles
+router.post('/grade-refactor', protect, async (req, res) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ message: 'AI Grader is not configured.' });
+
+  const { githubUrl, targetTopic, refactorDescription, messyCode } = req.body;
+
+  if (!githubUrl || !githubUrl.includes('github.com') || !githubUrl.includes('/blob/')) {
+    return res.status(400).json({ message: 'Please provide a valid GitHub direct file link containing "/blob/".' });
+  }
+
+  let rawUrl = githubUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+
+  try {
+    const githubRes = await fetch(rawUrl);
+    if (!githubRes.ok) return res.status(400).json({ message: 'Could not fetch code. Is repo public?' });
+    
+    const codeContent = await githubRes.text();
+    const truncatedCode = codeContent.substring(0, 5000); 
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+    const systemPrompt = `
+      You are a strict, senior Java engineer conducting a Code Review. 
+      The student was tasked with cleaning up this exact messy code:
+      
+      MESSY CODE:
+      \`\`\`java
+      ${messyCode}
+      \`\`\`
+      
+      GOAL: ${refactorDescription}
+      
+      STUDENT'S REFACTORED CODE:
+      \`\`\`java
+      ${truncatedCode}
+      \`\`\`
+      
+      Evaluate their refactor. Have they improved variable names? Did they follow DRY principles? Is it readable? 
+      If it is fundamentally identical to the messy code, fail them. If it is significantly cleaner, pass them.
+      
+      Respond strictly in JSON format without markdown wrappers:
+      {
+        "passed": true|false,
+        "feedback": "Max 2 sentence code review feedback on their styling/readability."
+      }
+    `;
+
+    const result = await model.generateContent(systemPrompt);
+    let responseText = result.response.text();
+    responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    
+    const parsedObj = JSON.parse(responseText);
+
+    res.json({
+      passed: parsedObj.passed,
+      feedback: parsedObj.feedback,
+      rawUrl
+    });
+
+  } catch (error) {
+    console.error('AI Refactor Error:', error);
+    res.status(500).json({ message: 'Error evaluating refactor.' });
   }
 });
 

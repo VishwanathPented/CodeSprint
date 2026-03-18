@@ -34,7 +34,12 @@ const realJavaRoadmap = [
         expectedOutput: "Java is fun!",
         explanation: "The println method simply prints the exact string passed inside the quotes."
       }
-    ]
+    ],
+    refactor: {
+      title: "Clean Up the Greetings",
+      description: "This code prints a greeting, but the variable names are terrible and there's unnecessary repetition. Refactor it to use clear variable names and follow DRY principles.",
+      messyCode: "public class Main {\n  public static void main(String[] args) {\n    String a1 = \"Hello\";\n    String b2 = \"World\";\n    System.out.println(a1 + \" \" + b2);\n    System.out.println(a1 + \" \" + b2);\n  }\n}"
+    }
   },
   {
     topicTitle: "Data Types & Variables",
@@ -277,6 +282,11 @@ for (let i = 1; i <= 50; i++) {
       description: dayData.code.desc,
       starterCode: dayData.code.starter,
       expectedOutput: dayData.code.expected
+    },
+    refactorProblem: dayData.refactor || {
+      title: `Refactor Challenge ${i}`,
+      description: `The following code works, but violates clean code principles. Refactor it to improve readability and structure.`,
+      messyCode: `public class BadCode {\n  public void doStuff(int x, int y) {\n    if(x > 0){\n      if(y > 0){\n        System.out.println(\"Positive\");\n      }\n    }\n  }\n}`
     },
     aptitudeQuestions: aptitudeQuestions
   });

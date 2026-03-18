@@ -23,6 +23,12 @@ const codingProblemSchema = new mongoose.Schema({
   expectedOutput: { type: String }
 });
 
+const refactorProblemSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  messyCode: { type: String, required: true }
+});
+
 const aptitudeQuestionSchema = new mongoose.Schema({
   question: { type: String, required: true },
   options: [optionSchema],
@@ -41,6 +47,7 @@ const dayContentSchema = new mongoose.Schema({
   mcqs: [mcqSchema], // Keep simple, array of questions
   predictOutput: [predictOutputSchema],
   codingProblem: codingProblemSchema,
+  refactorProblem: refactorProblemSchema,
   aptitudeQuestions: [aptitudeQuestionSchema]
 }, { timestamps: true });
 

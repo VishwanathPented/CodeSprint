@@ -11,6 +11,7 @@ export default function AITutorBot({ dayNumber, dayTopic, token }) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [usageCount, setUsageCount] = useState(0);
+  const [rubberDuckMode, setRubberDuckMode] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -42,7 +43,8 @@ export default function AITutorBot({ dayNumber, dayTopic, token }) {
         body: JSON.stringify({
           message: userMessage,
           dayTopic,
-          dayNumber
+          dayNumber,
+          rubberDuckMode
         })
       });
 
@@ -161,14 +163,32 @@ export default function AITutorBot({ dayNumber, dayTopic, token }) {
           </div>
 
           {/* Input Area */}
-          <div className="p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 relative shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+          <div className="p-4 sm:p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 relative shadow-[0_-10px_40px_rgba(0,0,0,0.03)] flex flex-col gap-3">
+             
+             {/* Rubber Duck Toggle */}
+             <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+               <label className="flex items-center gap-2 cursor-pointer">
+                 <div className="relative">
+                   <input type="checkbox" className="sr-only" checked={rubberDuckMode} onChange={(e) => setRubberDuckMode(e.target.checked)} />
+                   <div className={`block w-10 h-6 rounded-full transition ${rubberDuckMode ? 'bg-amber-400' : 'bg-slate-300 dark:bg-slate-600'}`}></div>
+                   <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform ${rubberDuckMode ? 'translate-x-4' : ''}`}></div>
+                 </div>
+                 <span className={`text-[11px] font-bold uppercase tracking-wider ${rubberDuckMode ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}`}>
+                   🦆 Rubber Duck Mode
+                 </span>
+               </label>
+               {rubberDuckMode && (
+                 <span className="text-[9px] font-medium text-amber-600/70 p-1">No code, just questions.</span>
+               )}
+             </div>
+
              <form onSubmit={handleSubmit} className="relative">
                 <input 
                   type="text" 
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Need a hint on today's logic?"
-                  className="w-full pl-5 pr-14 py-4 rounded-2xl bg-slate-100/50 dark:bg-slate-800 border border-transparent focus:border-primary-500 focus:bg-white dark:focus:bg-slate-800/80 transition-all font-medium text-sm text-slate-900 dark:text-white outline-none"
+                  placeholder={rubberDuckMode ? "Explain your code to me..." : "Need a hint on today's logic?"}
+                  className={`w-full pl-5 pr-14 py-4 rounded-2xl border transition-all font-medium text-sm text-slate-900 dark:text-white outline-none ${rubberDuckMode ? 'bg-amber-50/50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-900/50 focus:border-amber-500' : 'bg-slate-100/50 dark:bg-slate-800 border-transparent focus:border-primary-500 focus:bg-white dark:focus:bg-slate-800/80'}`}
                 />
                 <button 
                   type="submit"

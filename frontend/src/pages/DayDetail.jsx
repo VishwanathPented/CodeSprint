@@ -5,6 +5,7 @@ import VideoModule from '../components/day/VideoModule';
 import McqModule from '../components/day/McqModule';
 import PredictOutputModule from '../components/day/PredictOutputModule';
 import GithubSubmissionModule from '../components/day/GithubSubmissionModule';
+import RefactorModule from '../components/day/RefactorModule';
 import AptitudeModule from '../components/day/AptitudeModule';
 import CommentSection from '../components/day/CommentSection';
 import AITutorBot from '../components/day/AITutorBot';
@@ -27,6 +28,8 @@ export default function DayDetail() {
   const [predictPassed, setPredictPassed] = useState(false);
   const [codeAttempted, setCodeAttempted] = useState(false);
   const [githubLink, setGithubLink] = useState('');
+  const [refactorPassed, setRefactorPassed] = useState(false);
+  const [refactorLink, setRefactorLink] = useState('');
   const [aptitudeScore, setAptitudeScore] = useState(null);
 
   // ELI5 State
@@ -49,6 +52,8 @@ export default function DayDetail() {
           if (p.predictPassed !== undefined) setPredictPassed(p.predictPassed);
           if (p.codeAttempted !== undefined) setCodeAttempted(p.codeAttempted);
           if (p.githubLink !== undefined) setGithubLink(p.githubLink);
+          if (p.refactorPassed !== undefined) setRefactorPassed(p.refactorPassed);
+          if (p.refactorLink !== undefined) setRefactorLink(p.refactorLink);
           if (p.aptitudeScore !== null) setAptitudeScore(p.aptitudeScore);
         } catch (e) {
           console.error('Failed to load progress', e);
@@ -60,10 +65,10 @@ export default function DayDetail() {
   // Save partial progress to local storage
   useEffect(() => {
     if (!isAlreadyCompleted && user && content) {
-      const progress = { videoWatched, mcqScore, predictPassed, codeAttempted, githubLink, aptitudeScore };
+      const progress = { videoWatched, mcqScore, predictPassed, codeAttempted, githubLink, refactorPassed, refactorLink, aptitudeScore };
       localStorage.setItem(persistKey, JSON.stringify(progress));
     }
-  }, [videoWatched, mcqScore, predictPassed, codeAttempted, githubLink, aptitudeScore, isAlreadyCompleted, user, content, persistKey]);
+  }, [videoWatched, mcqScore, predictPassed, codeAttempted, githubLink, refactorPassed, refactorLink, aptitudeScore, isAlreadyCompleted, user, content, persistKey]);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -84,7 +89,9 @@ export default function DayDetail() {
             // Find existing GitHub link if available
             const dayScore = user.scores?.find(s => s.dayNumber === Number(id));
             if (dayScore?.githubLink) setGithubLink(dayScore.githubLink);
+            if (dayScore?.refactorLink) setRefactorLink(dayScore.refactorLink);
             
+            setRefactorPassed(true);
             setAptitudeScore(5);
           }
         }
@@ -97,7 +104,7 @@ export default function DayDetail() {
     if (token) fetchContent();
   }, [id, token, isAlreadyCompleted]);
 
-  const isDayFinished = videoWatched && mcqScore !== null && predictPassed && codeAttempted && aptitudeScore !== null;
+  const isDayFinished = videoWatched && mcqScore !== null && predictPassed && codeAttempted && refactorPassed && aptitudeScore !== null;
 
   const fetchEli5 = async () => {
     if (isEli5) {

@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
     mcqScore: Number,
     codingAttempted: Boolean,
     githubLink: String,     // Link to the specific file/commit on GitHub
+    refactorLink: String,   // Link to the specific refactored file on GitHub
     aptitudeScore: Number
   }],
   
