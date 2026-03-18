@@ -25,10 +25,13 @@ export default function Navbar() {
           {user ? (
             <>
               {(user.isAdmin || user.role === 'admin') && (
-                <Link to="/admin" className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400">
+                <Link to="/admin" className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400 mr-2">
                   Admin Panel
                 </Link>
               )}
+              <Link to="/assessments" className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400">
+                Placements
+              </Link>
               <div className="flex items-center gap-2 pl-4 border-l border-slate-200 dark:border-slate-700">
                 <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center text-primary-700 dark:text-primary-400 font-bold">
                   {user?.name?.charAt(0).toUpperCase() || 'U'}

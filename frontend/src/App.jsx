@@ -8,6 +8,8 @@ import DayDetail from './pages/DayDetail';
 import Subscription from './pages/Subscription';
 import AdminDashboard from './pages/AdminDashboard';
 import PublicProfile from './pages/PublicProfile';
+import AssessmentList from './pages/AssessmentList';
+import LiveAssessment from './pages/LiveAssessment';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -70,6 +72,21 @@ function App() {
               <Layout>
                 <Subscription />
               </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/assessments" element={
+            <ProtectedRoute>
+              <Layout>
+                <AssessmentList />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/assessments/:id" element={
+            <ProtectedRoute>
+              {/* No Layout wrapper for LiveAssessment to ensure full-screen focused proctoring */}
+              <LiveAssessment />
             </ProtectedRoute>
           } />
 

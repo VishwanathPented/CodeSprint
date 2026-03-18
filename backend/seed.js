@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import DayContent from './models/DayContent.js';
+import User from './models/User.js';
+import Comment from './models/Comment.js';
+import MockTest from './models/MockTest.js';
+import TestResult from './models/TestResult.js';
 
 dotenv.config();
 
@@ -294,7 +298,56 @@ for (let i = 1; i <= 50; i++) {
 
 const importData = async () => {
   try {
-    await DayContent.deleteMany(); 
+    // Clear out specific collections or all. For safety, we keep users untouched in this run
+    // but we can clear them if we want a full reset.
+    await DayContent.deleteMany();
+    await Comment.deleteMany();
+    await MockTest.deleteMany();
+    await TestResult.deleteMany();
+
+    console.log('Cleared existing curriculum and assessment data.');
+
+    // Inject a Mock Test (Phase 16)
+    const tcsMock = new MockTest({
+      companyName: 'TCS',
+      title: 'TCS NQT Ninja Preparation Mock',
+      description: 'A 60-minute rigorous mock assessment encompassing logical reasoning, quantitative aptitude, and Java programming fundamentals designed to mirror the actual TCS National Qualifier Test.',
+      durationMinutes: 60,
+      difficulty: 'Medium',
+      isActive: true,
+      mcqs: [
+        {
+          question: 'What is the output of the following Java code?\n`int x = 5; System.out.println(x++ + ++x);`',
+          options: ['10', '11', '12', '13'],
+          correctAnswer: 2, // 5 + 7 = 12
+          explanation: 'x is 5. x++ evaluates to 5, then x becomes 6. ++x evaluates to 7, and x becomes 7. 5 + 7 = 12.'
+        },
+        {
+          question: 'Which of the following sorting algorithms has the best worst-case time complexity?',
+          options: ['Quick Sort', 'Merge Sort', 'Bubble Sort', 'Selection Sort'],
+          correctAnswer: 1,
+          explanation: 'Merge sort has a strict O(N log N) worst-case time complexity.'
+        },
+        {
+          question: 'A train 125 m long passes a man, running at 5 km/hr in the same direction in which the train is going, in 10 seconds. The speed of the train is:',
+          options: ['45 km/hr', '50 km/hr', '54 km/hr', '55 km/hr'],
+          correctAnswer: 1,
+          explanation: 'Speed of train relative to man = (125/10) m/sec = (25/2) m/sec = 45 km/hr. Speed of train = 45 + 5 = 50 km/hr.'
+        }
+      ],
+      codingProblems: [
+        {
+          title: 'Reverse words in a given string',
+          description: 'Given a String S, reverse the string without reversing its individual words. Words are separated by dots.',
+          initialCode: 'class Solution {\\n    String reverseWords(String S) {\\n        // code here\\n    }\\n}',
+          expectedOutput: 'much.very.program.this.like.i'
+        }
+      ]
+    });
+
+    await tcsMock.save();
+    console.log('Inserted TCS NQT Mock Test');
+
     await DayContent.insertMany(days);
     console.log('50 Days of Java Data Imported Successfully!');
     process.exit();

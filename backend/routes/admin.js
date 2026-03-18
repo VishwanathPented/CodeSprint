@@ -1,6 +1,7 @@
 import express from 'express';
 import DayContent from '../models/DayContent.js';
 import User from '../models/User.js';
+import TestResult from '../models/TestResult.js';
 import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -58,6 +59,36 @@ router.put('/day/:dayNumber', async (req, res) => {
     );
     if (!updated) return res.status(404).json({ message: 'Day not found' });
     res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   GET /api/admin/assessments/results
+// @desc    Get all test results globally with populated student/test details
+router.get('/assessments/results', async (req, res) => {
+  try {
+    const results = await TestResult.find()
+      .populate('user', 'name email registrationDetails')
+      .populate('mockTest', 'companyName title mcqs')
+      .sort({ createdAt: -1 });
+
+    const formatted = results.map(r => ({
+      _id: r._id,
+      studentName: r.user?.name || 'Unknown',
+      studentEmail: r.user?.email || 'N/A',
+      usn: r.user?.registrationDetails?.usn || 'N/A',
+      company: r.mockTest?.companyName || 'N/A',
+      testTitle: r.mockTest?.title || 'Old Test',
+      score: r.mcqScore,
+      total: r.totalQuestions || r.mockTest?.mcqs?.length || 0,
+      warnings: r.tabSwitchCount,
+      timeTaken: r.timeTakenMinutes,
+      isAutoSubmitted: r.isAutoSubmitted,
+      submittedAt: r.createdAt
+    }));
+
+    res.json(formatted);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

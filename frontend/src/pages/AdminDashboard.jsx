@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, CheckCircle, Rocket, Github, Download, Search, AlertCircle, Phone, BookOpen, Clock, ShieldCheck } from 'lucide-react';
+import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, CheckCircle, Rocket, Github, Download, Search, AlertCircle, Phone, BookOpen, Clock, ShieldCheck, Target, AlertTriangle } from 'lucide-react';
 import { API_URL } from '../utils/config';
 
 export default function AdminDashboard() {
@@ -17,6 +17,7 @@ export default function AdminDashboard() {
   const [days, setDays] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [stats, setStats] = useState(null);
+  const [assessmentResults, setAssessmentResults] = useState([]);
   
   // Editor State
   const [selectedDayId, setSelectedDayId] = useState(null);
@@ -50,6 +51,9 @@ export default function AdminDashboard() {
       } else if (activeTab === 'stats') {
         const res = await fetch(`${API_URL}/admin/stats`, { headers });
         setStats(await res.json());
+      } else if (activeTab === 'assessments') {
+        const res = await fetch(`${API_URL}/admin/assessments/results`, { headers });
+        setAssessmentResults(await res.json());
       }
     } catch (err) {
       console.error(err);
@@ -270,6 +274,82 @@ export default function AdminDashboard() {
     </div>
   );
 
+  const renderAssessmentsManager = () => (
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+      <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+         <div>
+           <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">Placement Test Logs</h2>
+           <p className="text-sm text-slate-500">Monitor automated proctoring strikes and standardized test scores globally.</p>
+         </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm whitespace-nowrap">
+          <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+            <tr>
+              <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">Candidate / USN</th>
+              <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">Assessment</th>
+              <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-center">Final Score</th>
+              <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-center">Proctoring Status</th>
+              <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">Timestamp</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+            {assessmentResults.map((r) => (
+              <tr key={r._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition group">
+                <td className="px-6 py-4">
+                  <div className="font-bold text-slate-900 dark:text-white">{r.studentName}</div>
+                  <div className="text-xs text-slate-500 font-mono mt-0.5">{r.usn || r.studentEmail}</div>
+                </td>
+                <td className="px-6 py-4">
+                   <div className="flex items-center gap-2">
+                     <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-[10px] font-bold rounded uppercase">
+                       {r.company}
+                     </span>
+                     <span className="font-medium text-slate-700 dark:text-slate-300">{r.testTitle}</span>
+                   </div>
+                </td>
+                <td className="px-6 py-4 text-center">
+                   <div className={`inline-flex items-center justify-center w-16 py-1 rounded-md font-black text-sm ${r.warnings >= 3 ? 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-500' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-500'}`}>
+                     {r.score} / {r.total}
+                   </div>
+                </td>
+                <td className="px-6 py-4 text-center">
+                   {r.warnings >= 3 ? (
+                     <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 border border-red-200 dark:bg-red-900/10 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold">
+                       <AlertTriangle size={14} /> Terminated
+                     </div>
+                   ) : r.warnings > 0 ? (
+                     <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 dark:bg-amber-900/10 dark:border-amber-800/50 text-amber-600 dark:text-amber-400 rounded-lg text-xs font-bold">
+                       <AlertCircle size={14} /> {r.warnings} Strikes
+                     </div>
+                   ) : (
+                     <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 dark:bg-emerald-900/10 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs font-bold">
+                       <ShieldCheck size={14} /> Secure
+                     </div>
+                   )}
+                </td>
+                <td className="px-6 py-4">
+                   <div className="text-xs text-slate-500 font-medium">
+                     {new Date(r.submittedAt).toLocaleString()}
+                     {r.isAutoSubmitted && <span className="block text-red-400 mt-0.5 italic text-[10px]">Auto-Submitted</span>}
+                   </div>
+                </td>
+              </tr>
+            ))}
+            {assessmentResults.length === 0 && (
+              <tr>
+                <td colSpan="5" className="px-6 py-16 text-center text-slate-500">
+                  <Target size={48} className="mx-auto text-slate-300 dark:text-slate-700 mb-4" />
+                  <p className="text-lg">No assessment logs available yet.</p>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
   const renderStats = () => {
     if (!stats) return null;
     
@@ -477,6 +557,7 @@ export default function AdminDashboard() {
             {[
               { id: 'content', label: 'Curriculum', icon: <Layout size={16} /> },
               { id: 'users', label: 'Students', icon: <Users size={16} /> },
+              { id: 'assessments', label: 'Placements', icon: <Target size={16} /> },
               { id: 'stats', label: 'Analytics', icon: <PieChart size={16} /> },
             ].map(tab => (
               <button
@@ -496,6 +577,7 @@ export default function AdminDashboard() {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {activeTab === 'content' && renderContentManager()}
           {activeTab === 'users' && renderUserManager()}
+          {activeTab === 'assessments' && renderAssessmentsManager()}
           {activeTab === 'stats' && renderStats()}
         </div>
       )}
