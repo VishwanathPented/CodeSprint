@@ -18,6 +18,17 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+// Intercepts admins trying to view the normal dashboard
+const DashboardRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (!user) return <Navigate to="/login" />;
+  if (user.role === 'admin' || user.isAdmin) return <Navigate to="/admin" />;
+  
+  return children;
+};
+
 // Simple Layout wrapper
 const Layout = ({ children }) => (
   <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
@@ -37,11 +48,11 @@ function App() {
           <Route path="/signup" element={<Layout><Signup /></Layout>} />
           
           <Route path="/dashboard" element={
-            <ProtectedRoute>
+            <DashboardRoute>
               <Layout>
                 <Dashboard />
               </Layout>
-            </ProtectedRoute>
+            </DashboardRoute>
           } />
 
           <Route path="/" element={<Navigate to="/dashboard" />} />
