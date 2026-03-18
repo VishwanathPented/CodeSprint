@@ -3,7 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import ProgressHeader from '../components/dashboard/ProgressHeader';
 import RoadmapTimeline from '../components/dashboard/RoadmapTimeline';
 import Leaderboard from '../components/dashboard/Leaderboard';
-import { Sparkles, Linkedin, Check, Rocket } from 'lucide-react';
+import GithubRepoLinker from '../components/dashboard/GithubRepoLinker';
+import { Sparkles, Linkedin, Check, Rocket, Github, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { API_URL } from '../utils/config';
 
@@ -100,7 +101,24 @@ export default function Dashboard() {
         </div>
         
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
+          <GithubRepoLinker user={user} token={token} onUpdate={updateProgress} />
+          
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-2xl p-5 space-y-3">
+             <h3 className="font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                <AlertCircle size={18} /> Git Quick Start
+             </h3>
+             <p className="text-xs text-blue-700 dark:text-blue-400 leading-relaxed">
+                New to Git? Don't worry. Here is how you push your code:
+             </p>
+             <div className="space-y-2 font-mono text-[10px] text-blue-800 dark:text-blue-300 bg-white/50 dark:bg-slate-900/50 p-3 rounded-lg">
+                <p>1. <code className="font-bold">git init</code></p>
+                <p>2. <code className="font-bold">git add Day1/Main.java</code></p>
+                <p>3. <code className="font-bold">git commit -m "Day 1"</code></p>
+                <p>4. <code className="font-bold">git push origin main</code></p>
+             </div>
+          </div>
+
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 mt-12 tracking-tight">
             Leaderboard
           </h2>
           <Leaderboard />

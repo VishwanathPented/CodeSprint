@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import VideoModule from '../components/day/VideoModule';
 import McqModule from '../components/day/McqModule';
-import CodeModule from '../components/day/CodeModule';
+import GithubSubmissionModule from '../components/day/GithubSubmissionModule';
 import AptitudeModule from '../components/day/AptitudeModule';
 import CommentSection from '../components/day/CommentSection';
 import { CheckCircle2, Trophy, Loader2 } from 'lucide-react';
@@ -21,6 +21,7 @@ export default function DayDetail() {
   const [videoWatched, setVideoWatched] = useState(false);
   const [mcqScore, setMcqScore] = useState(null);
   const [codeAttempted, setCodeAttempted] = useState(false);
+  const [githubLink, setGithubLink] = useState('');
   const [aptitudeScore, setAptitudeScore] = useState(null);
 
   const isAlreadyCompleted = user?.completedDays?.includes(Number(id));
@@ -37,9 +38,14 @@ export default function DayDetail() {
           
           if (isAlreadyCompleted) {
             setVideoWatched(true);
-            setMcqScore(10); // Mock past
+            setMcqScore(10); 
             setCodeAttempted(true);
-            setAptitudeScore(5); // Mock past
+            
+            // Find existing GitHub link if available
+            const dayScore = user.scores?.find(s => s.dayNumber === Number(id));
+            if (dayScore?.githubLink) setGithubLink(dayScore.githubLink);
+            
+            setAptitudeScore(5);
           }
         }
       } catch (err) {
@@ -70,6 +76,7 @@ export default function DayDetail() {
           dayNumber: Number(id),
           mcqScore,
           codingAttempted: codeAttempted,
+          githubLink,
           aptitudeScore
         })
       });
@@ -112,7 +119,15 @@ export default function DayDetail() {
         )}
         
         {mcqScore !== null && (
-          <CodeModule problem={content.codingProblem} onComplete={() => setCodeAttempted(true)} isCompleted={codeAttempted} />
+          <GithubSubmissionModule 
+            problem={content.codingProblem} 
+            onComplete={(link) => {
+              setGithubLink(link);
+              setCodeAttempted(true);
+            }} 
+            isCompleted={codeAttempted}
+            existingLink={githubLink}
+          />
         )}
 
         {codeAttempted && (

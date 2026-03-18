@@ -27,7 +27,7 @@ router.get('/leaderboard', async (req, res) => {
 router.post('/complete-day', protect, async (req, res) => {
   try {
     const user = req.user;
-    const { dayNumber, mcqScore, codingAttempted, aptitudeScore } = req.body;
+    const { dayNumber, mcqScore, codingAttempted, aptitudeScore, githubLink } = req.body;
     
     // Only allow completing the current unlocked day
     if (dayNumber !== user.currentDay) {
@@ -44,6 +44,7 @@ router.post('/complete-day', protect, async (req, res) => {
       dayNumber,
       mcqScore,
       codingAttempted,
+      githubLink,
       aptitudeScore
     });
 
@@ -84,6 +85,19 @@ router.post('/subscribe', protect, async (req, res) => {
     req.user.isSubscribed = true;
     await req.user.save();
     res.json({ message: 'Subscription successful. Full course unlocked.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   PUT /api/user/update-repo
+// @desc    Update user's main GitHub repository URL
+router.put('/update-repo', protect, async (req, res) => {
+  try {
+    const { githubRepo } = req.body;
+    req.user.githubRepo = githubRepo;
+    await req.user.save();
+    res.json({ message: 'GitHub Repository updated successfully', user: req.user });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

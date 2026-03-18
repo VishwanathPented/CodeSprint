@@ -132,6 +132,7 @@ export default function AdminDashboard() {
             <th className="p-4 text-xs font-bold text-slate-500 uppercase">User</th>
             <th className="p-4 text-xs font-bold text-slate-500 uppercase">Progress</th>
             <th className="p-4 text-xs font-bold text-slate-500 uppercase">Streak</th>
+            <th className="p-4 text-xs font-bold text-slate-500 uppercase">GitHub</th>
             <th className="p-4 text-xs font-bold text-slate-500 uppercase">Subscription</th>
           </tr>
         </thead>
@@ -157,6 +158,20 @@ export default function AdminDashboard() {
                 <span className="px-2.5 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-full text-xs font-bold">
                   {u.streak} 🔥
                 </span>
+              </td>
+              <td className="p-4">
+                {u.githubRepo ? (
+                  <a 
+                    href={u.githubRepo} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-xs text-primary-600 hover:underline font-medium"
+                  >
+                    <Github size={12} /> Repo
+                  </a>
+                ) : (
+                  <span className="text-xs text-slate-400 italic">No repo</span>
+                )}
               </td>
               <td className="p-4">
                 {u.isSubscribed ? (

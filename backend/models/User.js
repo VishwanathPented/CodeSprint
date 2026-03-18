@@ -14,14 +14,16 @@ const userSchema = new mongoose.Schema({
   streak: { type: Number, default: 0 },
   lastActiveDate: { type: Date },
   
-  // Scoring
+  // Scoring & Submissions
   scores: [{
     dayNumber: Number,
-    mcqScore: Number,       // e.g. out of 10
+    mcqScore: Number,
     codingAttempted: Boolean,
-    aptitudeScore: Number   // e.g. out of 5
+    githubLink: String,     // Link to the specific file/commit on GitHub
+    aptitudeScore: Number
   }],
   
+  githubRepo: { type: String }, // User's main 50-day repository URL
   role: { type: String, enum: ['user', 'admin'], default: 'user' }
 }, { timestamps: true });
 
