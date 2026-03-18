@@ -25,6 +25,12 @@ const userSchema = new mongoose.Schema({
   }],
   
   githubRepo: { type: String }, // User's main 50-day repository URL
+  
+  aiUsage: {
+    count: { type: Number, default: 0 },
+    lastReset: { type: Date, default: Date.now }
+  },
+
   role: { type: String, enum: ['user', 'admin'], default: 'user' }
 }, { timestamps: true });
 

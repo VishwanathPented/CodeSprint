@@ -6,6 +6,7 @@ import McqModule from '../components/day/McqModule';
 import GithubSubmissionModule from '../components/day/GithubSubmissionModule';
 import AptitudeModule from '../components/day/AptitudeModule';
 import CommentSection from '../components/day/CommentSection';
+import AITutorBot from '../components/day/AITutorBot';
 import { CheckCircle2, Trophy, Loader2 } from 'lucide-react';
 import { API_URL } from '../utils/config';
 
@@ -157,6 +158,13 @@ export default function DayDetail() {
       <div className="pt-8 border-t border-slate-200 dark:border-slate-700">
         <CommentSection dayNumber={content.dayNumber} />
       </div>
+
+      {/* Floating AI Tutor */}
+      <AITutorBot 
+        dayNumber={content.dayNumber} 
+        dayTopic={content.topicTitle} 
+        token={token} 
+      />
     </div>
   );
 }

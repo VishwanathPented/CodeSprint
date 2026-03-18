@@ -9,6 +9,7 @@ import compilerRoutes from './routes/compiler.js';
 import adminRoutes from './routes/admin.js';
 import commentRoutes from './routes/comments.js';
 import publicRoutes from './routes/public.js';
+import aiRoutes from './routes/ai.js';
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use('/api/compiler', compilerRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Root route
 app.get('/', (req, res) => {
