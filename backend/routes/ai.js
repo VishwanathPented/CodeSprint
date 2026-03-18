@@ -39,7 +39,7 @@ router.post('/tutor', protect, async (req, res) => {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
     const systemPrompt = `
       You are "Sprint-AI", a world-class Java Professor for the "CodeSprint 50" challenge.
@@ -67,8 +67,16 @@ router.post('/tutor', protect, async (req, res) => {
 
   } catch (error) {
     console.error('AI Tutor Error:', error);
+    
+    let userMessage = 'The AI Tutor is currently over capacity. Try again in a moment.';
+    if (error.message?.includes('429')) {
+      userMessage = 'AI Daily Limit Reached (Server Side). Your API key has run out of free requests for today. Try again tomorrow or check your Google AI Studio quota.';
+    } else if (error.message?.includes('404')) {
+      userMessage = 'Model configuration error. Please contact the administrator.';
+    }
+
     res.status(500).json({ 
-      message: `AI Tutor Error: ${error.message || 'The AI Tutor is currently over capacity. Try again in a moment.'}` 
+      message: `AI Tutor Error: ${userMessage}` 
     });
   }
 });
