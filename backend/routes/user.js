@@ -159,4 +159,16 @@ router.get('/warmup', protect, async (req, res) => {
   }
 });
 
+// @route   POST /api/user/make-me-admin
+// @desc    Self-promote for testing Phase 15
+router.post('/make-me-admin', protect, async (req, res) => {
+  try {
+    req.user.role = 'admin';
+    await req.user.save();
+    res.json({ message: 'You are now an admin!', user: req.user });
+  } catch(e) {
+    res.status(500).json({message: e.message});
+  }
+});
+
 export default router;
