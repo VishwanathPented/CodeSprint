@@ -13,8 +13,12 @@ export default function PublicProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        console.log('Fetching public profile from:', `${API_URL}/public/profile/${username}`);
         const res = await fetch(`${API_URL}/public/profile/${username}`);
-        if (!res.ok) throw new Error('Profile not found');
+        if (!res.ok) {
+          console.error('Profile fetch failed:', res.status, res.statusText);
+          throw new Error('Profile not found');
+        }
         const data = await res.json();
         setProfile(data);
       } catch (err) {
