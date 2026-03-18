@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Github, Save, CheckCircle2, Loader2, ExternalLink } from 'lucide-react';
+import { Github, Save, CircleCheckBig, Loader2, ExternalLink } from 'lucide-react';
 import { API_URL } from '../../utils/config';
 
 export default function GithubRepoLinker({ user, token, onUpdate }) {
@@ -92,7 +92,7 @@ export default function GithubRepoLinker({ user, token, onUpdate }) {
             </a>
           </div>
           <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
-            <CheckCircle2 size={12} /> Connected to GitHub
+            <CircleCheckBig size={12} /> Connected to GitHub
           </div>
         </div>
       )}

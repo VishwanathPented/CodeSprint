@@ -10,7 +10,7 @@ import AptitudeModule from '../components/day/AptitudeModule';
 import CommentSection from '../components/day/CommentSection';
 import AITutorBot from '../components/day/AITutorBot';
 import TextWithTooltips from '../components/day/TextWithTooltips';
-import { CheckCircle2, Trophy, Loader2, Sparkles } from 'lucide-react';
+import { CircleCheckBig, Trophy, Loader2, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { API_URL } from '../utils/config';
 
@@ -276,7 +276,7 @@ export default function DayDetail() {
             onClick={handleCompleteDay}
             className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition transform hover:-translate-y-1 flex items-center gap-2 mx-auto"
           >
-            <CheckCircle2 size={20} />
+            <CircleCheckBig size={20} />
             {isAlreadyCompleted ? 'Return to Dashboard' : 'Mark Day as Complete & Unlock Next'}
           </button>
         </div>

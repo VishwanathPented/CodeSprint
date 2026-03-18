@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, CheckCircle, Rocket, Github, Download, Search, AlertCircle, Phone, BookOpen, Clock, ShieldCheck, Target, AlertTriangle } from 'lucide-react';
+import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, CircleCheck, Rocket, Github, Download, Search, AlertCircle, Phone, BookOpen, Clock, ShieldCheck, Target, TriangleAlert } from 'lucide-react';
 import { API_URL } from '../utils/config';
 
 export default function AdminDashboard() {
@@ -316,7 +316,7 @@ export default function AdminDashboard() {
                 <td className="px-6 py-4 text-center">
                    {r.warnings >= 3 ? (
                      <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 border border-red-200 dark:bg-red-900/10 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-lg text-xs font-bold">
-                       <AlertTriangle size={14} /> Terminated
+                       <TriangleAlert size={14} /> Terminated
                      </div>
                    ) : r.warnings > 0 ? (
                      <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 dark:bg-amber-900/10 dark:border-amber-800/50 text-amber-600 dark:text-amber-400 rounded-lg text-xs font-bold">

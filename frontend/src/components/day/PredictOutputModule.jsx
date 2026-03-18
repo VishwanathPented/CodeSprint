@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Terminal, CheckCircle2, AlertCircle, Eye } from 'lucide-react';
+import { Terminal, CircleCheckBig, AlertCircle, Eye } from 'lucide-react';
 
 export default function PredictOutputModule({ predicts, onComplete, isCompleted }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -126,7 +126,7 @@ export default function PredictOutputModule({ predicts, onComplete, isCompleted 
                }}
                className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2"
              >
-               I Understand <CheckCircle2 size={18} />
+               I Understand <CircleCheckBig size={18} />
              </button>
           )}
         </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Github, ExternalLink, CheckCircle2, Copy, AlertCircle, Info, Loader2, Bot, XCircle } from 'lucide-react';
+import { Github, ExternalLink, CircleCheckBig, Copy, AlertCircle, Info, Loader2, Bot, XCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { API_URL } from '../../utils/config';
 
@@ -73,7 +73,7 @@ export default function GithubSubmissionModule({ problem, dayNumber, dayTopic, o
         </div>
         {isCompleted && (
           <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md">
-            <CheckCircle2 size={14} /> Submitted
+            <CircleCheckBig size={14} /> Submitted
           </span>
         )}
       </div>
@@ -92,7 +92,7 @@ export default function GithubSubmissionModule({ problem, dayNumber, dayTopic, o
                 onClick={handleCopy}
                 className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md flex items-center gap-1 text-[10px] font-bold uppercase transition"
               >
-                {copied ? <CheckCircle2 size={12} /> : <Copy size={12} />}
+                {copied ? <CircleCheckBig size={12} /> : <Copy size={12} />}
                 {copied ? 'Copied' : 'Copy Code'}
               </button>
             </div>
@@ -152,7 +152,7 @@ export default function GithubSubmissionModule({ problem, dayNumber, dayTopic, o
             {aiFeedback && !isCompleted && (
               <div className={`p-4 rounded-xl flex gap-3 items-start animate-in slide-in-from-bottom-2 ${aiFeedback.passed ? 'bg-emerald-50/80 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-red-50/80 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300'}`}>
                 <div className="mt-0.5 mt-1 shrink-0">
-                  {aiFeedback.passed ? <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400"/> : <XCircle size={18} className="text-red-600 dark:text-red-400"/>}
+                  {aiFeedback.passed ? <CircleCheckBig size={18} className="text-emerald-600 dark:text-emerald-400"/> : <XCircle size={18} className="text-red-600 dark:text-red-400"/>}
                 </div>
                 <div>
                   <h6 className="font-bold text-sm mb-1">{aiFeedback.passed ? 'Code Approved!' : 'Verification Failed'}</h6>
@@ -164,7 +164,7 @@ export default function GithubSubmissionModule({ problem, dayNumber, dayTopic, o
             {/* Completed state message */}
             {isCompleted && !aiFeedback && (
               <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-2 text-sm font-bold animate-in fade-in">
-                <CheckCircle2 size={16} /> Solution previously verified.
+                <CircleCheckBig size={16} /> Solution previously verified.
               </div>
             )}
           </form>

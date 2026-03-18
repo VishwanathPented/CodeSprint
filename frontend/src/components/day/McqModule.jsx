@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileQuestion, CheckCircle2, XCircle } from 'lucide-react';
+import { FileQuestion, CircleCheckBig, XCircle } from 'lucide-react';
 import clsx from 'clsx';
 
 export default function McqModule({ mcqs, onComplete, score }) {
@@ -70,7 +70,7 @@ export default function McqModule({ mcqs, onComplete, score }) {
                     )}>
                       {opt.text}
                     </span>
-                    {showCorrect && <CheckCircle2 className="text-emerald-500" size={20} />}
+                    {showCorrect && <CircleCheckBig className="text-emerald-500" size={20} />}
                     {showWrong && <XCircle className="text-red-500" size={20} />}
                   </button>
                 );

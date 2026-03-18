@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Clock, ShieldAlert, Cpu, Loader2, AlertTriangle, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Clock, ShieldAlert, Cpu, Loader2, TriangleAlert, ArrowRight, CircleCheckBig } from 'lucide-react';
 import { API_URL } from '../utils/config';
 
 export default function LiveAssessment() {
@@ -157,7 +157,7 @@ export default function LiveAssessment() {
   if (error) return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl text-center">
-         <AlertTriangle size={64} className="mx-auto text-red-500 mb-6" />
+         <TriangleAlert size={64} className="mx-auto text-red-500 mb-6" />
          <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-4">Access Denied</h2>
          <p className="text-slate-500 dark:text-slate-400 mb-8">{error}</p>
          <button onClick={() => navigate('/assessments')} className="w-full py-3 bg-slate-900 dark:bg-slate-700 text-white font-bold rounded-xl hover:opacity-80 transition">
@@ -173,7 +173,7 @@ export default function LiveAssessment() {
          {submittedResult.warnings >= 3 ? (
             <ShieldAlert size={80} className="mx-auto text-red-500 mb-6 drop-shadow-md" />
          ) : (
-            <CheckCircle2 size={80} className="mx-auto text-emerald-500 mb-6 drop-shadow-md" />
+            <CircleCheckBig size={80} className="mx-auto text-emerald-500 mb-6 drop-shadow-md" />
          )}
          
          <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2">

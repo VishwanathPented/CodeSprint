@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Trophy, Flame, Github, Linkedin, CheckCircle2, Calendar, Share2, ArrowLeft, Loader2 } from 'lucide-react';
+import { Trophy, Flame, Github, Linkedin, CircleCheckBig, Calendar, Share2, ArrowLeft, Loader2 } from 'lucide-react';
 import { API_URL } from '../utils/config';
 
 export default function PublicProfile() {
@@ -74,7 +74,7 @@ export default function PublicProfile() {
              onClick={handleCopyLink}
              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 shadow-sm hover:border-primary-500 transition"
            >
-             {copied ? <CheckCircle2 size={14} className="text-emerald-500" /> : <Share2 size={14} />}
+             {copied ? <CircleCheckBig size={14} className="text-emerald-500" /> : <Share2 size={14} />}
              {copied ? 'Link Copied!' : 'Share Profile'}
            </button>
         </div>
@@ -115,7 +115,7 @@ export default function PublicProfile() {
                     {profile.streak} DAY STREAK
                   </div>
                   <div className="px-4 py-2 bg-primary-50 dark:bg-primary-950/40 text-primary-700 dark:text-primary-400 rounded-2xl flex items-center gap-2 font-black text-sm">
-                    <CheckCircle2 size={18} />
+                    <CircleCheckBig size={18} />
                     {profile.completedDays?.length}/50 COMPLETED
                   </div>
                </div>
@@ -166,7 +166,7 @@ export default function PublicProfile() {
                      : `Currently building professional Java expertise. On track to graduate in ${50 - profile.completedDays?.length} days.`}
                  </p>
                  <div className="mt-4 flex items-center gap-1.5 text-emerald-500 font-bold text-xs uppercase">
-                    <CheckCircle2 size={14} /> Verified Proof of Work
+                    <CircleCheckBig size={14} /> Verified Proof of Work
                  </div>
               </div>
            </div>

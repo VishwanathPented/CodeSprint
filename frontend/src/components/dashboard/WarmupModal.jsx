@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Brain, CheckCircle2, XCircle, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { X, Brain, CircleCheckBig, XCircle, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import { API_URL } from '../../utils/config';
 import { useAuth } from '../../context/AuthContext';
 
@@ -171,7 +171,7 @@ export default function WarmupModal({ isOpen, onClose }) {
                     >
                       <div className="flex justify-between items-center">
                         <span>{opt}</span>
-                        {showResult && isCorrectDoc && <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />}
+                        {showResult && isCorrectDoc && <CircleCheckBig size={18} className="text-emerald-500 shrink-0" />}
                         {showResult && isSelected && !isCorrectDoc && <XCircle size={18} className="text-red-500 shrink-0" />}
                       </div>
                     </button>

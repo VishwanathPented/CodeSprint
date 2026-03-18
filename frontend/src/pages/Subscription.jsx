@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Check, ShieldCheck, Zap, Star, Rocket, CreditCard, CheckCircle2 } from 'lucide-react';
+import { Check, ShieldCheck, Zap, Star, Rocket, CreditCard, CircleCheckBig } from 'lucide-react';
 import { API_URL } from '../utils/config';
 
 export default function Subscription() {
@@ -39,7 +39,7 @@ export default function Subscription() {
       <div className="flex-grow flex items-center justify-center p-4 h-[calc(100vh-64px)]">
         <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-emerald-100 dark:border-emerald-900/50 p-8 text-center">
           <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 size={40} />
+            <CircleCheckBig size={40} />
           </div>
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">You're In!</h2>
           <p className="text-slate-600 dark:text-slate-400 mb-8">
@@ -81,7 +81,7 @@ export default function Subscription() {
           <ul className="space-y-4">
             {['Access to all 50 Days of content', 'Unlimited coding challenge execution', 'In-depth aptitude explanations', 'Certificate of Completion'].map((feature, i) => (
               <li key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-300 font-medium">
-                <CheckCircle2 className="text-emerald-500 shrink-0" size={20} />
+                <CircleCheckBig className="text-emerald-500 shrink-0" size={20} />
                 {feature}
               </li>
             ))}

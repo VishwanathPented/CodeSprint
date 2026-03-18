@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Briefcase, Clock, Trophy, Target, ArrowRight, ShieldAlert, Loader2, CheckCircle } from 'lucide-react';
+import { Briefcase, Clock, Trophy, Target, ArrowRight, ShieldAlert, Loader2, CircleCheck } from 'lucide-react';
 import { API_URL } from '../utils/config';
 
 export default function AssessmentList() {
@@ -78,7 +78,7 @@ export default function AssessmentList() {
             {/* Completion Ribbon */}
             {test.isCompleted && (
               <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-black text-xs uppercase tracking-widest rounded-full">
-                <CheckCircle size={14} /> Submitted
+                <CircleCheck size={14} /> Submitted
               </div>
             )}
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sparkles, Github, Code2, ShieldAlert, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
+import { Sparkles, Github, Code2, ShieldAlert, CircleCheckBig, Loader2, ArrowRight } from 'lucide-react';
 import { API_URL } from '../../utils/config';
 
 export default function RefactorModule({ problem, dayTopic, onComplete, isCompleted }) {

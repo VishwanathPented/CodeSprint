@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Lightbulb, HelpCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { Lightbulb, HelpCircle, CircleCheckBig, XCircle } from 'lucide-react';
 import clsx from 'clsx';
 
 export default function AptitudeModule({ questions, onComplete, score }) {
@@ -90,7 +90,7 @@ export default function AptitudeModule({ questions, onComplete, score }) {
                     )}>
                       {opt.text}
                     </span>
-                    {showCorrect && <CheckCircle2 className="text-emerald-500" size={18} />}
+                    {showCorrect && <CircleCheckBig className="text-emerald-500" size={18} />}
                     {showWrong && <XCircle className="text-red-500" size={18} />}
                   </button>
                 );
