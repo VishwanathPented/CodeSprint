@@ -5,6 +5,7 @@ import RoadmapTimeline from '../components/dashboard/RoadmapTimeline';
 import Leaderboard from '../components/dashboard/Leaderboard';
 import GithubRepoLinker from '../components/dashboard/GithubRepoLinker';
 import WarmupModal from '../components/dashboard/WarmupModal';
+import OnboardingModal from '../components/dashboard/OnboardingModal';
 import { Sparkles, Linkedin, Check, Rocket, Github, AlertCircle, Share2, Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { API_URL } from '../utils/config';
@@ -51,14 +52,21 @@ export default function Dashboard() {
     if (token) fetchRoadmap();
   }, [token]);
 
-  if (loading || authLoading || !user) return (
-    <div className="flex items-center justify-center h-full flex-grow py-20">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-    </div>
-  );
+  // Auto-trigger onboarding if necessary
+  const needsOnboarding = user && (!user.registrationDetails || !user.registrationDetails.isComplete);
+
+  if (loading || !user) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-80px)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto w-full px-4 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Onboarding Blocker */}
+      {needsOnboarding && <OnboardingModal />}
       
       <div className="flex items-center gap-3">
         <div className="p-3 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl shadow-lg text-white">

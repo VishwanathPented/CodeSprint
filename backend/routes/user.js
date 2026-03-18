@@ -9,6 +9,27 @@ router.get('/profile', protect, async (req, res) => {
   res.json(req.user);
 });
 
+// @route   POST /api/user/complete-onboarding
+// @desc    Save collegiate details after initial registration
+router.post('/complete-onboarding', protect, async (req, res) => {
+  try {
+    const { year, branch, phoneNumber, usn } = req.body;
+    
+    req.user.registrationDetails = {
+      year,
+      branch,
+      phoneNumber,
+      usn,
+      isComplete: true
+    };
+    
+    await req.user.save();
+    res.json({ message: 'Onboarding complete', user: req.user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // @route   GET /api/user/leaderboard
 // @desc    Get top users by streak and score
 router.get('/leaderboard', async (req, res) => {

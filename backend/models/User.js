@@ -8,6 +8,15 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   isSubscribed: { type: Boolean, default: false },
   
+  // Collegiate Data Onboarding
+  registrationDetails: {
+    year: { type: String },
+    branch: { type: String },
+    phoneNumber: { type: String },
+    usn: { type: String },
+    isComplete: { type: Boolean, default: false }
+  },
+  
   // Progress tracking
   currentDay: { type: Number, default: 1 },
   completedDays: [{ type: Number }],
