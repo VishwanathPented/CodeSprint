@@ -95,6 +95,12 @@ router.post('/grade-github', protect, async (req, res) => {
     return res.status(400).json({ message: 'Please provide a valid GitHub link.' });
   }
 
+  if (githubUrl.includes('/tree/') || !githubUrl.includes('/blob/')) {
+    return res.status(400).json({ 
+      message: 'Invalid link. Please click on your specific Java file (e.g., Main.java) in GitHub and paste that exact URL. It should contain "/blob/".' 
+    });
+  }
+
   // 1. Convert GitHub blob URL to raw URL
   let rawUrl = githubUrl;
   if (githubUrl.includes('github.com') && githubUrl.includes('/blob/')) {

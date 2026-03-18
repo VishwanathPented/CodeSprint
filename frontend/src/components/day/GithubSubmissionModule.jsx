@@ -21,7 +21,11 @@ export default function GithubSubmissionModule({ problem, dayNumber, dayTopic, o
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!githubLink.includes('github.com')) {
-      setAiFeedback({ passed: false, text: 'Please enter a valid github.com domain URL.' });
+      setAiFeedback({ passed: false, text: 'Please enter a valid github.com URL.' });
+      return;
+    }
+    if (githubLink.includes('/tree/') || !githubLink.includes('/blob/')) {
+      setAiFeedback({ passed: false, text: 'Please provide a direct link to your specifically formatted file (e.g., ends in .java), not the repository folder.' });
       return;
     }
     
