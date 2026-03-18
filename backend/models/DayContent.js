@@ -10,6 +10,12 @@ const mcqSchema = new mongoose.Schema({
   options: [optionSchema]
 });
 
+const predictOutputSchema = new mongoose.Schema({
+  codeSnippet: { type: String, required: true },
+  expectedOutput: { type: String, required: true },
+  explanation: { type: String }
+});
+
 const codingProblemSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
@@ -33,6 +39,7 @@ const dayContentSchema = new mongoose.Schema({
   videoUrl: { type: String }, 
   
   mcqs: [mcqSchema], // Keep simple, array of questions
+  predictOutput: [predictOutputSchema],
   codingProblem: codingProblemSchema,
   aptitudeQuestions: [aptitudeQuestionSchema]
 }, { timestamps: true });

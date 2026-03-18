@@ -3,10 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import VideoModule from '../components/day/VideoModule';
 import McqModule from '../components/day/McqModule';
+import PredictOutputModule from '../components/day/PredictOutputModule';
 import GithubSubmissionModule from '../components/day/GithubSubmissionModule';
 import AptitudeModule from '../components/day/AptitudeModule';
 import CommentSection from '../components/day/CommentSection';
 import AITutorBot from '../components/day/AITutorBot';
+import TextWithTooltips from '../components/day/TextWithTooltips';
 import { CheckCircle2, Trophy, Loader2, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { API_URL } from '../utils/config';
@@ -22,6 +24,7 @@ export default function DayDetail() {
   // Progress states
   const [videoWatched, setVideoWatched] = useState(false);
   const [mcqScore, setMcqScore] = useState(null);
+  const [predictPassed, setPredictPassed] = useState(false);
   const [codeAttempted, setCodeAttempted] = useState(false);
   const [githubLink, setGithubLink] = useState('');
   const [aptitudeScore, setAptitudeScore] = useState(null);
@@ -43,6 +46,7 @@ export default function DayDetail() {
           const p = JSON.parse(saved);
           if (p.videoWatched !== undefined) setVideoWatched(p.videoWatched);
           if (p.mcqScore !== null) setMcqScore(p.mcqScore);
+          if (p.predictPassed !== undefined) setPredictPassed(p.predictPassed);
           if (p.codeAttempted !== undefined) setCodeAttempted(p.codeAttempted);
           if (p.githubLink !== undefined) setGithubLink(p.githubLink);
           if (p.aptitudeScore !== null) setAptitudeScore(p.aptitudeScore);
@@ -56,10 +60,10 @@ export default function DayDetail() {
   // Save partial progress to local storage
   useEffect(() => {
     if (!isAlreadyCompleted && user && content) {
-      const progress = { videoWatched, mcqScore, codeAttempted, githubLink, aptitudeScore };
+      const progress = { videoWatched, mcqScore, predictPassed, codeAttempted, githubLink, aptitudeScore };
       localStorage.setItem(persistKey, JSON.stringify(progress));
     }
-  }, [videoWatched, mcqScore, codeAttempted, githubLink, aptitudeScore, isAlreadyCompleted, user, content, persistKey]);
+  }, [videoWatched, mcqScore, predictPassed, codeAttempted, githubLink, aptitudeScore, isAlreadyCompleted, user, content, persistKey]);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -74,6 +78,7 @@ export default function DayDetail() {
           if (isAlreadyCompleted) {
             setVideoWatched(true);
             setMcqScore(10); 
+            setPredictPassed(true);
             setCodeAttempted(true);
             
             // Find existing GitHub link if available
@@ -92,7 +97,7 @@ export default function DayDetail() {
     if (token) fetchContent();
   }, [id, token, isAlreadyCompleted]);
 
-  const isDayFinished = videoWatched && mcqScore !== null && codeAttempted && aptitudeScore !== null;
+  const isDayFinished = videoWatched && mcqScore !== null && predictPassed && codeAttempted && aptitudeScore !== null;
 
   const fetchEli5 = async () => {
     if (isEli5) {
@@ -213,7 +218,7 @@ export default function DayDetail() {
              </ReactMarkdown>
           </div>
         ) : (
-          <p className="text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl animate-in fade-in block">{content.description}</p>
+          <TextWithTooltips text={content.description} className="text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl animate-in fade-in block" />
         )}
       </div>
 
@@ -225,6 +230,14 @@ export default function DayDetail() {
         )}
         
         {mcqScore !== null && (
+          <PredictOutputModule 
+            predicts={content.predictOutput} 
+            onComplete={() => setPredictPassed(true)} 
+            isCompleted={predictPassed} 
+          />
+        )}
+
+        {predictPassed && (
           <GithubSubmissionModule 
             problem={content.codingProblem} 
             dayNumber={content.dayNumber}

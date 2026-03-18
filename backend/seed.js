@@ -27,7 +27,14 @@ const realJavaRoadmap = [
       desc: "Write a Java program to print 'Hello World!'.",
       starter: "public class Main {\n  public static void main(String[] args) {\n    // Print Hello World! below\n    \n  }\n}",
       expected: "Hello World!\n"
-    }
+    },
+    predict: [
+      {
+        codeSnippet: "public class Test {\n  public static void main(String[] args) {\n    System.out.println(\"Java is fun!\");\n  }\n}",
+        expectedOutput: "Java is fun!",
+        explanation: "The println method simply prints the exact string passed inside the quotes."
+      }
+    ]
   },
   {
     topicTitle: "Data Types & Variables",
@@ -44,7 +51,14 @@ const realJavaRoadmap = [
       desc: "Create an int variable 'x' assigned to 10 and print it.",
       starter: "public class Main {\n  public static void main(String[] args) {\n    \n  }\n}",
       expected: "10\n"
-    }
+    },
+    predict: [
+      {
+        codeSnippet: "public class Test {\n  public static void main(String[] args) {\n    int a = 5;\n    int b = 2;\n    System.out.println(a / b);\n  }\n}",
+        expectedOutput: "2",
+        explanation: "Integer division truncates the decimal part. 5 / 2 is mathematically 2.5, but in Java integers, it evaluates to exactly 2."
+      }
+    ]
   },
   {
     topicTitle: "Operators & Expressions",
@@ -251,6 +265,13 @@ for (let i = 1; i <= 50; i++) {
     commonConfusions: dayData.commonConfusions,
     videoUrl: 'https://www.youtube.com/embed/eIrMbAQSU34', // valid java course video
     mcqs: formattedMcqs,
+    predictOutput: dayData.predict || [
+      {
+        codeSnippet: `public class Test {\n  public static void main(String[] args) {\n    System.out.println("Day ${i} Module");\n  }\n}`,
+        expectedOutput: `Day ${i} Module`,
+        explanation: `Prints the simple string representation of Day ${i}.`
+      }
+    ],
     codingProblem: {
       title: dayData.code.title,
       description: dayData.code.desc,
