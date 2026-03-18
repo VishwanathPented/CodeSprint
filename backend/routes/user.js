@@ -1,6 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
-import Day from '../models/Day.js';
+import DayContent from '../models/DayContent.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -114,7 +114,7 @@ router.get('/warmup', protect, async (req, res) => {
       return res.json({ mcqs: [] });
     }
 
-    const days = await Day.find({ dayNumber: { $in: user.completedDays } });
+    const days = await DayContent.find({ dayNumber: { $in: user.completedDays } });
     
     let allMcqs = [];
     days.forEach(day => {
