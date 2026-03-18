@@ -26,6 +26,34 @@ export default function DayDetail() {
   const [aptitudeScore, setAptitudeScore] = useState(null);
 
   const isAlreadyCompleted = user?.completedDays?.includes(Number(id));
+  const persistKey = `day_${id}_progress_${user?._id}`;
+
+  // Load partial progress from local storage
+  useEffect(() => {
+    if (!isAlreadyCompleted && user && content) {
+      const saved = localStorage.getItem(persistKey);
+      if (saved) {
+        try {
+          const p = JSON.parse(saved);
+          if (p.videoWatched !== undefined) setVideoWatched(p.videoWatched);
+          if (p.mcqScore !== null) setMcqScore(p.mcqScore);
+          if (p.codeAttempted !== undefined) setCodeAttempted(p.codeAttempted);
+          if (p.githubLink !== undefined) setGithubLink(p.githubLink);
+          if (p.aptitudeScore !== null) setAptitudeScore(p.aptitudeScore);
+        } catch (e) {
+          console.error('Failed to load progress', e);
+        }
+      }
+    }
+  }, [isAlreadyCompleted, user, content, persistKey]);
+
+  // Save partial progress to local storage
+  useEffect(() => {
+    if (!isAlreadyCompleted && user && content) {
+      const progress = { videoWatched, mcqScore, codeAttempted, githubLink, aptitudeScore };
+      localStorage.setItem(persistKey, JSON.stringify(progress));
+    }
+  }, [videoWatched, mcqScore, codeAttempted, githubLink, aptitudeScore, isAlreadyCompleted, user, content, persistKey]);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -84,6 +112,7 @@ export default function DayDetail() {
       const data = await res.json();
       if (res.ok) {
         updateProgress(data.user);
+        localStorage.removeItem(persistKey);
         alert(data.message);
         navigate('/');
       } else {
