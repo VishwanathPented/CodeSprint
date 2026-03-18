@@ -4,7 +4,7 @@ import ProgressHeader from '../components/dashboard/ProgressHeader';
 import RoadmapTimeline from '../components/dashboard/RoadmapTimeline';
 import Leaderboard from '../components/dashboard/Leaderboard';
 import GithubRepoLinker from '../components/dashboard/GithubRepoLinker';
-import { Sparkles, Linkedin, Check, Rocket, Github, AlertCircle } from 'lucide-react';
+import { Sparkles, Linkedin, Check, Rocket, Github, AlertCircle, Share2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { API_URL } from '../utils/config';
 
@@ -15,8 +15,15 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
 
   const handleShare = () => {
-    const text = `Day ${user?.completedDays.length || 0}/50 completed ✅ Currently building my skills on CodeSprint 50! 🚀 #CodingJourney #CodeSprint50`;
-    navigator.clipboard.writeText(text);
+    const profileUrl = `${window.location.origin}/u/${user?.username}`;
+    const text = `Day ${user?.completedDays.length || 0}/50 completed ✅ Check out my progress on CodeSprint 50: ${profileUrl}`;
+    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(profileUrl)}`;
+    window.open(linkedinUrl, '_blank');
+  };
+
+  const copyProfileLink = () => {
+    const profileUrl = `${window.location.origin}/u/${user?.username}`;
+    navigator.clipboard.writeText(profileUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -66,23 +73,33 @@ export default function Dashboard() {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <div className="flex-1 bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-4 shadow-sm">
+           <div className="flex items-center gap-3 overflow-hidden">
+              <div className="p-2 bg-primary-50 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 rounded-lg shrink-0">
+                 <Share2 size={18} />
+              </div>
+              <div className="overflow-hidden">
+                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Public Profile</p>
+                 <p className="text-xs font-mono text-slate-600 dark:text-slate-400 truncate">
+                    {window.location.origin}/u/{user?.username}
+                 </p>
+              </div>
+           </div>
+           <button 
+             onClick={copyProfileLink}
+             className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition shrink-0"
+           >
+             {copied ? 'Copied!' : 'Copy Link'}
+           </button>
+        </div>
+
         <button 
           onClick={handleShare}
-          className="flex-1 flex items-center justify-center gap-2 bg-[#0077b5] hover:bg-[#006396] text-white font-bold py-3 px-4 rounded-xl transition shadow-md shadow-[#0077b5]/20"
+          className="bg-[#0077b5] hover:bg-[#006396] text-white font-bold py-4 px-6 rounded-xl transition shadow-md shadow-[#0077b5]/20 flex items-center justify-center gap-2"
         >
-          {copied ? <Check size={20} /> : <Linkedin size={20} />}
-          {copied ? 'Copied to Clipboard!' : 'Share Progress on LinkedIn'}
+          <Linkedin size={20} />
+          Share on LinkedIn
         </button>
-        
-        {!user?.isSubscribed && (
-          <Link 
-            to="/subscribe"
-            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition shadow-md shadow-primary-500/20"
-          >
-            <Rocket size={20} />
-            Unlock Full Access
-          </Link>
-        )}
       </div>
 
       <ProgressHeader user={user} />

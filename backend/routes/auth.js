@@ -17,11 +17,19 @@ router.post('/register', async (req, res) => {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ message: 'User already exists' });
     
-    user = await User.create({ name, email, password });
+    // Auto-generate unique username
+    let username = name.toLowerCase().replace(/\s+/g, '').slice(0, 10);
+    let usernameExists = await User.findOne({ username });
+    if (usernameExists) {
+      username = `${username}${Math.floor(Math.random() * 1000)}`;
+    }
+    
+    user = await User.create({ name, username, email, password });
     
     res.status(201).json({
       _id: user._id,
       name: user.name,
+      username: user.username,
       email: user.email,
       role: user.role,
       isAdmin: user.role === 'admin',
@@ -43,6 +51,7 @@ router.post('/login', async (req, res) => {
       res.json({
         _id: user._id,
         name: user.name,
+        username: user.username,
         email: user.email,
         role: user.role,
         isAdmin: user.role === 'admin',

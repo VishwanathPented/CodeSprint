@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import DayDetail from './pages/DayDetail';
 import Subscription from './pages/Subscription';
 import AdminDashboard from './pages/AdminDashboard';
+import PublicProfile from './pages/PublicProfile';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -69,6 +70,7 @@ function App() {
             </ProtectedRoute>
           } />
           
+          <Route path="/u/:username" element={<PublicProfile />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>
