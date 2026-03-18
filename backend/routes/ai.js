@@ -12,6 +12,12 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // @route   POST /api/ai/tutor
 // @desc    Get a pedagogical hint from the AI Tutor
 router.post('/tutor', protect, async (req, res) => {
+  if (!process.env.GEMINI_API_KEY) {
+    return res.status(500).json({ 
+      message: 'AI Tutor is not configured. (Missing GEMINI_API_KEY on server)' 
+    });
+  }
+  
   const { message, dayTopic, dayNumber } = req.body;
   const user = await User.findById(req.user._id);
 
