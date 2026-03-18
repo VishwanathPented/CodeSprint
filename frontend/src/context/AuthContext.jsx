@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
       });
       if (res.ok) {
         const data = await res.json();
-        setUser(data);
+        setUser({ ...data, isAdmin: data.role === 'admin' });
       } else {
         logout();
       }

@@ -18,7 +18,9 @@ export default function Login() {
     
     const res = await login(email, password);
     if (res.success) {
-      if (res.user?.isAdmin) {
+      const isAdmin = res.user?.isAdmin || res.user?.role === 'admin';
+      console.log('Login success. Admin check:', isAdmin, res.user);
+      if (isAdmin) {
         navigate('/admin');
       } else {
         navigate('/');

@@ -24,7 +24,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           {user ? (
             <>
-              {user.isAdmin && (
+              {(user.isAdmin || user.role === 'admin') && (
                 <Link to="/admin" className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-orange-500 dark:hover:text-orange-400">
                   Admin Panel
                 </Link>

@@ -23,7 +23,8 @@ export default function AdminDashboard() {
   const [editData, setEditData] = useState(null);
 
   useEffect(() => {
-    if (user && user.role !== 'admin') {
+    if (user && !(user.isAdmin || user.role === 'admin')) {
+      console.warn('Unauthorized access to Admin. Redirecting...', user);
       navigate('/');
     }
   }, [user, navigate]);
