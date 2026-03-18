@@ -66,7 +66,9 @@ router.post('/tutor', protect, async (req, res) => {
 
   } catch (error) {
     console.error('AI Tutor Error:', error);
-    res.status(500).json({ message: 'The AI Tutor is currently over capacity. Try again in a moment.' });
+    res.status(500).json({ 
+      message: `AI Tutor Error: ${error.message || 'The AI Tutor is currently over capacity. Try again in a moment.'}` 
+    });
   }
 });
 
