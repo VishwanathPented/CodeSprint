@@ -1,8 +1,14 @@
 import { useState } from 'react';
-import { Github, ExternalLink, CheckCircle2, Copy, AlertCircle, Info } from 'lucide-react';
+import { Github, ExternalLink, CheckCircle2, Copy, AlertCircle, Info, Loader2, Bot, XCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { API_URL } from '../../utils/config';
 
-export default function GithubSubmissionModule({ problem, onComplete, isCompleted, existingLink }) {
+export default function GithubSubmissionModule({ problem, dayNumber, dayTopic, onComplete, isCompleted, existingLink }) {
+  const { token } = useAuth();
   const [githubLink, setGithubLink] = useState(existingLink || '');
+  const [loading, setLoading] = useState(false);
+  const [aiFeedback, setAiFeedback] = useState(null);
+
   const [showInstructions, setShowInstructions] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -12,13 +18,46 @@ export default function GithubSubmissionModule({ problem, onComplete, isComplete
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!githubLink.includes('github.com')) {
-      alert('Please enter a valid GitHub URL');
+      setAiFeedback({ passed: false, text: 'Please enter a valid github.com domain URL.' });
       return;
     }
-    onComplete(githubLink);
+    
+    setLoading(true);
+    setAiFeedback(null);
+
+    try {
+      const res = await fetch(`${API_URL}/ai/grade-github`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          githubUrl: githubLink,
+          dayNumber,
+          dayTopic,
+          problemDescription: problem.description
+        })
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setAiFeedback({ passed: false, text: data.message });
+      } else {
+        setAiFeedback({ passed: data.passed, text: data.feedback });
+        if (data.passed) {
+          onComplete(githubLink);
+        }
+      }
+    } catch (err) {
+      setAiFeedback({ passed: false, text: 'Network error verifying the link. Please try again.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -95,15 +134,35 @@ export default function GithubSubmissionModule({ problem, onComplete, isComplete
             </div>
             <button 
               type="submit"
-              disabled={isCompleted}
-              className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition ${isCompleted ? 'bg-slate-100 dark:bg-slate-700 text-slate-400' : 'bg-slate-900 dark:bg-white dark:text-slate-900 text-white hover:bg-slate-800'}`}
+              disabled={isCompleted || loading}
+              className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition ${isCompleted || loading ? 'bg-slate-100 dark:bg-slate-700 text-slate-400' : 'bg-slate-900 dark:bg-white dark:text-slate-900 text-white hover:bg-slate-800'}`}
             >
-              <ExternalLink size={18} />
-              {isCompleted ? 'Submission Locked' : 'Verify & Submit Link'}
+              {loading ? <Loader2 size={18} className="animate-spin" /> : <ExternalLink size={18} />}
+              {isCompleted ? 'AI Verified & Locked' : loading ? 'AI Validator Grading...' : 'Verify Code Logic & Submit'}
             </button>
-            <p className="text-[10px] text-slate-400 italic text-center">
-              Submission marks the coding task as attempted.
-            </p>
+            <div className="text-center">
+              <span className="text-[10px] uppercase font-bold text-slate-400 flex items-center justify-center gap-1"><Bot size={12} className="text-indigo-500"/> Verified by Sprint-AI</span>
+            </div>
+            
+            {/* AI Feedback Display */}
+            {aiFeedback && !isCompleted && (
+              <div className={`p-4 rounded-xl flex gap-3 items-start animate-in slide-in-from-bottom-2 ${aiFeedback.passed ? 'bg-emerald-50/80 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-red-50/80 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300'}`}>
+                <div className="mt-0.5 mt-1 shrink-0">
+                  {aiFeedback.passed ? <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400"/> : <XCircle size={18} className="text-red-600 dark:text-red-400"/>}
+                </div>
+                <div>
+                  <h6 className="font-bold text-sm mb-1">{aiFeedback.passed ? 'Code Approved!' : 'Verification Failed'}</h6>
+                  <p className="text-xs leading-relaxed opacity-90">{aiFeedback.text}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Completed state message */}
+            {isCompleted && !aiFeedback && (
+              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center gap-2 text-sm font-bold animate-in fade-in">
+                <CheckCircle2 size={16} /> Solution previously verified.
+              </div>
+            )}
           </form>
         </div>
 

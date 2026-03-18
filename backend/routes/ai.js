@@ -81,4 +81,81 @@ router.post('/tutor', protect, async (req, res) => {
   }
 });
 
+// @route   POST /api/ai/grade-github
+// @desc    Fetch raw code from Github and use AI to evaluate it
+router.post('/grade-github', protect, async (req, res) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ message: 'AI Grader is not configured.' });
+  }
+
+  const { githubUrl, dayNumber, dayTopic, problemDescription } = req.body;
+
+  if (!githubUrl || !githubUrl.includes('github.com')) {
+    return res.status(400).json({ message: 'Please provide a valid GitHub link.' });
+  }
+
+  // 1. Convert GitHub blob URL to raw URL
+  let rawUrl = githubUrl;
+  if (githubUrl.includes('github.com') && githubUrl.includes('/blob/')) {
+    rawUrl = githubUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+  }
+
+  try {
+    // 2. Fetch the code
+    const githubRes = await fetch(rawUrl);
+    if (!githubRes.ok) {
+      return res.status(400).json({ 
+        message: 'Could not fetch code. Is your repository Public? Ensure the link points directly to the code file and not a folder.' 
+      });
+    }
+    
+    const codeContent = await githubRes.text();
+    const truncatedCode = codeContent.substring(0, 10000); // safety limit
+
+    // 3. AI Evaluation
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+    const systemPrompt = `
+      You are an Automated AI Grader for the "CodeSprint 50" Java course.
+      The student submitted code for Day ${dayNumber}: ${dayTopic}.
+      Problem Description: ${problemDescription}
+      
+      STUDENT CODE:
+      \`\`\`java
+      ${truncatedCode}
+      \`\`\`
+      
+      Evaluate the student's code. It does NOT have to be perfectly compilable, but it MUST be a genuine and reasonable attempt to solve the specific problem described. Empty templates or unrelated code should fail.
+      
+      Respond strictly in JSON format without any markdown wrapper around the JSON:
+      {
+        "passed": true|false,
+        "feedback": "A maximum 2 sentence feedback explaining what they did well, or why it failed."
+      }
+    `;
+
+    const result = await model.generateContent(systemPrompt);
+    let responseText = result.response.text();
+    
+    // Clean up markdown block if present
+    responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    
+    const parsedObj = JSON.parse(responseText);
+
+    res.json({
+      passed: parsedObj.passed,
+      feedback: parsedObj.feedback,
+      rawUrl
+    });
+
+  } catch (error) {
+    console.error('AI Grader Error:', error);
+    res.status(500).json({ 
+      message: 'The AI Evaluator encountered an error validating your code. Ensure it is a valid text file.'
+    });
+  }
+});
+
 export default router;

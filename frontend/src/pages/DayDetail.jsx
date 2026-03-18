@@ -151,6 +151,8 @@ export default function DayDetail() {
         {mcqScore !== null && (
           <GithubSubmissionModule 
             problem={content.codingProblem} 
+            dayNumber={content.dayNumber}
+            dayTopic={content.topicTitle}
             onComplete={(link) => {
               setGithubLink(link);
               setCodeAttempted(true);
