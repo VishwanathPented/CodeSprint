@@ -5,14 +5,14 @@ import User from '../models/User.js';
 
 const router = express.Router();
 
-// Initialize Gemini
 // Note: Ensure GEMINI_API_KEY is in your .env
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // @route   POST /api/ai/tutor
 // @desc    Get a pedagogical hint from the AI Tutor
 router.post('/tutor', protect, async (req, res) => {
-  if (!process.env.GEMINI_API_KEY) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  
+  if (!apiKey) {
     return res.status(500).json({ 
       message: 'AI Tutor is not configured. (Missing GEMINI_API_KEY on server)' 
     });
@@ -38,6 +38,7 @@ router.post('/tutor', protect, async (req, res) => {
   }
 
   try {
+    const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const systemPrompt = `
