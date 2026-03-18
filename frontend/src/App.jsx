@@ -2,14 +2,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/layout/Navbar';
 import Login from './pages/Login';
-import Register from './pages/Register';
+import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import DayDetail from './pages/DayDetail';
 import Subscription from './pages/Subscription';
 import AdminDashboard from './pages/AdminDashboard';
 import PublicProfile from './pages/PublicProfile';
-import SupportPage from './pages/SupportPage';
-import PrivateRoute from './components/layout/PrivateRoute';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();

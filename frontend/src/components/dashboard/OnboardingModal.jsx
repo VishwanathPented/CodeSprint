@@ -44,7 +44,12 @@ export default function OnboardingModal() {
         body: JSON.stringify(formData)
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseError) {
+        throw new Error(`Server returned a non-JSON response (${res.status}). Ensure the backend is updated.`);
+      }
 
       if (res.ok) {
         // Refresh global user state to remove the modal
@@ -53,7 +58,11 @@ export default function OnboardingModal() {
         setError(data.message || 'Failed to complete onboarding.');
       }
     } catch (err) {
-      setError('Network error. Please make sure you are online.');
+      if (err.message.includes('Server returned')) {
+        setError(err.message);
+      } else {
+        setError('Network error or server unreachable. Please make sure the backend is live.');
+      }
     } finally {
       setLoading(false);
     }
