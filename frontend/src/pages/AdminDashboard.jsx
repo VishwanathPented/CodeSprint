@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, CheckCircle } from 'lucide-react';
+import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, CheckCircle, Rocket } from 'lucide-react';
 import { API_URL } from '../utils/config';
 
 export default function AdminDashboard() {
@@ -174,26 +174,32 @@ export default function AdminDashboard() {
     </div>
   );
 
-  const renderStats = () => stats && (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { label: 'Total Students', value: stats.totalUsers, icon: <Users />, color: 'blue' },
-          { label: 'Premium Users', value: stats.subscribedUsers, icon: <Layout />, color: 'emerald' },
-          { label: 'Total Revenue', value: `$${stats.revenue}`, icon: <Rocket />, color: 'purple' },
-          { label: 'Avg Study Days', value: stats.avgCompletion, icon: <PieChart />, color: 'orange' },
-        ].map((item, i) => (
-          <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-            <div className={`w-10 h-10 rounded-lg bg-${item.color}-100 dark:bg-${item.color}-900/40 text-${item.color}-600 dark:text-${item.color}-400 flex items-center justify-center mb-4`}>
-              {item.icon}
+  const renderStats = () => {
+    if (!stats) return null;
+    
+    const statCards = [
+      { label: 'Total Students', value: stats.totalUsers || 0, icon: <Users size={20} />, bgColor: 'bg-blue-100', text: 'text-blue-600', darkBg: 'dark:bg-blue-900/40', darkText: 'dark:text-blue-400' },
+      { label: 'Premium Users', value: stats.subscribedUsers || 0, icon: <Layout size={20} />, bgColor: 'bg-emerald-100', text: 'text-emerald-600', darkBg: 'dark:bg-emerald-900/40', darkText: 'dark:text-emerald-400' },
+      { label: 'Total Revenue', value: `$${stats.revenue || 0}`, icon: <Rocket size={20} />, bgColor: 'bg-purple-100', text: 'text-purple-600', darkBg: 'dark:bg-purple-900/40', darkText: 'dark:text-purple-400' },
+      { label: 'Avg Study Days', value: stats.avgCompletion || 0, icon: <PieChart size={20} />, bgColor: 'bg-orange-100', text: 'text-orange-600', darkBg: 'dark:bg-orange-900/40', darkText: 'dark:text-orange-400' },
+    ];
+
+    return (
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {statCards.map((item, i) => (
+            <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+              <div className={`w-10 h-10 rounded-lg ${item.bgColor} ${item.darkBg} ${item.text} ${item.darkText} flex items-center justify-center mb-4`}>
+                {item.icon}
+              </div>
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">{item.label}</p>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-1">{item.value}</h3>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{item.label}</p>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{item.value}</h3>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderEditor = () => (
     <form onSubmit={handleSave} className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-md border border-slate-200 dark:border-slate-700 space-y-8 max-w-5xl mx-auto">
