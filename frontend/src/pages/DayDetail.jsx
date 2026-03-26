@@ -5,6 +5,7 @@ import VideoModule from '../components/day/VideoModule';
 import McqModule from '../components/day/McqModule';
 import PredictOutputModule from '../components/day/PredictOutputModule';
 import GithubSubmissionModule from '../components/day/GithubSubmissionModule';
+import CodeEditorModule from '../components/day/CodeEditorModule';
 import RefactorModule from '../components/day/RefactorModule';
 import AptitudeModule from '../components/day/AptitudeModule';
 import CommentSection from '../components/day/CommentSection';
@@ -189,7 +190,7 @@ export default function DayDetail() {
 
   return (
     <div className="max-w-7xl mx-auto w-full px-4 py-8 space-y-10">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800 relative">
         <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-400 text-sm font-bold rounded-full mb-4 uppercase tracking-wider">
@@ -209,8 +210,8 @@ export default function DayDetail() {
         </div>
 
         {isEli5 && eli5Text ? (
-          <div className="prose prose-sm dark:prose-invert max-w-3xl bg-indigo-50/50 dark:bg-indigo-900/20 p-5 rounded-xl border border-indigo-100 dark:border-indigo-800/50 animate-in fade-in slide-in-from-top-2">
-             <div className="flex items-center gap-2 mb-4 border-b border-indigo-200/50 dark:border-indigo-800/50 pb-2">
+          <div className="prose prose-sm dark:prose-invert max-w-3xl bg-slate-50 dark:bg-slate-900 p-5 rounded-md border border-slate-200 dark:border-slate-800 animate-in fade-in slide-in-from-top-2">
+             <div className="flex items-center gap-2 mb-4 border-b border-slate-200 dark:border-slate-800 pb-2">
                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
                <span className="text-[10px] uppercase font-black tracking-widest text-indigo-700 dark:text-indigo-400">Simplified by Sprint-AI</span>
              </div>
@@ -245,7 +246,7 @@ export default function DayDetail() {
         )}
 
         {predictPassed && (
-          <GithubSubmissionModule 
+          <CodeEditorModule 
             problem={content.codingProblem} 
             dayNumber={content.dayNumber}
             dayTopic={content.topicTitle}
@@ -254,7 +255,6 @@ export default function DayDetail() {
               setCodeAttempted(true);
             }} 
             isCompleted={codeAttempted}
-            existingLink={githubLink}
           />
         )}
 
@@ -264,8 +264,8 @@ export default function DayDetail() {
       </div>
 
       {isDayFinished && (
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-8 rounded-2xl border border-emerald-100 dark:border-emerald-800 text-center shadow-sm">
-          <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-800/50 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="bg-emerald-50 dark:bg-emerald-900/10 p-6 rounded-lg border border-emerald-200 dark:border-emerald-800 text-center">
+          <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-800/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
             <Trophy size={32} />
           </div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Excellent Work!</h2>
@@ -274,9 +274,9 @@ export default function DayDetail() {
           </p>
           <button 
             onClick={handleCompleteDay}
-            className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition transform hover:-translate-y-1 flex items-center gap-2 mx-auto"
+            className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-md mx-auto transition flex items-center gap-2"
           >
-            <CircleCheckBig size={20} />
+            <CircleCheckBig size={18} />
             {isAlreadyCompleted ? 'Return to Dashboard' : 'Mark Day as Complete & Unlock Next'}
           </button>
         </div>

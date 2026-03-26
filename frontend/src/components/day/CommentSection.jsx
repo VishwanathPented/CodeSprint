@@ -54,10 +54,10 @@ export default function CommentSection({ dayNumber }) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center gap-2">
-        <MessageSquare className="text-blue-500" size={20} />
-        <h3 className="font-bold text-slate-800 dark:text-slate-100">Community Discussion</h3>
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
+        <MessageSquare className="text-slate-500" size={18} />
+        <h3 className="font-semibold text-sm text-slate-800 dark:text-slate-100">Discussion</h3>
       </div>
 
       <div className="p-6 space-y-6">
@@ -68,19 +68,19 @@ export default function CommentSection({ dayNumber }) {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Ask a question or share your thoughts..."
-              className="w-full p-4 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-blue-500 outline-none transition resize-none text-slate-800 dark:text-slate-200"
+              className="w-full p-3 pr-10 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-slate-400 outline-none transition resize-none text-sm text-slate-800 dark:text-slate-200"
               rows="3"
             ></textarea>
             <button
               type="submit"
               disabled={submitting || !newComment.trim()}
-              className="absolute bottom-4 right-4 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-blue-500/20"
+              className="absolute bottom-3 right-3 p-1.5 bg-slate-800 hover:bg-slate-700 dark:bg-slate-200 dark:hover:bg-white text-white dark:text-slate-900 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Send size={18} />
+              <Send size={16} />
             </button>
           </form>
         ) : (
-          <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-center">
+          <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-md border border-dashed border-slate-300 dark:border-slate-800 text-center">
             <p className="text-sm text-slate-500">Please login to join the discussion.</p>
           </div>
         )}
@@ -93,23 +93,20 @@ export default function CommentSection({ dayNumber }) {
             </div>
           ) : comments.length > 0 ? (
             comments.map((comment) => (
-              <div key={comment._id} className="group">
+              <div key={comment._id} className="py-4 border-b border-slate-100 dark:border-slate-800 last:border-0 group">
                 <div className="flex gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 shrink-0">
-                    <User size={20} />
+                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 shrink-0">
+                    <User size={16} />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-sm text-slate-900 dark:text-slate-100">{comment.user?.name}</span>
-                      <span className="flex items-center gap-1 text-[10px] text-slate-400">
-                        <Clock size={10} />
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="font-semibold text-sm text-slate-800 dark:text-slate-200">{comment.user?.name}</span>
+                      <span className="flex items-center gap-1 text-[11px] text-slate-400">
                         {new Date(comment.createdAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-2xl rounded-tl-none border border-slate-100 dark:border-slate-700">
-                      <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                        {comment.text}
-                      </p>
+                    <div className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {comment.text}
                     </div>
                   </div>
                 </div>

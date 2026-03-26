@@ -2,6 +2,7 @@ import express from 'express';
 import DayContent from '../models/DayContent.js';
 import User from '../models/User.js';
 import TestResult from '../models/TestResult.js';
+import MockTest from '../models/MockTest.js';
 import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -89,6 +90,60 @@ router.get('/assessments/results', async (req, res) => {
     }));
 
     res.json(formatted);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   GET /api/admin/assessments
+// @desc    Get all mock tests (definitions)
+router.get('/assessments', async (req, res) => {
+  try {
+    const tests = await MockTest.find().sort({ createdAt: -1 });
+    res.json(tests);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   POST /api/admin/assessments
+// @desc    Create a new mock test
+router.post('/assessments', async (req, res) => {
+  try {
+    const newTest = await MockTest.create(req.body);
+    res.status(201).json(newTest);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   PUT /api/admin/assessments/:id
+// @desc    Update an existing mock test
+router.put('/assessments/:id', async (req, res) => {
+  try {
+    const updated = await MockTest.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updated) return res.status(404).json({ message: 'Test not found' });
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   DELETE /api/admin/assessments/:id
+// @desc    Delete a mock test and cascade delete its results
+router.delete('/assessments/:id', async (req, res) => {
+  try {
+    const test = await MockTest.findById(req.params.id);
+    if (!test) return res.status(404).json({ message: 'Test not found' });
+
+    await MockTest.findByIdAndDelete(req.params.id);
+    await TestResult.deleteMany({ mockTest: req.params.id });
+
+    res.json({ message: 'Test and associated results deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

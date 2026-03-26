@@ -178,6 +178,63 @@ router.post('/grade-github', protect, async (req, res) => {
   }
 });
 
+// @route   POST /api/ai/grade-code
+// @desc    Evaluate raw incoming text code via AI
+router.post('/grade-code', protect, async (req, res) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ message: 'AI Grader is not configured.' });
+
+  const { code, dayNumber, dayTopic, problemDescription } = req.body;
+
+  if (!code || code.trim().length === 0) {
+    return res.status(400).json({ message: 'No code provided to the grader.' });
+  }
+
+  try {
+    const truncatedCode = code.substring(0, 10000);
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+    const systemPrompt = `
+      You are an Automated AI Grader for the "CodeSprint 50" Java course.
+      The student submitted code for Day ${dayNumber}: ${dayTopic}.
+      Problem Description: ${problemDescription}
+      
+      STUDENT CODE (RAW):
+      \`\`\`java
+      ${truncatedCode}
+      \`\`\`
+      
+      Evaluate the student's code. It does NOT have to be perfectly compilable, but it MUST be a genuine and reasonable attempt to solve the specific problem described. Empty templates or unrelated code should fail.
+      
+      Respond strictly in JSON format without any markdown wrapper around the JSON:
+      {
+        "passed": true|false,
+        "feedback": "A maximum 2 sentence feedback explaining what they did well, or why it failed."
+      }
+    `;
+
+    const result = await model.generateContent(systemPrompt);
+    let responseText = result.response.text();
+    
+    responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const parsedObj = JSON.parse(responseText);
+
+    res.json({
+      passed: parsedObj.passed,
+      feedback: parsedObj.feedback,
+      rawUrl: 'in-browser-editor'
+    });
+
+  } catch (error) {
+    console.error('AI Grader Error:', error);
+    res.status(500).json({ 
+      message: 'The AI Evaluator encountered an error validating your code.'
+    });
+  }
+});
+
 // @route   POST /api/ai/grade-refactor
 // @desc    Fetch raw code from Github and evaluate it purely on Clean Code principles
 router.post('/grade-refactor', protect, async (req, res) => {

@@ -12,7 +12,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed w-full z-50 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 h-16 shadow-sm">
+    <nav className="fixed w-full z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16">
       <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 text-primary-600 dark:text-primary-500 hover:opacity-80 transition">
           <Code2 size={28} className="stroke-2" />
@@ -48,10 +48,10 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/login" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition">
+              <Link to="/login" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition">
                 Login
               </Link>
-              <Link to="/signup" className="text-sm font-medium px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg shadow-sm transition">
+              <Link to="/signup" className="text-sm font-medium px-4 py-1.5 border border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-700 rounded-md transition">
                 Sign Up
               </Link>
             </>

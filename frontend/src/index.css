@@ -11,9 +11,9 @@
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 transition-colors duration-200 antialiased;
+  @apply bg-white text-slate-900 transition-colors duration-200 antialiased;
 }
 
 .dark body {
-  @apply bg-dark-bg text-slate-100;
+  @apply bg-[#1a1a1a] text-slate-100;
 }
