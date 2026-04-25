@@ -45,7 +45,7 @@ export default function WarmupModal({ isOpen, onClose }) {
   const handleCheck = () => {
     if (selectedOption === null) return;
     setShowResult(true);
-    if (selectedOption === mcqs[currentIndex].correctOption) {
+    if (mcqs[currentIndex].options[selectedOption]?.isCorrect) {
       setScore(prev => prev + 1);
     }
   };
@@ -143,7 +143,7 @@ export default function WarmupModal({ isOpen, onClose }) {
               <div className="space-y-3 mb-8">
                 {mcqs[currentIndex].options.map((opt, idx) => {
                   const isSelected = selectedOption === idx;
-                  const isCorrectDoc = mcqs[currentIndex].correctOption === idx;
+                  const isCorrectDoc = opt.isCorrect;
                   
                   // Styling logic
                   let btnClass = "w-full text-left p-4 rounded-xl border text-sm font-medium transition-all duration-200 ";
@@ -170,7 +170,7 @@ export default function WarmupModal({ isOpen, onClose }) {
                       className={btnClass}
                     >
                       <div className="flex justify-between items-center">
-                        <span>{opt}</span>
+                        <span>{opt.text}</span>
                         {showResult && isCorrectDoc && <CircleCheckBig size={18} className="text-emerald-500 shrink-0" />}
                         {showResult && isSelected && !isCorrectDoc && <XCircle size={18} className="text-red-500 shrink-0" />}
                       </div>
@@ -190,10 +190,12 @@ export default function WarmupModal({ isOpen, onClose }) {
                   </button>
                 ) : (
                   <div className="space-y-4 animate-in slide-in-from-bottom-2">
-                    <div className="p-4 bg-blue-50 dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-300 rounded-xl border border-blue-100 dark:border-slate-700">
-                      <strong className="text-blue-800 dark:text-blue-400 block mb-1">Explanation:</strong>
-                      {mcqs[currentIndex].explanation}
-                    </div>
+                    {mcqs[currentIndex].explanation && (
+                      <div className="p-4 bg-blue-50 dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-300 rounded-xl border border-blue-100 dark:border-slate-700">
+                        <strong className="text-blue-800 dark:text-blue-400 block mb-1">Explanation:</strong>
+                        {mcqs[currentIndex].explanation}
+                      </div>
+                    )}
                     <button
                       onClick={handleNext}
                       className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 active:scale-[0.98]"
