@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/User.js';
 import DayContent from '../models/DayContent.js';
 import { protect } from '../middleware/auth.js';
+import { recordActivity } from '../utils/activityLog.js';
 
 const router = express.Router();
 
@@ -95,6 +96,7 @@ router.post('/complete-day', protect, async (req, res) => {
 
     if (!user.lastActivity) user.lastActivity = {};
     user.lastActivity.java = new Date();
+    recordActivity(user, 'java');
 
     await user.save();
     res.json({ message: `Day ${dayNumber} completed! Day ${user.currentDay} unlocked.`, user });

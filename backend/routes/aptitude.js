@@ -3,6 +3,7 @@ import AptitudeQuestion from '../models/AptitudeQuestion.js';
 import User from '../models/User.js';
 import WrongAnswer from '../models/WrongAnswer.js';
 import { protect } from '../middleware/auth.js';
+import { recordActivity } from '../utils/activityLog.js';
 
 const router = express.Router();
 
@@ -142,6 +143,7 @@ router.post('/grade', protect, async (req, res) => {
     if (attempted >= 10) {
       user.lastActivity.aptitudeQualifying = new Date();
     }
+    recordActivity(user, 'aptitude');
     await user.save();
 
     // Record wrong answers as SRS cards (idempotent — upsert by user+questionRef)

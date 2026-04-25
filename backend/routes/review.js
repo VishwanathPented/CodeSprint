@@ -2,6 +2,7 @@ import express from 'express';
 import WrongAnswer from '../models/WrongAnswer.js';
 import User from '../models/User.js';
 import { protect } from '../middleware/auth.js';
+import { todayKey } from '../utils/activityLog.js';
 
 const router = express.Router();
 
@@ -86,10 +87,13 @@ router.post('/grade', protect, async (req, res) => {
     card.lastReviewedAt = now;
     await card.save();
 
-    // Update lastActivity.review on user
+    // Update lastActivity.review + activity log on user
     await User.updateOne(
       { _id: req.user._id },
-      { $set: { 'lastActivity.review': now } }
+      {
+        $set: { 'lastActivity.review': now },
+        $addToSet: { [`activityLog.${todayKey(now)}`]: 'review' }
+      }
     );
 
     res.json({

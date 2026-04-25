@@ -6,6 +6,8 @@ import WarmupModal from '../components/dashboard/WarmupModal';
 import OnboardingModal from '../components/dashboard/OnboardingModal';
 import PlacementReadinessCard from '../components/dashboard/PlacementReadinessCard';
 import ProgramDayCard from '../components/dashboard/ProgramDayCard';
+import InsightsPanel from '../components/dashboard/InsightsPanel';
+import ActivityHeatmap from '../components/dashboard/ActivityHeatmap';
 import { Sparkles, Linkedin, Rocket, Share2, Brain, Database, ArrowRight, GraduationCap, MessageSquareText, Code2, Coffee } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
@@ -119,7 +121,11 @@ export default function Dashboard() {
         <div className="space-y-6 animate-in fade-in duration-300">
           <ProgressHeader user={user} />
           <ProgramDayCard />
-          <PlacementReadinessCard />
+          <ActivityHeatmap />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <PlacementReadinessCard />
+            <InsightsPanel />
+          </div>
         </div>
       )}
 

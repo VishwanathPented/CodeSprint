@@ -104,6 +104,10 @@ const userSchema = new mongoose.Schema({
     bestSessionAccuracy: { type: Number, default: 0 }
   },
 
+  // Per-day activity log: YYYY-MM-DD → array of track names practiced that day.
+  // Used to render the dashboard activity heatmap. Updated alongside lastActivity.
+  activityLog: { type: Map, of: [String], default: {} },
+
   // Per-track activity timestamps (for Daily Mission "did this today" checks)
   lastActivity: {
     aptitude: { type: Date },

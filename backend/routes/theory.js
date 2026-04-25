@@ -3,6 +3,7 @@ import TheoryQuestion from '../models/TheoryQuestion.js';
 import User from '../models/User.js';
 import WrongAnswer from '../models/WrongAnswer.js';
 import { protect } from '../middleware/auth.js';
+import { recordActivity } from '../utils/activityLog.js';
 
 const router = express.Router();
 
@@ -131,6 +132,7 @@ router.post('/grade', protect, async (req, res) => {
     if (attempted >= 10) {
       user.lastActivity.theoryQualifying = new Date();
     }
+    recordActivity(user, 'theory');
     await user.save();
 
     if (wrongQs.length) {

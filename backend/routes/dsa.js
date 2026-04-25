@@ -2,6 +2,7 @@ import express from 'express';
 import DsaProblem from '../models/DsaProblem.js';
 import User from '../models/User.js';
 import { protect } from '../middleware/auth.js';
+import { recordActivity } from '../utils/activityLog.js';
 
 const router = express.Router();
 
@@ -93,6 +94,7 @@ router.post('/mark-solved', protect, async (req, res) => {
     }
     if (!user.lastActivity) user.lastActivity = {};
     user.lastActivity.dsa = new Date();
+    recordActivity(user, 'dsa');
     await user.save();
     res.json({ message: 'Marked solved', dsaProgress: user.dsaProgress });
   } catch (err) {

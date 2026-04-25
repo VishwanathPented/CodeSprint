@@ -2,6 +2,7 @@ import express from 'express';
 import SqlLesson from '../models/SqlLesson.js';
 import User from '../models/User.js';
 import { protect } from '../middleware/auth.js';
+import { recordActivity } from '../utils/activityLog.js';
 
 const router = express.Router();
 
@@ -69,6 +70,7 @@ router.post('/complete-lesson', protect, async (req, res) => {
 
     if (!user.lastActivity) user.lastActivity = {};
     user.lastActivity.sql = new Date();
+    recordActivity(user, 'sql');
     await user.save();
     res.json({ message: 'SQL lesson completed', sqlProgress: user.sqlProgress });
   } catch (error) {

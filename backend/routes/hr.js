@@ -2,6 +2,7 @@ import express from 'express';
 import HrQuestion from '../models/HrQuestion.js';
 import User from '../models/User.js';
 import { protect } from '../middleware/auth.js';
+import { recordActivity } from '../utils/activityLog.js';
 
 const router = express.Router();
 
@@ -55,6 +56,7 @@ router.post('/log', protect, async (req, res) => {
     }
     if (!user.lastActivity) user.lastActivity = {};
     user.lastActivity.hr = new Date();
+    recordActivity(user, 'hr');
     await user.save();
     res.json({ logged: true, total: user.hrPractice.length });
   } catch (err) {
