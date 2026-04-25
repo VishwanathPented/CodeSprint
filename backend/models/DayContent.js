@@ -29,26 +29,21 @@ const refactorProblemSchema = new mongoose.Schema({
   messyCode: { type: String, required: true }
 });
 
-const aptitudeQuestionSchema = new mongoose.Schema({
-  question: { type: String, required: true },
-  options: [optionSchema],
-  hint: { type: String },
-  explanation: { type: String }
-});
-
 const dayContentSchema = new mongoose.Schema({
   dayNumber: { type: Number, required: true, unique: true },
   topicTitle: { type: String, required: true },
   description: { type: String, required: true },
   detailedExplanation: { type: String, default: "No detailed explanation available yet." },
   commonConfusions: { type: String, default: "Keep going, you've got this!" },
-  videoUrl: { type: String }, 
-  
-  mcqs: [mcqSchema], // Keep simple, array of questions
+  videoUrl: { type: String },
+
+  mcqs: [mcqSchema],
   predictOutput: [predictOutputSchema],
   codingProblem: codingProblemSchema,
   refactorProblem: refactorProblemSchema,
-  aptitudeQuestions: [aptitudeQuestionSchema]
+
+  // Cross-links to DSA problems for relevant days (e.g. Arrays day → array problems)
+  dsaSlugs: [{ type: String }]
 }, { timestamps: true });
 
 export default mongoose.model('DayContent', dayContentSchema);

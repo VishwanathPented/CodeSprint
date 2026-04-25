@@ -57,7 +57,7 @@ export default function RefactorModule({ problem, dayTopic, onComplete, isComple
       } else {
         setError(data.message);
       }
-    } catch (err) {
+    } catch {
       setError("Failed to reach Sprint-AI Grader. Are you connected to the internet?");
     } finally {
       setLoading(false);

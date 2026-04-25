@@ -4,14 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import VideoModule from '../components/day/VideoModule';
 import McqModule from '../components/day/McqModule';
 import PredictOutputModule from '../components/day/PredictOutputModule';
-import GithubSubmissionModule from '../components/day/GithubSubmissionModule';
 import CodeEditorModule from '../components/day/CodeEditorModule';
-import RefactorModule from '../components/day/RefactorModule';
-import AptitudeModule from '../components/day/AptitudeModule';
 import CommentSection from '../components/day/CommentSection';
 import AITutorBot from '../components/day/AITutorBot';
 import TextWithTooltips from '../components/day/TextWithTooltips';
-import { CircleCheckBig, Trophy, Loader2, Sparkles } from 'lucide-react';
+import { CircleCheckBig, Trophy, Loader2, Sparkles, Code2, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { API_URL } from '../utils/config';
 
@@ -31,7 +29,6 @@ export default function DayDetail() {
   const [githubLink, setGithubLink] = useState('');
   const [refactorPassed, setRefactorPassed] = useState(false);
   const [refactorLink, setRefactorLink] = useState('');
-  const [aptitudeScore, setAptitudeScore] = useState(null);
 
   // ELI5 State
   const [isEli5, setIsEli5] = useState(false);
@@ -55,7 +52,6 @@ export default function DayDetail() {
           if (p.githubLink !== undefined) setGithubLink(p.githubLink);
           if (p.refactorPassed !== undefined) setRefactorPassed(p.refactorPassed);
           if (p.refactorLink !== undefined) setRefactorLink(p.refactorLink);
-          if (p.aptitudeScore !== null) setAptitudeScore(p.aptitudeScore);
         } catch (e) {
           console.error('Failed to load progress', e);
         }
@@ -66,10 +62,10 @@ export default function DayDetail() {
   // Save partial progress to local storage
   useEffect(() => {
     if (!isAlreadyCompleted && user && content) {
-      const progress = { videoWatched, mcqScore, predictPassed, codeAttempted, githubLink, refactorPassed, refactorLink, aptitudeScore };
+      const progress = { videoWatched, mcqScore, predictPassed, codeAttempted, githubLink, refactorPassed, refactorLink };
       localStorage.setItem(persistKey, JSON.stringify(progress));
     }
-  }, [videoWatched, mcqScore, predictPassed, codeAttempted, githubLink, refactorPassed, refactorLink, aptitudeScore, isAlreadyCompleted, user, content, persistKey]);
+  }, [videoWatched, mcqScore, predictPassed, codeAttempted, githubLink, refactorPassed, refactorLink, isAlreadyCompleted, user, content, persistKey]);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -91,9 +87,8 @@ export default function DayDetail() {
             const dayScore = user.scores?.find(s => s.dayNumber === Number(id));
             if (dayScore?.githubLink) setGithubLink(dayScore.githubLink);
             if (dayScore?.refactorLink) setRefactorLink(dayScore.refactorLink);
-            
+
             setRefactorPassed(true);
-            setAptitudeScore(5);
           }
         }
       } catch (err) {
@@ -103,9 +98,10 @@ export default function DayDetail() {
       }
     };
     if (token) fetchContent();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, token, isAlreadyCompleted]);
 
-  const isDayFinished = videoWatched && mcqScore !== null && predictPassed && codeAttempted && refactorPassed && aptitudeScore !== null;
+  const isDayFinished = videoWatched && mcqScore !== null && predictPassed && codeAttempted;
 
   const fetchEli5 = async () => {
     if (isEli5) {
@@ -162,8 +158,7 @@ export default function DayDetail() {
           dayNumber: Number(id),
           mcqScore,
           codingAttempted: codeAttempted,
-          githubLink,
-          aptitudeScore
+          githubLink
         })
       });
       const data = await res.json();
@@ -258,8 +253,29 @@ export default function DayDetail() {
           />
         )}
 
-        {codeAttempted && (
-           <AptitudeModule questions={content.aptitudeQuestions} onComplete={(score) => setAptitudeScore(score)} score={aptitudeScore} />
+        {codeAttempted && content.dsaSlugs?.length > 0 && (
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Code2 className="text-blue-500" size={18} />
+              <h3 className="font-semibold text-slate-800 dark:text-slate-200">Now solve these DSA problems</h3>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">apply what you just learned</span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              Real placement rounds test you on applied problem-solving. Use today's concept on these curated problems.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {content.dsaSlugs.map((slug) => (
+                <Link
+                  key={slug}
+                  to={`/dsa/${slug}`}
+                  className="group flex items-center justify-between gap-2 p-2.5 rounded-md bg-slate-50 dark:bg-slate-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 transition"
+                >
+                  <span className="text-xs font-mono text-slate-700 dark:text-slate-300 truncate">{slug}</span>
+                  <ArrowRight className="text-slate-400 group-hover:text-blue-500 group-hover:translate-x-0.5 transition shrink-0" size={12} />
+                </Link>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 

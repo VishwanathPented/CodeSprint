@@ -57,7 +57,7 @@ export default function GithubSubmissionModule({ problem, dayNumber, dayTopic, o
           onComplete(githubLink);
         }
       }
-    } catch (err) {
+    } catch {
       setAiFeedback({ passed: false, text: 'Network error verifying the link. Please try again.' });
     } finally {
       setLoading(false);

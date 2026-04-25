@@ -10,6 +10,17 @@ import AdminDashboard from './pages/AdminDashboard';
 import PublicProfile from './pages/PublicProfile';
 import AssessmentList from './pages/AssessmentList';
 import LiveAssessment from './pages/LiveAssessment';
+import SqlTrack from './pages/SqlTrack';
+import SqlLesson from './pages/SqlLesson';
+import AptitudeTrack from './pages/AptitudeTrack';
+import AptitudePractice from './pages/AptitudePractice';
+import TheoryTrack from './pages/TheoryTrack';
+import TheoryPractice from './pages/TheoryPractice';
+import HrPrep from './pages/HrPrep';
+import DsaTrack from './pages/DsaTrack';
+import DsaProblem from './pages/DsaProblem';
+import ReviewDeck from './pages/ReviewDeck';
+import JavaTrack from './pages/JavaTrack';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -87,6 +98,94 @@ function App() {
             <ProtectedRoute>
               {/* No Layout wrapper for LiveAssessment to ensure full-screen focused proctoring */}
               <LiveAssessment />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/sql" element={
+            <ProtectedRoute>
+              <Layout>
+                <SqlTrack />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/sql/lesson/:lessonNumber" element={
+            <ProtectedRoute>
+              <Layout>
+                <SqlLesson />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/aptitude" element={
+            <ProtectedRoute>
+              <Layout>
+                <AptitudeTrack />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/aptitude/practice" element={
+            <ProtectedRoute>
+              <Layout>
+                <AptitudePractice />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/theory" element={
+            <ProtectedRoute>
+              <Layout>
+                <TheoryTrack />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/theory/practice" element={
+            <ProtectedRoute>
+              <Layout>
+                <TheoryPractice />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/hr" element={
+            <ProtectedRoute>
+              <Layout>
+                <HrPrep />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/dsa" element={
+            <ProtectedRoute>
+              <Layout>
+                <DsaTrack />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/dsa/:slug" element={
+            <ProtectedRoute>
+              <Layout>
+                <DsaProblem />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/review" element={
+            <ProtectedRoute>
+              <Layout>
+                <ReviewDeck />
+              </Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/java" element={
+            <ProtectedRoute>
+              <Layout>
+                <JavaTrack />
+              </Layout>
             </ProtectedRoute>
           } />
 

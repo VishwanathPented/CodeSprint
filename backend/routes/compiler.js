@@ -13,13 +13,37 @@ if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir, { recursive: true });
 }
 
-router.post('/execute', (req, res) => {
+router.post('/execute', async (req, res) => {
   const { code } = req.body;
   if (!code) {
     return res.status(400).json({ isError: true, output: "No code provided." });
   }
 
+  // Cloud Fallback: Use Judge0 if API key is provided
+  if (process.env.JUDGE0_API_KEY) {
+    try {
+      const response = await fetch('https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'X-RapidAPI-Key': process.env.JUDGE0_API_KEY,
+          'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
+        },
+        body: JSON.stringify({
+          language_id: 62, // Java (OpenJDK 13.0.1)
+          source_code: code
+        })
+      });
+      const data = await response.json();
 
+      if (data.compile_output) {
+        return res.json({ isError: true, output: data.compile_output });
+      }
+      return res.json({ isError: false, output: data.stdout || data.stderr || "Program executed successfully." });
+    } catch (e) {
+      return res.json({ isError: true, output: "Cloud Execution failed: " + e.message });
+    }
+  }
 
   const sessionId = Math.random().toString(36).substring(7);
   const sessionDir = path.join(tempDir, sessionId);
@@ -50,7 +74,19 @@ router.post('/execute', (req, res) => {
   const compileCmd = `${javacPath} -J-Xmx128M "${filePath}"`;
   
   exec(compileCmd, { timeout: 7000 }, (compileError, compileStdout, compileStderr) => {
-    if (compileError) {
+      if (compileError) {
+      
+      // Cleanup on compilation failure
+      try { fs.rmSync(sessionDir, { recursive: true, force: true }); } catch (e) {}
+
+      // Serverless Environment Check (e.g. Vercel/Render without Java)
+      if (compileError.code === 'ENOENT' || compileError.signal === 'SIGTERM') {
+          return res.json({
+              isError: true,
+              output: "⚠️ Serverless Environment Warning:\nJava compiler is missing or timed out on this host.\n\nTo enable Cloud Execution in production:\n1. Get a free API key from Judge0 (RapidAPI)\n2. Add it as 'JUDGE0_API_KEY' to your environment variables."
+          });
+      }
+
       const dirContents = fs.existsSync(sessionDir) ? fs.readdirSync(sessionDir) : 'Dir missing';
       const fileExists = fs.existsSync(filePath);
       const errorMsg = compileStderr || compileStdout || compileError.message;
@@ -60,8 +96,6 @@ router.post('/execute', (req, res) => {
         output: `Compilation Error (Code ${compileError.code || 'N/A'}, Signal ${compileError.signal || 'NONE'}):\n${errorMsg}\n\nDEBUG INFO:\n- File Exists: ${fileExists}\n- Folder Contents: ${JSON.stringify(dirContents)}\n- Command Used: ${compileCmd}`
       };
       
-      // Cleanup on compilation failure
-      try { fs.rmSync(sessionDir, { recursive: true, force: true }); } catch (e) {}
       return res.json(response);
     }
 

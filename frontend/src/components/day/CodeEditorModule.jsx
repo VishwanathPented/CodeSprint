@@ -47,7 +47,7 @@ export default function CodeEditorModule({ problem, dayNumber, dayTopic, onCompl
       } else {
          setOutput({ stdout: data.output });
       }
-    } catch (err) {
+    } catch {
       setOutput({ error: 'Failed to connect to execution server.' });
     } finally {
       setIsRunning(false);
@@ -81,7 +81,7 @@ export default function CodeEditorModule({ problem, dayNumber, dayTopic, onCompl
           onComplete("Code Sprint Ide Submission"); // We just need a truthy value or string for existingLink callback
         }
       }
-    } catch (err) {
+    } catch {
       setAiFeedback({ passed: false, text: 'Network error verifying the code.' });
     } finally {
       setIsSubmitting(false);

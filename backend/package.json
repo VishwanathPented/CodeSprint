@@ -5,8 +5,14 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"node db-server.js\" \"sleep 2 && node seed.js && nodemon server.js\"",
-    "start": "node server.js"
+    "dev": "concurrently \"node db-server.js\" \"sleep 2 && node seed.js && node seed-sql.js && node seed-aptitude.js && node seed-theory.js && node seed-hr.js && node seed-dsa.js && node seed-mocks.js && nodemon server.js\"",
+    "start": "node server.js",
+    "seed:sql": "node seed-sql.js",
+    "seed:aptitude": "node seed-aptitude.js",
+    "seed:theory": "node seed-theory.js",
+    "seed:hr": "node seed-hr.js",
+    "seed:dsa": "node seed-dsa.js",
+    "seed:mocks": "node seed-mocks.js"
   },
   "keywords": [],
   "author": "",

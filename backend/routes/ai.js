@@ -337,4 +337,82 @@ router.post('/eli5', protect, async (req, res) => {
   }
 });
 
+// @route   POST /api/ai/hr-feedback
+// @desc    Gemini-powered evaluation of an HR interview answer
+router.post('/hr-feedback', protect, async (req, res) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ message: 'AI Feedback is not configured.' });
+
+  const { question, answer, framework } = req.body;
+  if (!question || !answer || answer.trim().length < 20) {
+    return res.status(400).json({ message: 'Answer too short. Write at least a few sentences for meaningful feedback.' });
+  }
+
+  // Share the same daily AI quota
+  const user = await User.findById(req.user._id);
+  const now = new Date();
+  const lastReset = new Date(user.aiUsage.lastReset);
+  if (now.toDateString() !== lastReset.toDateString()) {
+    user.aiUsage.count = 0;
+    user.aiUsage.lastReset = now;
+  }
+  if (user.aiUsage.count >= 5 && !user.isSubscribed) {
+    return res.status(429).json({
+      message: 'Daily AI limit reached (5/5). Upgrade to Premium for unlimited HR feedback.'
+    });
+  }
+
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+
+    const systemPrompt = `
+You are a seasoned HR interviewer at a top-tier tech company evaluating a candidate's answer to a common behavioral interview question.
+
+QUESTION: ${question}
+
+SUGGESTED FRAMEWORK: ${framework || 'STAR (Situation, Task, Action, Result)'}
+
+CANDIDATE'S ANSWER:
+"""
+${answer.substring(0, 3000)}
+"""
+
+Evaluate the answer on four dimensions (rate each 1–10):
+1. **Structure** — Does it follow the framework clearly?
+2. **Specificity** — Does it use concrete examples, numbers, outcomes?
+3. **Authenticity** — Does it sound genuine rather than rehearsed or generic?
+4. **Impact** — Would this answer make an interviewer want to hire this person?
+
+Then compute an overall score out of 100.
+
+Respond strictly in JSON format, no markdown wrappers:
+{
+  "score": <0-100 integer>,
+  "structure": <1-10>,
+  "specificity": <1-10>,
+  "authenticity": <1-10>,
+  "impact": <1-10>,
+  "strengths": ["bullet 1", "bullet 2"],
+  "improvements": ["bullet 1", "bullet 2"],
+  "verdict": "One-sentence overall take."
+}
+`;
+
+    const result = await model.generateContent(systemPrompt);
+    let text = result.response.text();
+    text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const parsed = JSON.parse(text);
+
+    // Increment shared AI usage counter
+    user.aiUsage.count += 1;
+    await user.save();
+
+    res.json({ ...parsed, usageCount: user.aiUsage.count });
+  } catch (error) {
+    console.error('HR Feedback Error:', error);
+    res.status(500).json({ message: 'The AI evaluator failed. Try again in a moment.' });
+  }
+});
+
 export default router;

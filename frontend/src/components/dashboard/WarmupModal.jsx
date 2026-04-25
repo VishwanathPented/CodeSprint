@@ -4,7 +4,7 @@ import { API_URL } from '../../utils/config';
 import { useAuth } from '../../context/AuthContext';
 
 export default function WarmupModal({ isOpen, onClose }) {
-  const { token, user } = useAuth();
+  const { token } = useAuth();
   const [mcqs, setMcqs] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -16,7 +16,7 @@ export default function WarmupModal({ isOpen, onClose }) {
 
   useEffect(() => {
     if (isOpen && token) {
-      setLoading(true);
+
       fetch(`${API_URL}/user/warmup`, {
         headers: { Authorization: `Bearer ${token}` }
       })

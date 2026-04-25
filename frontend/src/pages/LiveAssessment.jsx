@@ -76,6 +76,7 @@ export default function LiveAssessment() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [test, submittedResult, isTerminated]);
 
   // Timer Countdown
@@ -94,6 +95,7 @@ export default function LiveAssessment() {
     }, 1000);
 
     return () => clearInterval(timerRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [test, submittedResult, isTerminated, timeLeft]);
 
   // Submit API Call

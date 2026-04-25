@@ -207,23 +207,224 @@ const realJavaRoadmap = [
   }
 ];
 
-// Fallback topics for 11-50
+// Fallback topics for 11-40 (intermediate Java curriculum)
 const fallbackTopics = [
   'Method Overriding & Polymorphism', 'Abstract Classes', 'Interfaces in Java',
-  'Static Keyword', 'Final Keyword', 'Exception Handling (try-catch)', 
-  'Throw & Throws', 'Custom Exceptions', 'File Handling (Reading)', 
+  'Static Keyword', 'Final Keyword', 'Exception Handling (try-catch)',
+  'Throw & Throws', 'Custom Exceptions', 'File Handling (Reading)',
   'File Handling (Writing)', 'Java Generics', 'Enums', 'Date and Time API',
-  'Collection Framework Overview', 'ArrayLists in Java', 'LinkedLists', 
-  'HashSets', 'HashMaps', 'Iterators & For-Each Loop', 
+  'Collection Framework Overview', 'ArrayLists in Java', 'LinkedLists',
+  'HashSets', 'HashMaps', 'Iterators & For-Each Loop',
   'Lambda Expressions', 'Stream API Basics', 'Multithreading Basics', 'Building a Java API'
 ];
+
+// Days 41-50: hand-crafted "Java for Interviews" placement-focused finale.
+// These are the actual Java questions tier-3 placements ask.
+const placementJavaDays = [
+  {
+    topicTitle: 'equals() and hashCode() Contract',
+    desc: 'Why overriding one without the other breaks HashSet/HashMap, and how to do it correctly.',
+    detailedExplanation: "Java's `equals()` and `hashCode()` are bound by a strict contract:\n\n1. If two objects are equal (`a.equals(b) == true`), they MUST have the same hash code.\n2. If two objects have the same hash code, they need NOT be equal (collisions are allowed).\n\nWhen you override `equals()` you MUST also override `hashCode()`. Otherwise, your objects will misbehave inside `HashSet`, `HashMap`, and any hashed collection — adding the same logical object twice will store it twice, lookups will silently fail.\n\nUse `Objects.hash(field1, field2, ...)` for a clean implementation.",
+    commonConfusions: "The most common bug: overriding `equals()` only, then putting objects into a HashSet. Two equal objects get stored separately because their hash codes differ → set.contains() returns false even though it logically shouldn't.",
+    mcqs: [
+      { q: 'If you override equals() in a class, what else must you override?', options: [{ t: 'toString()', c: false }, { t: 'hashCode()', c: true }, { t: 'compareTo()', c: false }, { t: 'clone()', c: false }] },
+      { q: 'Two objects have the same hashCode. What can you say about them?', options: [{ t: 'They must be equal', c: false }, { t: 'They might be equal — hash collisions are allowed', c: true }, { t: 'They are stored at the same memory address', c: false }, { t: 'It is a bug', c: false }] },
+      { q: 'What happens if you override equals() but NOT hashCode()?', options: [{ t: 'Compile error', c: false }, { t: 'Objects misbehave in HashMap/HashSet', c: true }, { t: 'Nothing — they are independent', c: false }, { t: 'JVM auto-generates hashCode()', c: false }] }
+    ],
+    code: {
+      title: 'Override equals() and hashCode()',
+      desc: 'Override both methods on a `Point` class so two points with the same x,y are considered equal AND hash to the same bucket.',
+      starter: "import java.util.Objects;\n\nclass Point {\n  int x, y;\n  Point(int x, int y) { this.x = x; this.y = y; }\n\n  // TODO: override equals() and hashCode()\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Point a = new Point(1, 2);\n    Point b = new Point(1, 2);\n    System.out.println(a.equals(b));            // expected: true\n    System.out.println(a.hashCode() == b.hashCode()); // expected: true\n  }\n}",
+      expected: 'true\ntrue\n'
+    },
+    predict: [
+      {
+        codeSnippet: "import java.util.HashSet;\nclass Box {\n  int n;\n  Box(int n) { this.n = n; }\n  @Override public boolean equals(Object o) {\n    return o instanceof Box && ((Box)o).n == n;\n  }\n  // hashCode not overridden\n}\npublic class T {\n  public static void main(String[] a) {\n    HashSet<Box> s = new HashSet<>();\n    s.add(new Box(5));\n    System.out.println(s.contains(new Box(5)));\n  }\n}",
+        expectedOutput: 'false',
+        explanation: "Because hashCode() is not overridden, two `Box(5)` instances have different default hash codes. HashSet looks in different buckets → contains returns false. This is the classic equals-without-hashCode bug."
+      }
+    ]
+  },
+  {
+    topicTitle: 'Immutability and the final Keyword',
+    desc: 'How to design truly immutable classes, why String is immutable, and the role of `final`.',
+    detailedExplanation: "An immutable object's state cannot change after construction. To make a class immutable:\n\n1. Mark the class `final` (so it can't be subclassed and have mutability added).\n2. Make all fields `private final`.\n3. Don't expose setters.\n4. For mutable field types (like List, Date), defensive-copy on the way in (constructor) and on the way out (getters).\n\n`String`, `Integer`, and all wrapper types are immutable in Java. That's why `s.toUpperCase()` returns a new String — the original is never modified.\n\n`final` on a variable means the reference can't be reassigned — it does NOT make the pointed-to object immutable.",
+    commonConfusions: "`final List<Integer> list = new ArrayList<>();` does NOT make the list immutable — you can still call `list.add(x)`. `final` only locks the reference, not the object's state. For an unmodifiable list, use `List.copyOf()` or `Collections.unmodifiableList()`.",
+    mcqs: [
+      { q: 'Which of the following is required to make a class immutable?', options: [{ t: 'Make all methods static', c: false }, { t: 'Make fields private final and provide no setters', c: true }, { t: 'Mark every method synchronized', c: false }, { t: 'Inherit from Immutable interface', c: false }] },
+      { q: 'final List<Integer> list = new ArrayList<>(); list.add(5); — what happens?', options: [{ t: 'Compile error', c: false }, { t: 'Runtime exception', c: false }, { t: 'Works fine — final locks reference, not contents', c: true }, { t: 'Throws UnsupportedOperationException', c: false }] },
+      { q: 'Why is String immutable in Java?', options: [{ t: 'For thread safety, security (e.g. as Map keys), and string pool optimization', c: true }, { t: 'To save memory only', c: false }, { t: 'It is not — you can modify Strings', c: false }, { t: 'Historical accident', c: false }] }
+    ],
+    code: {
+      title: 'Build an Immutable Person',
+      desc: "Make `Person` truly immutable. Defensive-copy any incoming/outgoing collections.",
+      starter: "import java.util.*;\n\nfinal class Person {\n  // TODO: private final fields, defensive copy in constructor and getter\n  public Person(String name, List<String> hobbies) {\n  }\n  public String getName() { return null; }\n  public List<String> getHobbies() { return null; }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    List<String> hobbies = new ArrayList<>(List.of(\"chess\", \"hiking\"));\n    Person p = new Person(\"Aarav\", hobbies);\n    hobbies.add(\"coding\"); // should NOT affect p\n    System.out.println(p.getHobbies().size()); // expected: 2\n  }\n}",
+      expected: '2\n'
+    }
+  },
+  {
+    topicTitle: 'Singleton — Four Implementations',
+    desc: 'The classic creational pattern. Eager init, lazy init, double-checked locking, and the enum trick.',
+    detailedExplanation: "Singleton ensures a class has exactly one instance and provides global access to it.\n\n**Four common implementations:**\n\n1. **Eager initialization** — `private static final INSTANCE = new Singleton();` Simple, thread-safe by classloader, but creates instance even if never used.\n\n2. **Lazy synchronized** — getter is `synchronized`. Thread-safe but slow because every call locks.\n\n3. **Double-checked locking with `volatile`** — checks instance twice, locks only on first creation. Fast and thread-safe but verbose.\n\n4. **Enum singleton** (Bloch's recommendation) — `public enum Singleton { INSTANCE; }`. Thread-safe, serialization-safe, reflection-safe. Use this unless you have a specific reason not to.\n\n**Real-world use cases:** logging, configuration, connection pools.",
+    commonConfusions: "Naive lazy init (without synchronization) breaks under multiple threads — two threads can both see `instance == null` and create two instances. Always use a thread-safe variant in production.",
+    mcqs: [
+      { q: 'Which Singleton variant does Joshua Bloch recommend in "Effective Java"?', options: [{ t: 'Eager init', c: false }, { t: 'Lazy synchronized', c: false }, { t: 'Double-checked locking', c: false }, { t: 'Enum singleton', c: true }] },
+      { q: 'In double-checked locking, what is the role of `volatile`?', options: [{ t: 'Makes the field final', c: false }, { t: 'Prevents instruction reordering and ensures visibility across threads', c: true }, { t: 'Speeds up reads', c: false }, { t: 'Required only for primitives', c: false }] },
+      { q: 'A naive non-synchronized lazy Singleton can be broken by:', options: [{ t: 'Reflection only', c: false }, { t: 'Concurrent calls from multiple threads creating multiple instances', c: true }, { t: 'JVM warm-up', c: false }, { t: 'Garbage collection', c: false }] }
+    ],
+    code: {
+      title: 'Thread-safe Lazy Singleton',
+      desc: 'Implement `Logger` as a thread-safe singleton using double-checked locking with volatile. Verify two getInstance() calls return the same reference.',
+      starter: "class Logger {\n  // TODO: private static volatile Logger instance; private constructor; getInstance with double-checked locking\n  public static Logger getInstance() {\n    return null;\n  }\n  public void log(String s) { System.out.println(\"LOG: \" + s); }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Logger a = Logger.getInstance();\n    Logger b = Logger.getInstance();\n    System.out.println(a == b); // expected: true\n  }\n}",
+      expected: 'true\n'
+    }
+  },
+  {
+    topicTitle: 'Comparable vs Comparator',
+    desc: "Two ways to define ordering: natural ordering on the class, or external rules supplied per-sort.",
+    detailedExplanation: "**`Comparable<T>`** — implemented BY the class being sorted. Defines a single, natural ordering. Method: `compareTo(T other)`. `Collections.sort(list)` uses this.\n\n**`Comparator<T>`** — implemented OUTSIDE the class. Defines an alternative ordering, useful when you need multiple sort orders or when you can't modify the class. Method: `compare(T a, T b)`. Used as `list.sort(comparator)`.\n\n**Modern usage:** `Comparator.comparing(Person::getAge).thenComparing(Person::getName)` builds composite comparators in one line.\n\nReturn convention: negative if a < b, zero if equal, positive if a > b.",
+    commonConfusions: "Don't write `return a - b` for int comparisons in `compareTo` — it overflows for large negative numbers. Use `Integer.compare(a, b)`.",
+    mcqs: [
+      { q: 'Which interface defines a class\'s NATURAL ordering?', options: [{ t: 'Comparator', c: false }, { t: 'Comparable', c: true }, { t: 'Sortable', c: false }, { t: 'Iterable', c: false }] },
+      { q: 'You need to sort the same `Person` list by age in one place and by name in another. Use:', options: [{ t: 'Two implementations of Comparable', c: false }, { t: 'Two Comparators', c: true }, { t: 'Override toString() differently', c: false }, { t: 'Reflection', c: false }] },
+      { q: 'Why is `return a - b` risky in compareTo?', options: [{ t: 'Slower than Integer.compare', c: false }, { t: 'Subtraction can overflow with extreme values', c: true }, { t: 'Returns wrong sign', c: false }, { t: 'It does not compile', c: false }] }
+    ],
+    code: {
+      title: 'Sort Employees',
+      desc: 'Use a Comparator to sort employees by salary descending, breaking ties alphabetically by name ascending.',
+      starter: "import java.util.*;\n\nclass Emp {\n  String name; int salary;\n  Emp(String n, int s) { name = n; salary = s; }\n  public String toString() { return name + \":\" + salary; }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Emp> list = new ArrayList<>(List.of(\n      new Emp(\"Diya\", 60000), new Emp(\"Aarav\", 80000), new Emp(\"Ben\", 60000)\n    ));\n    // TODO: sort by salary DESC, then name ASC\n    list.forEach(System.out::println);\n    // expected: Aarav:80000, Ben:60000, Diya:60000\n  }\n}",
+      expected: 'Aarav:80000\nBen:60000\nDiya:60000\n'
+    }
+  },
+  {
+    topicTitle: 'Pass-by-Value: The Classic Gotcha',
+    desc: "Java is strictly pass-by-value — but for object references the *value* IS the reference. This is THE most-asked Java interview gotcha.",
+    detailedExplanation: "Java passes arguments by VALUE. Always. There is no pass-by-reference in Java.\n\n- For primitives (int, double, char): the value is copied. The method receives a fresh copy. Reassignments inside don't affect the caller.\n\n- For objects: the *reference value* is copied. Both the caller's variable and the parameter point to the SAME object. Mutating the object via the parameter IS visible to the caller. But REASSIGNING the parameter (`p = new Person(...)`) only changes the local copy.\n\nThis is why you can call `list.add(x)` inside a method and the caller sees the change, but `list = new ArrayList<>()` inside the method does not.",
+    commonConfusions: "People say 'Java is pass-by-reference for objects'. WRONG — it's still pass-by-value, where the value being passed is the reference. The distinction matters when you reassign vs mutate.",
+    mcqs: [
+      { q: 'Java argument passing is:', options: [{ t: 'Pass-by-reference for objects', c: false }, { t: 'Pass-by-value, always — but for objects the value is the reference', c: true }, { t: 'Pass-by-name', c: false }, { t: 'Depends on the JVM', c: false }] },
+      { q: 'void modify(int n) { n = 99; } — caller passes x = 5. After call, x is:', options: [{ t: '5', c: true }, { t: '99', c: false }, { t: 'undefined', c: false }, { t: 'compile error', c: false }] },
+      { q: 'void rename(Person p) { p.name = "X"; } — does the caller see the rename?', options: [{ t: 'Yes — the reference points to the same object', c: true }, { t: 'No — Java is pass-by-value', c: false }, { t: 'Only if Person is final', c: false }, { t: 'Throws an exception', c: false }] }
+    ],
+    code: {
+      title: 'Demonstrate Pass-by-Value',
+      desc: 'Write three methods showing: (1) primitive change does NOT propagate, (2) object mutation DOES propagate, (3) reassignment of parameter does NOT propagate.',
+      starter: "class Box { int n; Box(int n) { this.n = n; } }\n\npublic class Main {\n  static void changePrim(int x) { x = 99; }\n  static void mutateBox(Box b) { /* TODO mutate */ }\n  static void reassignBox(Box b) { /* TODO reassign */ }\n\n  public static void main(String[] args) {\n    int p = 5;\n    Box bx = new Box(5);\n    changePrim(p); System.out.println(p);     // expected 5\n    mutateBox(bx); System.out.println(bx.n);  // expected 99\n    reassignBox(bx); System.out.println(bx.n);// expected 99 (reassignment does not propagate)\n  }\n}",
+      expected: '5\n99\n99\n'
+    }
+  },
+  {
+    topicTitle: 'String Pool, intern, and == vs .equals()',
+    desc: 'String literals share memory in the String pool. Why `"a" == "a"` is true but `new String("a") == new String("a")` is false.',
+    detailedExplanation: "Java keeps a special memory area called the **String Pool** (also called String Constant Pool). String LITERALS are placed there and reused.\n\n- `String a = \"hi\"; String b = \"hi\";` — both reference the SAME pool object → `a == b` is true.\n- `String c = new String(\"hi\");` — explicitly creates a new object on the heap → `a == c` is false.\n- `c.intern()` returns the pooled instance — `a == c.intern()` is true.\n\n**Rule of thumb:** ALWAYS use `.equals()` for content comparison. Use `==` only for null checks or intentional reference equality.",
+    commonConfusions: "Many beginners write `if (s == \"hello\")` and it works in tests because of pool sharing — then breaks in production where the string came from `new String(...)` or user input. Always use `.equals()`.",
+    mcqs: [
+      { q: 'String a = "hi"; String b = "hi"; — what is a == b?', options: [{ t: 'true (both refer to the pooled "hi")', c: true }, { t: 'false', c: false }, { t: 'NullPointerException', c: false }, { t: 'Depends on JVM', c: false }] },
+      { q: 'String c = new String("hi"); String a = "hi"; — c == a is:', options: [{ t: 'true', c: false }, { t: 'false (new String creates a heap object outside the pool)', c: true }, { t: 'compile error', c: false }, { t: 'always true after Java 9', c: false }] },
+      { q: 'How do you correctly compare two strings for content equality?', options: [{ t: 'Using ==', c: false }, { t: 'Using .equals()', c: true }, { t: 'Using compareTo() == 0 only', c: false }, { t: 'Using === ', c: false }] }
+    ],
+    code: {
+      title: 'String Equality Drill',
+      desc: 'Print true/false comparisons for the four scenarios shown in the starter.',
+      starter: "public class Main {\n  public static void main(String[] args) {\n    String a = \"hi\";\n    String b = \"hi\";\n    String c = new String(\"hi\");\n    System.out.println(a == b);              // expected: true\n    System.out.println(a == c);              // expected: false\n    System.out.println(a.equals(c));         // expected: true\n    System.out.println(a == c.intern());     // expected: true\n  }\n}",
+      expected: 'true\nfalse\ntrue\ntrue\n'
+    }
+  },
+  {
+    topicTitle: 'Checked vs Unchecked Exceptions',
+    desc: 'Java\'s exception hierarchy: when to catch, when to throw, and when to define your own.',
+    detailedExplanation: "Java exceptions split into:\n\n- **Checked exceptions** (extend `Exception` but NOT `RuntimeException`): the compiler forces you to handle them — either with try/catch or by declaring `throws`. Examples: `IOException`, `SQLException`. Used for predictable failure modes (network down, file missing).\n\n- **Unchecked exceptions** (extend `RuntimeException`): the compiler does NOT force you to handle them. Examples: `NullPointerException`, `IllegalArgumentException`, `IndexOutOfBoundsException`. Used for programming bugs.\n\n- **Errors** (extend `Error`): JVM-level catastrophes. Don't catch these. Examples: `OutOfMemoryError`, `StackOverflowError`.\n\n**Custom exceptions:** create checked exceptions for recoverable domain failures, unchecked for invariant violations.",
+    commonConfusions: "Wrapping every checked exception in `RuntimeException` to silence the compiler is an anti-pattern — it loses important error type information. Either handle it meaningfully or let it propagate via `throws`.",
+    mcqs: [
+      { q: 'Which is a CHECKED exception?', options: [{ t: 'NullPointerException', c: false }, { t: 'IOException', c: true }, { t: 'IllegalArgumentException', c: false }, { t: 'ArrayIndexOutOfBoundsException', c: false }] },
+      { q: 'Which is an UNCHECKED exception?', options: [{ t: 'IOException', c: false }, { t: 'SQLException', c: false }, { t: 'NullPointerException', c: true }, { t: 'ClassNotFoundException', c: false }] },
+      { q: 'When SHOULD you catch a Throwable directly?', options: [{ t: 'Always — for safety', c: false }, { t: 'Never — Errors should bubble up to the JVM', c: true }, { t: 'In every main method', c: false }, { t: 'When using lambdas', c: false }] }
+    ],
+    code: {
+      title: 'Custom Checked Exception',
+      desc: 'Define `InsufficientBalanceException` (checked) and throw it from a `withdraw(int amount)` method when amount > balance. Catch and print message in main.',
+      starter: "class InsufficientBalanceException extends Exception {\n  public InsufficientBalanceException(String msg) { super(msg); }\n}\n\nclass Account {\n  int balance = 100;\n  void withdraw(int amount) throws InsufficientBalanceException {\n    // TODO: throw if amount > balance, else subtract\n  }\n}\n\npublic class Main {\n  public static void main(String[] args) {\n    Account a = new Account();\n    try {\n      a.withdraw(150);\n    } catch (InsufficientBalanceException e) {\n      System.out.println(e.getMessage()); // expected: \"Tried 150, balance only 100\"\n    }\n  }\n}",
+      expected: 'Tried 150, balance only 100\n'
+    }
+  },
+  {
+    topicTitle: 'Iterator Patterns: Fail-Fast vs Fail-Safe',
+    desc: "What `ConcurrentModificationException` actually means and which collections avoid it.",
+    detailedExplanation: "**Fail-fast iterators** detect structural modifications (add/remove) during iteration and throw `ConcurrentModificationException` immediately. They check a `modCount` field on each `next()` call. Examples: `ArrayList`, `HashMap`, `HashSet`. The exception isn't a guarantee — it's a best-effort early-warning system.\n\n**Fail-safe iterators** operate on a snapshot of the collection, so they NEVER throw CME but may not reflect concurrent modifications. Examples: `CopyOnWriteArrayList`, `ConcurrentHashMap`. They cost more memory (snapshot) and have weak consistency.\n\n**Correct way to remove during iteration:** use the iterator's own `iterator.remove()` method, OR use `removeIf(predicate)` (Java 8+). Never call `list.remove()` from inside a for-each.",
+    commonConfusions: "for-each is just sugar for an Iterator. `for (X x : list) { list.remove(x); }` will throw CME on the second iteration. Use `Iterator<X> it = list.iterator(); while (it.hasNext()) { ...; it.remove(); }` or `list.removeIf(...)`.",
+    mcqs: [
+      { q: 'You see ConcurrentModificationException. Most likely cause:', options: [{ t: 'Two threads accessing the collection', c: false }, { t: 'Modifying the collection while iterating with a fail-fast iterator', c: true }, { t: 'The collection ran out of memory', c: false }, { t: 'Wrong generic type', c: false }] },
+      { q: 'Which collection is fail-SAFE for iteration?', options: [{ t: 'ArrayList', c: false }, { t: 'HashMap', c: false }, { t: 'CopyOnWriteArrayList', c: true }, { t: 'LinkedList', c: false }] },
+      { q: 'Correct way to remove elements while iterating an ArrayList:', options: [{ t: 'list.remove(x) inside for-each', c: false }, { t: 'iterator.remove() or list.removeIf(predicate)', c: true }, { t: 'Synchronize the loop', c: false }, { t: 'Convert to LinkedList first', c: false }] }
+    ],
+    code: {
+      title: 'Safe Element Removal',
+      desc: 'Remove all even numbers from a list while iterating, without triggering ConcurrentModificationException.',
+      starter: "import java.util.*;\n\npublic class Main {\n  public static void main(String[] args) {\n    List<Integer> nums = new ArrayList<>(List.of(1, 2, 3, 4, 5, 6));\n    // TODO: remove all even numbers safely\n    System.out.println(nums); // expected: [1, 3, 5]\n  }\n}",
+      expected: '[1, 3, 5]\n'
+    }
+  },
+  {
+    topicTitle: 'Concurrent Collections',
+    desc: 'Why HashMap breaks under concurrency, and how ConcurrentHashMap fixes it.',
+    detailedExplanation: "Standard `HashMap` is NOT thread-safe. Concurrent puts can corrupt the internal bucket array — in Java 7 this could even cause infinite loops on get().\n\n**Three options for thread-safe maps:**\n\n1. **`Hashtable`** (legacy) — every method is synchronized on the whole table. Thread-safe but every operation locks the entire structure. Slow under contention. Don't use in new code.\n\n2. **`Collections.synchronizedMap(new HashMap<>())`** — wraps a HashMap with synchronized delegates. Same coarse-grained locking as Hashtable. Still requires manual sync for compound operations like check-then-put.\n\n3. **`ConcurrentHashMap`** — designed for concurrency. Internally splits into segments/bins; reads are mostly lock-free; writes lock only the affected bin. Provides atomic operations: `putIfAbsent`, `compute`, `merge`. Use this in new multi-threaded code.\n\n**Null handling:** ConcurrentHashMap disallows null keys/values; HashMap allows them.",
+    commonConfusions: "`Collections.synchronizedMap` is NOT the same as `ConcurrentHashMap`. The former locks the entire map per operation. The latter is finely-locked and far more performant — and provides atomic compound operations the synchronized wrapper does not.",
+    mcqs: [
+      { q: 'Which Map is best for high-concurrency scenarios?', options: [{ t: 'HashMap', c: false }, { t: 'Hashtable', c: false }, { t: 'ConcurrentHashMap', c: true }, { t: 'TreeMap', c: false }] },
+      { q: 'Can you put null keys/values in ConcurrentHashMap?', options: [{ t: 'Yes, both', c: false }, { t: 'No — neither is allowed', c: true }, { t: 'Only null values', c: false }, { t: 'Only null keys', c: false }] },
+      { q: 'Why is HashMap unsafe under multi-thread access?', options: [{ t: 'It uses too much memory', c: false }, { t: 'Concurrent put operations can corrupt internal state', c: true }, { t: 'Iterators are slow', c: false }, { t: 'It throws CME on every put', c: false }] }
+    ],
+    code: {
+      title: 'Atomic Counter with ConcurrentHashMap',
+      desc: 'Use ConcurrentHashMap.merge() to atomically increment a per-key counter from 4 threads.',
+      starter: "import java.util.concurrent.*;\nimport java.util.*;\n\npublic class Main {\n  public static void main(String[] args) throws Exception {\n    ConcurrentHashMap<String, Integer> counts = new ConcurrentHashMap<>();\n    Runnable task = () -> {\n      for (int i = 0; i < 1000; i++) {\n        // TODO: atomically increment counts.get(\"hits\")\n      }\n    };\n    Thread[] ts = new Thread[4];\n    for (int i = 0; i < 4; i++) { ts[i] = new Thread(task); ts[i].start(); }\n    for (Thread t : ts) t.join();\n    System.out.println(counts.get(\"hits\")); // expected: 4000\n  }\n}",
+      expected: '4000\n'
+    }
+  },
+  {
+    topicTitle: 'Day 50 Mock Round — Java Interview Finale',
+    desc: 'A mixed mock interview round combining the placement-Java concepts from days 41–49.',
+    detailedExplanation: "**Congratulations — you've reached Day 50.**\n\nThis day is a mock interview round combining everything you've practiced over the last 10 days: equals/hashCode, immutability, Singleton, Comparable/Comparator, pass-by-value, String pool, exceptions, iterators, and concurrent collections.\n\nUse this day to:\n1. Take the 5 mixed MCQs below — these are real Java interview questions.\n2. Solve the coding problem under timed conditions (15 min target).\n3. Then take a full company mock from /assessments.\n\nIf you struggle with any topic, go back to that specific day and re-read it. Repetition is the unlock.",
+    commonConfusions: "Day 50 is a milestone, not the finish line. Java interviews compound — concepts from day 41 will be tested alongside concepts from day 49. Mixed practice (which is what real interviews do) is harder than topic-isolated practice. That's why we end on a mock round.",
+    mcqs: [
+      { q: 'In which collection should you AVOID using a mutable object as a key?', options: [{ t: 'ArrayList', c: false }, { t: 'HashMap', c: true }, { t: 'TreeMap (it sorts, so mutation is fine)', c: false }, { t: 'LinkedList', c: false }] },
+      { q: 'String s1 = "x" + "y"; String s2 = "xy"; — s1 == s2 is:', options: [{ t: 'true (compile-time concatenation puts both in the pool)', c: true }, { t: 'false', c: false }, { t: 'Compile error', c: false }, { t: 'Depends on JVM', c: false }] },
+      { q: 'You override equals() but break the contract (a.equals(b) but b.equals(a) is false). What is this called?', options: [{ t: 'Reflexive violation', c: false }, { t: 'Symmetric violation', c: true }, { t: 'Transitive violation', c: false }, { t: 'Consistent violation', c: false }] },
+      { q: 'Which Singleton variant is reflection-safe AND serialization-safe?', options: [{ t: 'Eager init', c: false }, { t: 'Synchronized lazy', c: false }, { t: 'Double-checked locking', c: false }, { t: 'Enum singleton', c: true }] },
+      { q: 'A method declared `throws IOException` is called without a try-catch. The caller method:', options: [{ t: 'Has compile error', c: false }, { t: 'Must also declare `throws IOException` — or compile error', c: true }, { t: 'Runs fine — IOException is unchecked', c: false }, { t: 'Auto-wraps in RuntimeException', c: false }] }
+    ],
+    code: {
+      title: 'Final Coding Challenge: Word Frequency',
+      desc: "Read a sentence and print the word that appears most frequently. Tie? Print the lexicographically smallest. Ignore case. Use HashMap + Comparator.",
+      starter: "import java.util.*;\n\npublic class Main {\n  public static String mostFrequent(String sentence) {\n    // TODO: split, count via HashMap, find best entry\n    return \"\";\n  }\n\n  public static void main(String[] args) {\n    System.out.println(mostFrequent(\"the cat sat on the mat\")); // expected: \"the\"\n    System.out.println(mostFrequent(\"a b c a b c\"));            // expected: \"a\" (tie → smallest)\n  }\n}",
+      expected: 'the\na\n'
+    }
+  }
+];
+
+// Cross-link map: dayNumber → DSA problem slugs that match the day's topic.
+// Days not listed get no DSA pills.
+const dsaCrossLinks = {
+  5: ['arrays-sum', 'arrays-max-element'], // Loops day → simple array iteration
+  6: ['arrays-sum', 'arrays-max-element', 'arrays-reverse', 'arrays-second-largest', 'arrays-rotate', 'arrays-move-zeroes', 'arrays-subarray-max-sum', 'arrays-two-sum'], // Arrays day
+  41: ['hashing-intersection', 'hashing-group-anagrams'], // equals/hashCode
+  44: ['arrays-second-largest'], // Comparable/Comparator
+  46: ['strings-palindrome', 'strings-anagram', 'strings-first-unique', 'strings-reverse-words'], // String pool day → string problems
+  48: ['ll-reverse', 'll-detect-cycle', 'll-merge-sorted', 'll-remove-nth'], // Iterator patterns → LL traversal
+  49: ['hashing-subarray-sum-k', 'hashing-longest-consecutive'], // Concurrent collections → hashing problems
+  50: ['stack-valid-parentheses', 'stack-min-stack', 'recursion-fibonacci', 'tree-inorder-traversal'] // Mixed finale
+};
 
 for (let i = 1; i <= 50; i++) {
   let dayData;
 
   if (i <= 10) {
     dayData = realJavaRoadmap[i - 1];
+  } else if (i >= 41) {
+    // Days 41-50: hand-crafted placement-Java content
+    dayData = placementJavaDays[i - 41];
   } else {
+    // Days 11-40: intermediate fallback content
     dayData = {
       topicTitle: fallbackTopics[(i - 11) % fallbackTopics.length] + ` (Day ${i})`,
       desc: `Deep dive into advanced Java concepts. Master this topic to become a Senior Java Developer!`,
@@ -248,22 +449,10 @@ for (let i = 1; i <= 50; i++) {
 
   const formattedMcqs = dayData.mcqs.map(m => ({
     question: m.q,
-    options: m.options.map(o => ({ 
-      text: o.t !== undefined ? o.t : o.text, 
-      isCorrect: o.c !== undefined ? o.c : o.isCorrect 
+    options: m.options.map(o => ({
+      text: o.t !== undefined ? o.t : o.text,
+      isCorrect: o.c !== undefined ? o.c : o.isCorrect
     }))
-  }));
-
-  // Aptitude is generic mathematical stuff
-  const aptitudeQuestions = Array.from({ length: 3 }).map((_, idx) => ({
-    question: `If a train runs at ${60 + i} km/hr for 2 hours, what distance does it cover?`,
-    options: [
-      { text: `${(60 + i) * 2}`, isCorrect: true },
-      { text: `100`, isCorrect: false },
-      { text: `200`, isCorrect: false }
-    ],
-    hint: `Speed * Time = Distance`,
-    explanation: `Distance is ${(60 + i) * 2} km.`
   }));
 
   days.push({
@@ -272,7 +461,7 @@ for (let i = 1; i <= 50; i++) {
     description: dayData.desc,
     detailedExplanation: dayData.detailedExplanation,
     commonConfusions: dayData.commonConfusions,
-    videoUrl: 'https://www.youtube.com/embed/eIrMbAQSU34', // valid java course video
+    videoUrl: 'https://www.youtube.com/embed/eIrMbAQSU34',
     mcqs: formattedMcqs,
     predictOutput: dayData.predict || [
       {
@@ -292,7 +481,7 @@ for (let i = 1; i <= 50; i++) {
       description: `The following code works, but violates clean code principles. Refactor it to improve readability and structure.`,
       messyCode: `public class BadCode {\n  public void doStuff(int x, int y) {\n    if(x > 0){\n      if(y > 0){\n        System.out.println(\"Positive\");\n      }\n    }\n  }\n}`
     },
-    aptitudeQuestions: aptitudeQuestions
+    dsaSlugs: dsaCrossLinks[i] || []
   });
 }
 

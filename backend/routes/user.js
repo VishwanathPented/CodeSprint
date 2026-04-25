@@ -49,7 +49,7 @@ router.get('/leaderboard', async (req, res) => {
 router.post('/complete-day', protect, async (req, res) => {
   try {
     const user = req.user;
-    const { dayNumber, mcqScore, codingAttempted, aptitudeScore, githubLink, refactorLink } = req.body;
+    const { dayNumber, mcqScore, codingAttempted, githubLink, refactorLink } = req.body;
     
     // Only allow completing the current unlocked day
     if (dayNumber !== user.currentDay) {
@@ -67,8 +67,7 @@ router.post('/complete-day', protect, async (req, res) => {
       mcqScore,
       codingAttempted,
       githubLink,
-      refactorLink,
-      aptitudeScore
+      refactorLink
     });
 
     if (!user.completedDays.includes(dayNumber)) {
@@ -93,7 +92,10 @@ router.post('/complete-day', protect, async (req, res) => {
       }
       user.lastActiveDate = new Date();
     }
-    
+
+    if (!user.lastActivity) user.lastActivity = {};
+    user.lastActivity.java = new Date();
+
     await user.save();
     res.json({ message: `Day ${dayNumber} completed! Day ${user.currentDay} unlocked.`, user });
   } catch (error) {

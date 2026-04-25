@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, CircleCheck, Rocket, Github, Download, Search, AlertCircle, Phone, BookOpen, Clock, ShieldCheck, Target, TriangleAlert } from 'lucide-react';
+import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, Rocket, Github, Download, Search, AlertCircle, Phone, BookOpen, Clock, ShieldCheck, Target, TriangleAlert, Code2, Database, Brain, Calculator, MessageCircle, MessageSquare, Crown, ShieldOff, RotateCcw, X, KeyRound } from 'lucide-react';
 import { API_URL } from '../utils/config';
+import QuestionBankManager from '../components/admin/QuestionBankManager';
+import DsaManager from '../components/admin/DsaManager';
+import SqlManager from '../components/admin/SqlManager';
+import HrManager from '../components/admin/HrManager';
+import CommentsManager from '../components/admin/CommentsManager';
 
 export default function AdminDashboard() {
   const { token, user } = useAuth();
@@ -32,6 +37,10 @@ export default function AdminDashboard() {
   // Users Filter State
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Per-user edit modal
+  const [editUser, setEditUser] = useState(null);
+  const [savingUser, setSavingUser] = useState(false);
+
   useEffect(() => {
     if (user && !(user.isAdmin || user.role === 'admin')) {
       console.warn('Unauthorized access to Admin. Redirecting...', user);
@@ -41,13 +50,21 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const fetchData = async () => {
+    // Tabs whose components manage their own data fetching
+    const selfManaged = ['dsa', 'sql', 'theory', 'aptitude', 'hr', 'comments'];
+    if (selfManaged.includes(activeTab)) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      
+
       if (activeTab === 'content') {
         const res = await fetch(`${API_URL}/content/roadmap`, { headers });
         setDays(await res.json());
@@ -153,6 +170,99 @@ export default function AdminDashboard() {
     }
   };
 
+  // ===== User actions =====
+  const handleToggleSubscription = async (u) => {
+    const res = await fetch(`${API_URL}/admin/users/${u._id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ isSubscribed: !u.isSubscribed })
+    });
+    if (res.ok) fetchData();
+  };
+
+  const handleToggleAdmin = async (u) => {
+    const nextRole = u.role === 'admin' ? 'user' : 'admin';
+    if (!window.confirm(`Change ${u.name}'s role to ${nextRole}?`)) return;
+    const res = await fetch(`${API_URL}/admin/users/${u._id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ role: nextRole })
+    });
+    if (res.ok) fetchData();
+  };
+
+  const handleResetProgress = async (u) => {
+    if (!window.confirm(`Wipe ALL progress for ${u.name}? Streaks, completed days, scores, and review cards will be cleared. This cannot be undone.`)) return;
+    const res = await fetch(`${API_URL}/admin/users/${u._id}/reset-progress`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) { alert('Progress reset'); fetchData(); }
+  };
+
+  const handleDeleteUser = async (u) => {
+    if (!window.confirm(`Permanently DELETE ${u.name} (${u.email})? Their account and all related data will be removed.`)) return;
+    if (!window.confirm(`Are you absolutely sure? Type "${u.email}" was already confirmed implicitly. Click OK to delete.`)) return;
+    const res = await fetch(`${API_URL}/admin/users/${u._id}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) { alert('User deleted'); fetchData(); }
+    else { const d = await res.json().catch(() => ({})); alert(d.message || 'Delete failed'); }
+  };
+
+  const handleSaveUser = async (e) => {
+    e.preventDefault();
+    setSavingUser(true);
+    try {
+      const res = await fetch(`${API_URL}/admin/users/${editUser._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          name: editUser.name,
+          email: editUser.email,
+          username: editUser.username,
+          isSubscribed: editUser.isSubscribed,
+          role: editUser.role,
+          currentDay: editUser.currentDay,
+          streak: editUser.streak,
+          githubRepo: editUser.githubRepo,
+          registrationDetails: editUser.registrationDetails
+        })
+      });
+      if (res.ok) { setEditUser(null); fetchData(); }
+      else { const d = await res.json().catch(() => ({})); alert(d.message || 'Save failed'); }
+    } finally { setSavingUser(false); }
+  };
+
+  // ===== Curriculum admin =====
+  const handleCreateDay = async () => {
+    const title = window.prompt('Enter the topic title for the new day:');
+    if (!title) return;
+    const res = await fetch(`${API_URL}/admin/day`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        topicTitle: title,
+        description: '',
+        videoUrl: '',
+        detailedExplanation: '',
+        mcqs: [],
+        codingProblem: { expectedOutput: '' }
+      })
+    });
+    if (res.ok) fetchData();
+    else { const d = await res.json().catch(() => ({})); alert(d.message || 'Create failed'); }
+  };
+
+  const handleDeleteDay = async () => {
+    if (!editData) return;
+    if (!window.confirm(`Delete Day ${editData.dayNumber} (${editData.topicTitle})? Students will lose access to this content.`)) return;
+    const res = await fetch(`${API_URL}/admin/day/${editData.dayNumber}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) { setSelectedDayId(null); fetchData(); }
+  };
+
   // MCQ Add/Remove helper
   const addMcq = () => {
     const newMcqs = [...(editData.mcqs || []), { question: '', options: ['', '', '', ''], correctAnswer: 0 }];
@@ -198,20 +308,28 @@ export default function AdminDashboard() {
   });
 
   const renderContentManager = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {days.map((day) => (
-        <button
-          key={day.dayNumber}
-          onClick={() => loadDayForEdit(day.dayNumber)}
-          className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition text-left"
-        >
-          <div className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold rounded uppercase tracking-wider mb-2 w-fit">
-            Day {day.dayNumber}
-          </div>
-          <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1 line-clamp-1">{day.topicTitle}</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{day.description}</p>
+    <div className="space-y-5">
+      <div className="flex justify-between items-center">
+        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{days.length} day{days.length === 1 ? '' : 's'} in curriculum</div>
+        <button onClick={handleCreateDay} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-sm flex items-center gap-2">
+          <Plus size={14} /> New Day
         </button>
-      ))}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {days.map((day) => (
+          <button
+            key={day.dayNumber}
+            onClick={() => loadDayForEdit(day.dayNumber)}
+            className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition text-left"
+          >
+            <div className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold rounded uppercase tracking-wider mb-2 w-fit">
+              Day {day.dayNumber}
+            </div>
+            <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1 line-clamp-1">{day.topicTitle}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{day.description}</p>
+          </button>
+        ))}
+      </div>
     </div>
   );
 
@@ -247,6 +365,7 @@ export default function AdminDashboard() {
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">Branch/Year</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-center">Progress</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">Contact & Setup</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
@@ -308,11 +427,30 @@ export default function AdminDashboard() {
                       <span className="text-xs text-slate-400 italic flex items-center gap-1"><Github size={12} /> No repo</span>
                     )}
                   </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="inline-flex items-center gap-1">
+                      <button onClick={() => setEditUser(s)} title="Edit user" className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-300">
+                        <Edit size={14} />
+                      </button>
+                      <button onClick={() => handleToggleSubscription(s)} title={s.isSubscribed ? 'Revoke premium' : 'Grant premium'} className={`p-2 rounded ${s.isSubscribed ? 'text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/30' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                        <Crown size={14} />
+                      </button>
+                      <button onClick={() => handleToggleAdmin(s)} title={s.role === 'admin' ? 'Demote to user' : 'Promote to admin'} className={`p-2 rounded ${s.role === 'admin' ? 'text-purple-500 hover:bg-purple-100 dark:hover:bg-purple-900/30' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                        <ShieldCheck size={14} />
+                      </button>
+                      <button onClick={() => handleResetProgress(s)} title="Reset all progress" className="p-2 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded text-orange-500">
+                        <RotateCcw size={14} />
+                      </button>
+                      <button onClick={() => handleDeleteUser(s)} title="Delete user" className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-red-500">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
               {filteredStudents.length === 0 && (
                 <tr>
-                  <td colSpan="5" className="px-6 py-20 text-center text-slate-500">
+                  <td colSpan="6" className="px-6 py-20 text-center text-slate-500">
                     <Users size={48} className="mx-auto text-slate-300 dark:text-slate-700 mb-4" />
                     <p className="text-lg">No students found matching your criteria.</p>
                   </td>
@@ -458,6 +596,19 @@ export default function AdminDashboard() {
       { label: 'Avg Study Days', value: stats.avgCompletion || 0, icon: <PieChart size={20} />, bgColor: 'bg-orange-100', text: 'text-orange-600', darkBg: 'dark:bg-orange-900/40', darkText: 'dark:text-orange-400' },
     ];
 
+    const content = stats.content || {};
+    const contentCards = [
+      { label: 'Curriculum Days', value: content.days || 0 },
+      { label: 'DSA Problems', value: content.dsa || 0 },
+      { label: 'SQL Lessons', value: content.sql || 0 },
+      { label: 'Theory Qs', value: content.theory || 0 },
+      { label: 'Aptitude Qs', value: content.aptitude || 0 },
+      { label: 'HR Qs', value: content.hr || 0 },
+      { label: 'Mock Tests', value: content.mockTests || 0 },
+      { label: 'Test Submissions', value: content.testResults || 0 },
+      { label: 'Comments', value: content.comments || 0 },
+    ];
+
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -470,6 +621,18 @@ export default function AdminDashboard() {
               <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-1">{item.value}</h3>
             </div>
           ))}
+        </div>
+
+        <div>
+          <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Content Inventory</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {contentCards.map((c, i) => (
+              <div key={i} className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{c.label}</p>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{c.value}</h3>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -611,9 +774,16 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="pt-8 border-t border-slate-100 dark:border-slate-700 flex justify-end">
-         <button 
-           type="submit" 
+      <div className="pt-8 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
+         <button
+           type="button"
+           onClick={handleDeleteDay}
+           className="px-4 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold rounded-md flex items-center gap-2 transition text-sm"
+         >
+           <Trash2 size={16} /> Delete Day
+         </button>
+         <button
+           type="submit"
            disabled={saving}
            className="px-6 py-2 bg-slate-800 hover:bg-slate-700 dark:bg-slate-200 dark:hover:bg-white text-white dark:text-slate-900 font-medium rounded-md flex items-center gap-2 transition"
          >
@@ -752,17 +922,23 @@ export default function AdminDashboard() {
         </div>
 
         {!selectedDayId && (
-          <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+          <div className="flex flex-wrap bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 gap-0.5">
             {[
-              { id: 'content', label: 'Curriculum', icon: <Layout size={16} /> },
-              { id: 'users', label: 'Students', icon: <Users size={16} /> },
-              { id: 'assessments', label: 'Placements', icon: <Target size={16} /> },
-              { id: 'stats', label: 'Analytics', icon: <PieChart size={16} /> },
+              { id: 'content', label: 'Curriculum', icon: <Layout size={14} /> },
+              { id: 'dsa', label: 'DSA', icon: <Code2 size={14} /> },
+              { id: 'sql', label: 'SQL', icon: <Database size={14} /> },
+              { id: 'theory', label: 'Theory', icon: <Brain size={14} /> },
+              { id: 'aptitude', label: 'Aptitude', icon: <Calculator size={14} /> },
+              { id: 'hr', label: 'HR', icon: <MessageCircle size={14} /> },
+              { id: 'assessments', label: 'Mocks', icon: <Target size={14} /> },
+              { id: 'users', label: 'Users', icon: <Users size={14} /> },
+              { id: 'comments', label: 'Comments', icon: <MessageSquare size={14} /> },
+              { id: 'stats', label: 'Analytics', icon: <PieChart size={14} /> },
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === tab.id ? 'bg-white dark:bg-slate-800 text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-white dark:bg-slate-800 text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
               >
                 {tab.icon} {tab.label}
               </button>
@@ -778,8 +954,101 @@ export default function AdminDashboard() {
           {activeTab === 'users' && renderUserManager()}
           {activeTab === 'assessments' && renderAssessmentsManager()}
           {activeTab === 'stats' && renderStats()}
+          {activeTab === 'dsa' && <DsaManager token={token} />}
+          {activeTab === 'sql' && <SqlManager token={token} />}
+          {activeTab === 'theory' && (
+            <QuestionBankManager
+              key="theory"
+              token={token}
+              basePath="/admin/theory"
+              label="Theory Question"
+              sections={['os', 'networks', 'oop']}
+            />
+          )}
+          {activeTab === 'aptitude' && (
+            <QuestionBankManager
+              key="aptitude"
+              token={token}
+              basePath="/admin/aptitude"
+              label="Aptitude Question"
+              sections={['quantitative', 'logical', 'verbal']}
+              showPassage
+            />
+          )}
+          {activeTab === 'hr' && <HrManager token={token} />}
+          {activeTab === 'comments' && <CommentsManager token={token} />}
         </div>
       )}
+
+      {editUser && (
+        <UserEditModal
+          user={editUser}
+          saving={savingUser}
+          onChange={setEditUser}
+          onSave={handleSaveUser}
+          onClose={() => setEditUser(null)}
+        />
+      )}
     </div>
+  );
+}
+
+function UserEditModal({ user, saving, onChange, onSave, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <form
+        onClick={e => e.stopPropagation()}
+        onSubmit={onSave}
+        className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 space-y-5 border border-slate-200 dark:border-slate-800"
+      >
+        <div className="flex justify-between items-center pb-4 border-b border-slate-200 dark:border-slate-800">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Edit User: {user.name}</h2>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500"><X size={20} /></button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ModalField label="Name"><input value={user.name || ''} onChange={e => onChange({ ...user, name: e.target.value })} className={modalInputCls} /></ModalField>
+          <ModalField label="Email"><input type="email" value={user.email || ''} onChange={e => onChange({ ...user, email: e.target.value })} className={modalInputCls} /></ModalField>
+          <ModalField label="Username"><input value={user.username || ''} onChange={e => onChange({ ...user, username: e.target.value })} className={modalInputCls} /></ModalField>
+          <ModalField label="Role">
+            <select value={user.role || 'user'} onChange={e => onChange({ ...user, role: e.target.value })} className={modalInputCls}>
+              <option value="user">user</option>
+              <option value="admin">admin</option>
+            </select>
+          </ModalField>
+          <ModalField label="USN"><input value={user.registrationDetails?.usn || ''} onChange={e => onChange({ ...user, registrationDetails: { ...user.registrationDetails, usn: e.target.value } })} className={modalInputCls} /></ModalField>
+          <ModalField label="Branch"><input value={user.registrationDetails?.branch || ''} onChange={e => onChange({ ...user, registrationDetails: { ...user.registrationDetails, branch: e.target.value } })} className={modalInputCls} /></ModalField>
+          <ModalField label="Year"><input value={user.registrationDetails?.year || ''} onChange={e => onChange({ ...user, registrationDetails: { ...user.registrationDetails, year: e.target.value } })} className={modalInputCls} /></ModalField>
+          <ModalField label="Phone"><input value={user.registrationDetails?.phoneNumber || ''} onChange={e => onChange({ ...user, registrationDetails: { ...user.registrationDetails, phoneNumber: e.target.value } })} className={modalInputCls} /></ModalField>
+          <ModalField label="Current Day"><input type="number" min="1" value={user.currentDay || 1} onChange={e => onChange({ ...user, currentDay: Number(e.target.value) })} className={modalInputCls} /></ModalField>
+          <ModalField label="Streak"><input type="number" min="0" value={user.streak || 0} onChange={e => onChange({ ...user, streak: Number(e.target.value) })} className={modalInputCls} /></ModalField>
+          <ModalField label="GitHub Repo"><input value={user.githubRepo || ''} onChange={e => onChange({ ...user, githubRepo: e.target.value })} className={modalInputCls} /></ModalField>
+          <ModalField label="Subscription">
+            <label className="flex items-center gap-2 px-3 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+              <input type="checkbox" checked={!!user.isSubscribed} onChange={e => onChange({ ...user, isSubscribed: e.target.checked })} />
+              <span className="font-bold flex items-center gap-1"><KeyRound size={14} /> Premium Active</span>
+            </label>
+          </ModalField>
+        </div>
+
+        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onClick={onClose} className="px-5 py-2 font-bold text-slate-500 hover:text-slate-700">Cancel</button>
+          <button type="submit" disabled={saving} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg flex items-center gap-2">
+            {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+const modalInputCls = "w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm";
+
+function ModalField({ label, children }) {
+  return (
+    <label className="block">
+      <span className="block text-xs font-bold text-slate-500 uppercase mb-1">{label}</span>
+      {children}
+    </label>
   );
 }

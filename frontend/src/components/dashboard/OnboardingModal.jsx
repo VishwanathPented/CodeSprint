@@ -47,7 +47,7 @@ export default function OnboardingModal() {
       let data;
       try {
         data = await res.json();
-      } catch (parseError) {
+      } catch {
         throw new Error(`Server returned a non-JSON response (${res.status}). Ensure the backend is updated.`);
       }
 
@@ -57,9 +57,9 @@ export default function OnboardingModal() {
       } else {
         setError(data.message || 'Failed to complete onboarding.');
       }
-    } catch (err) {
-      if (err.message.includes('Server returned')) {
-        setError(err.message);
+    } catch (e) {
+      if (e?.message?.includes('Server returned')) {
+        setError(e.message);
       } else {
         setError('Network error or server unreachable. Please make sure the backend is live.');
       }

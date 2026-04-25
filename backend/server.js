@@ -11,6 +11,15 @@ import commentRoutes from './routes/comments.js';
 import publicRoutes from './routes/public.js';
 import aiRoutes from './routes/ai.js';
 import assessmentRoutes from './routes/assessments.js';
+import sqlRoutes from './routes/sql.js';
+import aptitudeRoutes from './routes/aptitude.js';
+import theoryRoutes from './routes/theory.js';
+import hrRoutes from './routes/hr.js';
+import dsaRoutes from './routes/dsa.js';
+import readinessRoutes from './routes/readiness.js';
+import reviewRoutes from './routes/review.js';
+import missionRoutes from './routes/mission.js';
+import programRoutes from './routes/program.js';
 
 dotenv.config();
 
@@ -20,6 +29,11 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:5173', 
+    'http://localhost:5174', 
+    'http://localhost:5175', 
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+    'http://127.0.0.1:5175',
     'https://code-sprint-six.vercel.app',
     process.env.FRONTEND_URL
   ],
@@ -38,6 +52,15 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/assessments', assessmentRoutes);
+app.use('/api/sql', sqlRoutes);
+app.use('/api/aptitude', aptitudeRoutes);
+app.use('/api/theory', theoryRoutes);
+app.use('/api/hr', hrRoutes);
+app.use('/api/dsa', dsaRoutes);
+app.use('/api/readiness', readinessRoutes);
+app.use('/api/review', reviewRoutes);
+app.use('/api/mission', missionRoutes);
+app.use('/api/program', programRoutes);
 
 // Root route
 app.get('/', (req, res) => {

@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const fetchProfile = async (tk) => {
@@ -28,8 +29,8 @@ export const AuthProvider = ({ children }) => {
       } else {
         logout();
       }
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
       logout();
     } finally {
       setLoading(false);
@@ -51,7 +52,7 @@ export const AuthProvider = ({ children }) => {
         return { success: true, user: data };
       }
       return { success: false, message: data.message };
-    } catch (error) {
+    } catch {
       return { success: false, message: 'Network error: Could not connect to the server.' };
     }
   };
@@ -71,7 +72,7 @@ export const AuthProvider = ({ children }) => {
         return { success: true, user: data };
       }
       return { success: false, message: data.message };
-    } catch (error) {
+    } catch {
       return { success: false, message: 'Network error: Could not connect to the server.' };
     }
   };
@@ -93,4 +94,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+/* eslint-disable react-refresh/only-export-components */
 export const useAuth = () => useContext(AuthContext);
