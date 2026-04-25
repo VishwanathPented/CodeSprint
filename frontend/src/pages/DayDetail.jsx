@@ -8,7 +8,14 @@ import CodeEditorModule from '../components/day/CodeEditorModule';
 import CommentSection from '../components/day/CommentSection';
 import AITutorBot from '../components/day/AITutorBot';
 import TextWithTooltips from '../components/day/TextWithTooltips';
+import LinkedInShareModal from '../components/day/LinkedInShareModal';
 import { CircleCheckBig, Trophy, Loader2, Sparkles, Code2, ArrowRight } from 'lucide-react';
+
+const LinkedInIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14ZM8.34 18.34V10H5.67v8.34h2.67ZM7 8.83a1.55 1.55 0 1 0 0-3.1 1.55 1.55 0 0 0 0 3.1Zm11.34 9.51v-4.57c0-2.45-1.31-3.6-3.06-3.6-1.41 0-2.04.78-2.39 1.32V10h-2.66c.04.75 0 8.34 0 8.34h2.66v-4.66c0-.24.02-.48.09-.65.18-.48.62-.97 1.36-.97.96 0 1.34.73 1.34 1.79v4.49h2.66Z" />
+  </svg>
+);
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { API_URL } from '../utils/config';
@@ -34,6 +41,9 @@ export default function DayDetail() {
   const [isEli5, setIsEli5] = useState(false);
   const [eli5Loading, setEli5Loading] = useState(false);
   const [eli5Text, setEli5Text] = useState('');
+
+  // LinkedIn share modal
+  const [shareOpen, setShareOpen] = useState(false);
 
   const isAlreadyCompleted = user?.completedDays?.includes(Number(id));
   const persistKey = `day_${id}_progress_${user?._id}`;
@@ -288,15 +298,38 @@ export default function DayDetail() {
           <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-md mx-auto">
             You have successfully completed all tasks for today. Keep this streak alive and return tomorrow!
           </p>
-          <button 
-            onClick={handleCompleteDay}
-            className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-md mx-auto transition flex items-center gap-2"
-          >
-            <CircleCheckBig size={18} />
-            {isAlreadyCompleted ? 'Return to Dashboard' : 'Mark Day as Complete & Unlock Next'}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <button
+              onClick={handleCompleteDay}
+              className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-md transition flex items-center gap-2"
+            >
+              <CircleCheckBig size={18} />
+              {isAlreadyCompleted ? 'Return to Dashboard' : 'Mark Day as Complete & Unlock Next'}
+            </button>
+            <button
+              onClick={() => setShareOpen(true)}
+              className="px-6 py-2 bg-[#0A66C2] hover:bg-[#004182] text-white font-medium rounded-md transition flex items-center gap-2 shadow-md shadow-blue-500/20"
+            >
+              <LinkedInIcon size={18} />
+              Share on LinkedIn
+            </button>
+          </div>
         </div>
       )}
+
+      <LinkedInShareModal
+        isOpen={shareOpen}
+        onClose={() => setShareOpen(false)}
+        dayContext={{
+          dayNumber: content.dayNumber,
+          topicTitle: content.topicTitle,
+          description: content.description,
+          mcqScore,
+          totalMcqs: content.mcqs?.length || 0,
+          codeAttempted,
+          refactorPassed
+        }}
+      />
 
       <div className="pt-8 border-t border-slate-200 dark:border-slate-700">
         <CommentSection dayNumber={content.dayNumber} />

@@ -415,4 +415,88 @@ Respond strictly in JSON format, no markdown wrappers:
   }
 });
 
+// @route   POST /api/ai/linkedin-post
+// @desc    Generate a LinkedIn post celebrating today's CodeSprint progress
+router.post('/linkedin-post', protect, async (req, res) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ message: 'AI is not configured.' });
+
+  const {
+    dayNumber,
+    dayTopic,
+    dayDescription = '',
+    mcqScore,
+    totalMcqs,
+    codeAttempted,
+    refactorPassed,
+    streak
+  } = req.body;
+
+  if (!dayNumber || !dayTopic) {
+    return res.status(400).json({ message: 'Missing day context for the post.' });
+  }
+
+  // Share the daily AI quota with tutor / hr-feedback
+  const user = await User.findById(req.user._id);
+  const now = new Date();
+  const lastReset = new Date(user.aiUsage.lastReset);
+  if (now.toDateString() !== lastReset.toDateString()) {
+    user.aiUsage.count = 0;
+    user.aiUsage.lastReset = now;
+  }
+  if (user.aiUsage.count >= 5 && !user.isSubscribed) {
+    return res.status(429).json({
+      message: 'Daily AI limit reached (5/5). Upgrade to Premium for unlimited AI features.'
+    });
+  }
+
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+
+    const stats = [
+      typeof mcqScore === 'number' && totalMcqs ? `MCQs: ${mcqScore}/${totalMcqs}` : null,
+      codeAttempted ? 'completed the coding challenge' : null,
+      refactorPassed ? 'refactored messy code into clean Java' : null,
+      streak ? `${streak}-day streak` : null
+    ].filter(Boolean).join(' · ');
+
+    const systemPrompt = `
+You are writing a LinkedIn post on behalf of ${user.name || 'a student'}, a college student in the "CodeSprint 50" placement-prep bootcamp.
+
+Today is Day ${dayNumber} of 50. The topic was: "${dayTopic}".
+Concept summary (for your context — do NOT quote verbatim):
+"""
+${dayDescription.substring(0, 800)}
+"""
+
+Today's accomplishments: ${stats || 'completed all tasks'}.
+
+Write a LinkedIn post (first person, 80–120 words) that:
+- Opens with a hook line (no boring "Today I learned..." starts)
+- Names 2 specific concepts or takeaways from the topic
+- Mentions one concrete win (an MCQ score, a coding problem solved, etc.)
+- Ends with a forward-looking line (what's next, or what they're excited to apply)
+- Closes with these hashtags on a new line: #CodeSprint50 #Java #LearningInPublic #PlacementPrep #100DaysOfCode
+
+Constraints:
+- Write only the post body. No "Here's the post:" preamble. No quotes around it.
+- Do NOT use markdown bold/italic — LinkedIn renders plain text.
+- Use 1–2 relevant emojis maximum.
+- Sound like a real student, not a press release. Light, genuine, specific.
+`;
+
+    const result = await model.generateContent(systemPrompt);
+    const post = result.response.text().trim();
+
+    user.aiUsage.count += 1;
+    await user.save();
+
+    res.json({ post, usageCount: user.aiUsage.count });
+  } catch (error) {
+    console.error('LinkedIn Post AI Error:', error);
+    res.status(500).json({ message: 'AI failed to draft the post. Try again in a moment.' });
+  }
+});
+
 export default router;
