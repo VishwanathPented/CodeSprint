@@ -17,6 +17,10 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [showFullOverview, setShowFullOverview] = useState(false);
+
+  // Beginner = hasn't finished a single day yet. Hide analytics that would all be empty.
+  const isBeginner = (user?.completedDays?.length || 0) === 0;
 
   
   const copyProfileLink = () => {
@@ -119,13 +123,37 @@ export default function Dashboard() {
       {/* Tab Content */}
       {activeTab === 'overview' && (
         <div className="space-y-6 animate-in fade-in duration-300">
-          <ProgressHeader user={user} />
-          <ProgramDayCard />
-          <ActivityHeatmap />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <PlacementReadinessCard />
-            <InsightsPanel />
-          </div>
+          {isBeginner && !showFullOverview ? (
+            <>
+              <div className="rounded-2xl border border-primary-200 dark:border-primary-800/50 bg-primary-50/50 dark:bg-primary-900/10 px-5 py-4">
+                <p className="text-sm font-semibold text-primary-700 dark:text-primary-300 mb-0.5">
+                  Welcome to CodeSprint 50 — start with Day 1 below.
+                </p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  Finish today's required tasks to unlock your full dashboard (streak, progress, insights, leaderboard).
+                </p>
+              </div>
+              <ProgramDayCard />
+              <div className="text-center">
+                <button
+                  onClick={() => setShowFullOverview(true)}
+                  className="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition"
+                >
+                  Show full dashboard →
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <ProgressHeader user={user} />
+              <ProgramDayCard />
+              <ActivityHeatmap />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <PlacementReadinessCard />
+                <InsightsPanel />
+              </div>
+            </>
+          )}
         </div>
       )}
 
