@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2, Edit, Save, ArrowLeft, Loader2, Search, Upload } from 'lucide-react';
 import { API_URL } from '../../utils/config';
+import BulkImportModal from './BulkImportModal';
 
 const TOPICS = ['arrays', 'strings', 'linked-list', 'stack-queue', 'hashing', 'recursion-trees'];
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
@@ -12,6 +13,7 @@ export default function DsaManager({ token }) {
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState('');
   const [topicFilter, setTopicFilter] = useState('all');
+  const [importing, setImporting] = useState(false);
 
   const headers = useMemo(() => ({
     'Content-Type': 'application/json',
@@ -69,18 +71,13 @@ export default function DsaManager({ token }) {
     if (res.ok) load();
   };
 
-  const handleBulkImport = async () => {
-    const json = window.prompt('Paste a JSON array of DSA problems:');
-    if (!json) return;
-    try {
-      const parsed = JSON.parse(json);
-      const res = await fetch(`${API_URL}/admin/bulk-import/dsa`, {
-        method: 'POST', headers, body: JSON.stringify(parsed)
-      });
-      const data = await res.json();
-      alert(`Imported ${data.inserted || 0} problems${data.message ? ` (${data.message})` : ''}`);
-      load();
-    } catch (e) { alert(`Invalid JSON: ${e.message}`); }
+  const handleBulkImport = async (items) => {
+    const res = await fetch(`${API_URL}/admin/bulk-import/dsa`, {
+      method: 'POST', headers, body: JSON.stringify(items)
+    });
+    const data = await res.json();
+    alert(`Imported ${data.inserted || 0} problems${data.message ? ` (${data.message})` : ''}`);
+    load();
   };
 
   const filtered = items.filter(p => {
@@ -184,7 +181,7 @@ export default function DsaManager({ token }) {
           </select>
         </div>
         <div className="flex gap-2">
-          <button onClick={handleBulkImport} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg font-bold text-sm flex items-center gap-2"><Upload size={14} />Bulk</button>
+          <button onClick={() => setImporting(true)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg font-bold text-sm flex items-center gap-2"><Upload size={14} />Bulk</button>
           <button onClick={() => setEditing('new')} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-sm flex items-center gap-2"><Plus size={14} />New Problem</button>
         </div>
       </div>
@@ -225,6 +222,14 @@ export default function DsaManager({ token }) {
           </table>
         </div>
       )}
+
+      <BulkImportModal
+        open={importing}
+        onClose={() => setImporting(false)}
+        onImport={handleBulkImport}
+        label="DSA Problem"
+        sampleObject={blank()}
+      />
     </div>
   );
 }

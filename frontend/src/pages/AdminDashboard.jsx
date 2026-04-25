@@ -1,32 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, Rocket, Github, Download, Search, AlertCircle, Phone, BookOpen, Clock, ShieldCheck, Target, TriangleAlert, Code2, Database, Brain, Calculator, MessageCircle, MessageSquare, Crown, ShieldOff, RotateCcw, X, KeyRound } from 'lucide-react';
+import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, Rocket, Github, Download, Search, AlertCircle, Phone, BookOpen, Clock, ShieldCheck, Target, TriangleAlert, Code2, Database, Brain, Calculator, MessageCircle, MessageSquare, Crown, RotateCcw, X, KeyRound, FileText } from 'lucide-react';
 import { API_URL } from '../utils/config';
 import QuestionBankManager from '../components/admin/QuestionBankManager';
 import DsaManager from '../components/admin/DsaManager';
 import SqlManager from '../components/admin/SqlManager';
 import HrManager from '../components/admin/HrManager';
 import CommentsManager from '../components/admin/CommentsManager';
+import UserDetailDrawer from '../components/admin/UserDetailDrawer';
 
 export default function AdminDashboard() {
   const { token, user } = useAuth();
   const navigate = useNavigate();
   
   // UI State
-  const [activeTab, setActiveTab] = useState('content'); // content, users, stats
+  const [activeTab, setActiveTab] = useState('dsa');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+
   // Data State
-  const [days, setDays] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [stats, setStats] = useState(null);
   const [assessmentResults, setAssessmentResults] = useState([]);
-  
-  // Editor State
-  const [selectedDayId, setSelectedDayId] = useState(null);
-  const [editData, setEditData] = useState(null);
 
   // Assessment CMS State
   const [assessmentSubTab, setAssessmentSubTab] = useState('logs');
@@ -36,10 +32,66 @@ export default function AdminDashboard() {
 
   // Users Filter State
   const [searchTerm, setSearchTerm] = useState('');
+  const [userFilter, setUserFilter] = useState('all'); // all | premium | free | admin
 
   // Per-user edit modal
   const [editUser, setEditUser] = useState(null);
   const [savingUser, setSavingUser] = useState(false);
+
+  // User detail drawer (read-only deep view)
+  const [detailUserId, setDetailUserId] = useState(null);
+
+  // Tracks which student's PDF is generating (id) so we can show a per-row spinner
+  const [reportGeneratingId, setReportGeneratingId] = useState(null);
+  const [bulkProgress, setBulkProgress] = useState(null); // { done, total } | null
+
+  const downloadStudentReport = async (student) => {
+    setReportGeneratingId(student._id);
+    try {
+      const { generateStudentReportPdf } = await import('../utils/studentReport');
+      generateStudentReportPdf(student);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to generate PDF report.');
+    } finally {
+      setReportGeneratingId(null);
+    }
+  };
+
+  const downloadBulkReports = async (students) => {
+    if (!students.length) return;
+    if (!window.confirm(`Generate PDF reports for ${students.length} user${students.length === 1 ? '' : 's'} and download as a ZIP?`)) return;
+
+    setBulkProgress({ done: 0, total: students.length });
+    try {
+      const [{ generateStudentReportPdf }, { default: JSZip }] = await Promise.all([
+        import('../utils/studentReport'),
+        import('jszip')
+      ]);
+      const zip = new JSZip();
+      for (let i = 0; i < students.length; i++) {
+        const { blob, filename } = generateStudentReportPdf(students[i], { returnBlob: true });
+        zip.file(filename, blob);
+        setBulkProgress({ done: i + 1, total: students.length });
+        // Yield to the event loop so the progress UI repaints between renders.
+        await new Promise(r => setTimeout(r, 0));
+      }
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `CodeSprint_Reports_${new Date().toISOString().split('T')[0]}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert(`Bulk export failed: ${err.message}`);
+    } finally {
+      setBulkProgress(null);
+    }
+  };
 
   useEffect(() => {
     if (user && !(user.isAdmin || user.role === 'admin')) {
@@ -65,10 +117,7 @@ export default function AdminDashboard() {
     try {
       const headers = { Authorization: `Bearer ${token}` };
 
-      if (activeTab === 'content') {
-        const res = await fetch(`${API_URL}/content/roadmap`, { headers });
-        setDays(await res.json());
-      } else if (activeTab === 'users') {
+      if (activeTab === 'users') {
         const res = await fetch(`${API_URL}/admin/users`, { headers });
         setAllUsers(await res.json());
       } else if (activeTab === 'stats') {
@@ -89,46 +138,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const loadDayForEdit = async (dayNumber) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/content/day/${dayNumber}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      setEditData(data);
-      setSelectedDayId(dayNumber);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      const res = await fetch(`${API_URL}/admin/day/${selectedDayId}`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}` 
-        },
-        body: JSON.stringify(editData)
-      });
-      if (res.ok) {
-        alert('Day content updated!');
-        fetchData();
-        setSelectedDayId(null);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const handleDeleteTest = async (id) => {
     if(!window.confirm('Are you sure you want to delete this test? All student results will be permanently wiped!')) return;
     try {
@@ -141,6 +150,16 @@ export default function AdminDashboard() {
         fetchData();
       }
     } catch(err) { console.error(err); }
+  };
+
+  const handleDeleteResult = async (id, studentName) => {
+    if (!window.confirm(`Delete ${studentName}'s submission? They'll be able to re-attempt the test.`)) return;
+    const res = await fetch(`${API_URL}/admin/assessments/results/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) fetchData();
+    else { const d = await res.json().catch(() => ({})); alert(d.message || 'Delete failed'); }
   };
 
   const handleSaveTest = async (e) => {
@@ -234,46 +253,6 @@ export default function AdminDashboard() {
     } finally { setSavingUser(false); }
   };
 
-  // ===== Curriculum admin =====
-  const handleCreateDay = async () => {
-    const title = window.prompt('Enter the topic title for the new day:');
-    if (!title) return;
-    const res = await fetch(`${API_URL}/admin/day`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({
-        topicTitle: title,
-        description: '',
-        videoUrl: '',
-        detailedExplanation: '',
-        mcqs: [],
-        codingProblem: { expectedOutput: '' }
-      })
-    });
-    if (res.ok) fetchData();
-    else { const d = await res.json().catch(() => ({})); alert(d.message || 'Create failed'); }
-  };
-
-  const handleDeleteDay = async () => {
-    if (!editData) return;
-    if (!window.confirm(`Delete Day ${editData.dayNumber} (${editData.topicTitle})? Students will lose access to this content.`)) return;
-    const res = await fetch(`${API_URL}/admin/day/${editData.dayNumber}`, {
-      method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
-    });
-    if (res.ok) { setSelectedDayId(null); fetchData(); }
-  };
-
-  // MCQ Add/Remove helper
-  const addMcq = () => {
-    const newMcqs = [...(editData.mcqs || []), { question: '', options: ['', '', '', ''], correctAnswer: 0 }];
-    setEditData({ ...editData, mcqs: newMcqs });
-  };
-  
-  const removeMcq = (index) => {
-    const newMcqs = editData.mcqs.filter((_, i) => i !== index);
-    setEditData({ ...editData, mcqs: newMcqs });
-  };
-
   const handleExportCSV = () => {
     if (!allUsers || allUsers.length === 0) return;
 
@@ -291,7 +270,7 @@ export default function AdminDashboard() {
 
     csvContent.unshift(headers.join(',')); // Add headers to top
 
-    const blob = new Blob([csvContent.join('\\n')], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csvContent.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.setAttribute('download', `CodeSprint_Students_${new Date().toISOString().split('T')[0]}.csv`);
@@ -304,55 +283,66 @@ export default function AdminDashboard() {
     const term = searchTerm.toLowerCase();
     const usn = s.registrationDetails?.usn?.toLowerCase() || '';
     const branch = s.registrationDetails?.branch?.toLowerCase() || '';
-    return s.name.toLowerCase().includes(term) || s.email.toLowerCase().includes(term) || usn.includes(term) || branch.includes(term);
+    const matchesSearch = s.name.toLowerCase().includes(term) ||
+      s.email.toLowerCase().includes(term) ||
+      usn.includes(term) ||
+      branch.includes(term);
+    if (!matchesSearch) return false;
+    if (userFilter === 'premium') return s.isSubscribed;
+    if (userFilter === 'free') return !s.isSubscribed && s.role !== 'admin';
+    if (userFilter === 'admin') return s.role === 'admin';
+    return true;
   });
-
-  const renderContentManager = () => (
-    <div className="space-y-5">
-      <div className="flex justify-between items-center">
-        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{days.length} day{days.length === 1 ? '' : 's'} in curriculum</div>
-        <button onClick={handleCreateDay} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-sm flex items-center gap-2">
-          <Plus size={14} /> New Day
-        </button>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {days.map((day) => (
-          <button
-            key={day.dayNumber}
-            onClick={() => loadDayForEdit(day.dayNumber)}
-            className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition text-left"
-          >
-            <div className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold rounded uppercase tracking-wider mb-2 w-fit">
-              Day {day.dayNumber}
-            </div>
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1 line-clamp-1">{day.topicTitle}</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{day.description}</p>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 
   const renderUserManager = () => (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-3 w-full relative z-10 justify-between">
-         <div className="relative w-full sm:w-auto">
-           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
-           <input 
-             type="text"
-             placeholder="Search by Name, USN, Branch..."
-             value={searchTerm}
-             onChange={(e) => setSearchTerm(e.target.value)}
-             className="w-full sm:w-72 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm"
-           />
+      <div className="flex flex-col sm:flex-row gap-3 w-full relative z-10 justify-between items-stretch sm:items-center">
+         <div className="flex flex-col sm:flex-row gap-3 flex-1">
+           <div className="relative w-full sm:w-72">
+             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+             <input
+               type="text"
+               placeholder="Search by Name, USN, Branch..."
+               value={searchTerm}
+               onChange={(e) => setSearchTerm(e.target.value)}
+               className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm"
+             />
+           </div>
+           <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+             {[
+               { id: 'all', label: 'All' },
+               { id: 'premium', label: 'Premium' },
+               { id: 'free', label: 'Free' },
+               { id: 'admin', label: 'Admins' },
+             ].map(f => (
+               <button
+                 key={f.id}
+                 onClick={() => setUserFilter(f.id)}
+                 className={`px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition ${userFilter === f.id ? 'bg-white dark:bg-slate-800 text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+               >
+                 {f.label}
+               </button>
+             ))}
+           </div>
          </div>
-         
-         <button 
-           onClick={handleExportCSV}
-           className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/50 whitespace-nowrap"
-         >
-           <Download size={18} /> Export CSV
-         </button>
+
+         <div className="flex gap-2">
+           <button
+             onClick={() => downloadBulkReports(filteredStudents)}
+             disabled={!!bulkProgress || filteredStudents.length === 0}
+             className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold px-5 py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40 whitespace-nowrap text-sm"
+           >
+             {bulkProgress
+               ? <><Loader2 className="animate-spin" size={16} /> {bulkProgress.done}/{bulkProgress.total}</>
+               : <><FileText size={16} /> PDF ZIP ({filteredStudents.length})</>}
+           </button>
+           <button
+             onClick={handleExportCSV}
+             className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/50 whitespace-nowrap text-sm"
+           >
+             <Download size={16} /> CSV
+           </button>
+         </div>
       </div>
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
@@ -360,7 +350,7 @@ export default function AdminDashboard() {
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
               <tr>
-                <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">Student Name</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">User</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">USN</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">Branch/Year</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-center">Progress</th>
@@ -372,17 +362,33 @@ export default function AdminDashboard() {
               {filteredStudents.map((s) => (
                 <tr key={s._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition group">
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setDetailUserId(s._id)}
+                      className="flex items-center gap-3 text-left hover:opacity-80 transition"
+                      title="View detailed progress"
+                    >
                       <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center font-bold text-indigo-700 dark:text-indigo-400">
                         {s.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <div className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
-                          {s.name}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
+                            {s.name}
+                          </span>
+                          {s.role === 'admin' && (
+                            <span className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 rounded text-[9px] font-black uppercase tracking-wider">Admin</span>
+                          )}
+                          {s.isSubscribed && (
+                            <span className="px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded text-[9px] font-black uppercase tracking-wider">Premium</span>
+                          )}
+                          {s._id === user?._id && (
+                            <span className="px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded text-[9px] font-black uppercase tracking-wider">You</span>
+                          )}
                         </div>
                         <div className="text-xs text-slate-500 font-medium">{s.email}</div>
                       </div>
-                    </div>
+                    </button>
                   </td>
                   <td className="px-6 py-4 font-mono font-medium text-slate-600 dark:text-slate-300 uppercase">
                     {s.registrationDetails?.usn || <span className="opacity-40">- pending -</span>}
@@ -435,15 +441,22 @@ export default function AdminDashboard() {
                       <button onClick={() => handleToggleSubscription(s)} title={s.isSubscribed ? 'Revoke premium' : 'Grant premium'} className={`p-2 rounded ${s.isSubscribed ? 'text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/30' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
                         <Crown size={14} />
                       </button>
-                      <button onClick={() => handleToggleAdmin(s)} title={s.role === 'admin' ? 'Demote to user' : 'Promote to admin'} className={`p-2 rounded ${s.role === 'admin' ? 'text-purple-500 hover:bg-purple-100 dark:hover:bg-purple-900/30' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-                        <ShieldCheck size={14} />
-                      </button>
+                      {s._id !== user?._id && (
+                        <button onClick={() => handleToggleAdmin(s)} title={s.role === 'admin' ? 'Demote to user' : 'Promote to admin'} className={`p-2 rounded ${s.role === 'admin' ? 'text-purple-500 hover:bg-purple-100 dark:hover:bg-purple-900/30' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+                          <ShieldCheck size={14} />
+                        </button>
+                      )}
                       <button onClick={() => handleResetProgress(s)} title="Reset all progress" className="p-2 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded text-orange-500">
                         <RotateCcw size={14} />
                       </button>
-                      <button onClick={() => handleDeleteUser(s)} title="Delete user" className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-red-500">
-                        <Trash2 size={14} />
+                      <button onClick={() => downloadStudentReport(s)} disabled={reportGeneratingId === s._id} title="Download progress report (PDF)" className="p-2 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded text-emerald-600 disabled:opacity-50">
+                        {reportGeneratingId === s._id ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
                       </button>
+                      {s._id !== user?._id && (
+                        <button onClick={() => handleDeleteUser(s)} title="Delete user" className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-red-500">
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -452,7 +465,7 @@ export default function AdminDashboard() {
                 <tr>
                   <td colSpan="6" className="px-6 py-20 text-center text-slate-500">
                     <Users size={48} className="mx-auto text-slate-300 dark:text-slate-700 mb-4" />
-                    <p className="text-lg">No students found matching your criteria.</p>
+                    <p className="text-lg">No users found matching your filters.</p>
                   </td>
                 </tr>
               )}
@@ -485,6 +498,7 @@ export default function AdminDashboard() {
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-center">Final Score</th>
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-center">Proctoring Status</th>
                   <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">Timestamp</th>
+                  <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-right"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
@@ -528,11 +542,16 @@ export default function AdminDashboard() {
                          {r.isAutoSubmitted && <span className="block text-red-400 mt-0.5 italic text-[10px]">Auto-Submitted</span>}
                        </div>
                     </td>
+                    <td className="px-6 py-4 text-right">
+                       <button onClick={() => handleDeleteResult(r._id, r.studentName)} title="Delete this submission" className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-red-500">
+                         <Trash2 size={14} />
+                       </button>
+                    </td>
                   </tr>
                 ))}
                 {assessmentResults.length === 0 && (
                   <tr>
-                    <td colSpan="5" className="px-6 py-16 text-center text-slate-500">
+                    <td colSpan="6" className="px-6 py-16 text-center text-slate-500">
                       <Target size={48} className="mx-auto text-slate-300 dark:text-slate-700 mb-4" />
                       <p className="text-lg">No assessment logs available yet.</p>
                     </td>
@@ -638,161 +657,6 @@ export default function AdminDashboard() {
     );
   };
 
-  const renderEditor = () => (
-    <form onSubmit={handleSave} className="bg-white dark:bg-slate-900 rounded-lg p-8 border border-slate-200 dark:border-slate-800 space-y-8 max-w-5xl mx-auto">
-      <div className="flex justify-between items-center pb-6 border-b border-slate-200 dark:border-slate-800">
-        <div>
-           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Day {editData.dayNumber} Editor</h2>
-           <p className="text-sm text-slate-500 font-medium">Updating: {editData.topicTitle}</p>
-        </div>
-        <button type="button" onClick={() => setSelectedDayId(null)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-500 transition">
-          <ArrowLeft size={24} />
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Left Column: Video & Lesson */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-bold text-primary-600 flex items-center gap-2">
-            <Layout size={20} /> Content & Video
-          </h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Topic Title</label>
-              <input 
-                type="text" 
-                value={editData.topicTitle} 
-                onChange={e => setEditData({...editData, topicTitle: e.target.value})}
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
-              />
-            </div>
-             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Video (YouTube Embed URL)</label>
-              <input 
-                type="text" 
-                value={editData.videoUrl} 
-                onChange={e => setEditData({...editData, videoUrl: e.target.value})}
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
-                placeholder="https://www.youtube.com/embed/..."
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Detailed Explanation</label>
-              <textarea 
-                value={editData.detailedExplanation} 
-                onChange={e => setEditData({...editData, detailedExplanation: e.target.value})}
-                rows="10"
-                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-mono text-sm"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Quizzes & Coding */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-bold text-amber-600 flex items-center gap-2">
-            <Edit size={20} /> Interaction & Code
-          </h3>
-          
-          <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl space-y-4">
-            <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-slate-500 uppercase">MCQ Questions ({editData.mcqs?.length || 0})</label>
-              <button 
-                type="button" 
-                onClick={addMcq}
-                className="text-xs font-bold text-blue-600 flex items-center gap-1 hover:underline"
-              >
-                <Plus size={14} /> Add Question
-              </button>
-            </div>
-            
-            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-              {editData.mcqs?.map((mcq, mIdx) => (
-                <div key={mIdx} className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3 relative">
-                  <button 
-                    type="button" 
-                    onClick={() => removeMcq(mIdx)}
-                    className="absolute top-2 right-2 text-slate-300 hover:text-red-500"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                  <input 
-                    type="text" 
-                    value={mcq.question}
-                    placeholder="Question text..."
-                    onChange={(e) => {
-                      const newMcqs = [...editData.mcqs];
-                      newMcqs[mIdx].question = e.target.value;
-                      setEditData({...editData, mcqs: newMcqs});
-                    }}
-                    className="w-full text-sm font-bold border-b border-slate-100 dark:border-slate-700 pb-2 bg-transparent outline-none focus:border-blue-500"
-                  />
-                  <div className="grid grid-cols-2 gap-2">
-                    {mcq.options.map((opt, oIdx) => (
-                      <input 
-                        key={oIdx}
-                        value={opt}
-                        placeholder={`Option ${oIdx + 1}`}
-                        onChange={(e) => {
-                          const newMcqs = [...editData.mcqs];
-                          newMcqs[mIdx].options[oIdx] = e.target.value;
-                          setEditData({...editData, mcqs: newMcqs});
-                        }}
-                        className={`text-xs p-2 rounded-lg border ${mcq.correctAnswer === oIdx ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-slate-100 dark:border-slate-700 bg-transparent'}`}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2">
-                     <span className="text-[10px] font-bold text-slate-400 uppercase">Correct Index:</span>
-                     <select 
-                       value={mcq.correctAnswer}
-                       onChange={(e) => {
-                         const newMcqs = [...editData.mcqs];
-                         newMcqs[mIdx].correctAnswer = Number(e.target.value);
-                         setEditData({...editData, mcqs: newMcqs});
-                       }}
-                       className="text-xs bg-slate-100 dark:bg-slate-700 rounded p-1"
-                     >
-                       {[0,1,2,3].map(i => <option key={i} value={i}>{i + 1}</option>)}
-                     </select>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-             <label className="block text-xs font-bold text-slate-500 uppercase">Expected Code Output</label>
-             <input 
-              type="text" 
-              value={editData.codingProblem?.expectedOutput} 
-              onChange={e => setEditData({...editData, codingProblem: {...editData.codingProblem, expectedOutput: e.target.value}})}
-              className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-900 text-emerald-500 font-mono text-xs"
-              placeholder="e.g. Hello World!\n"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="pt-8 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
-         <button
-           type="button"
-           onClick={handleDeleteDay}
-           className="px-4 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold rounded-md flex items-center gap-2 transition text-sm"
-         >
-           <Trash2 size={16} /> Delete Day
-         </button>
-         <button
-           type="submit"
-           disabled={saving}
-           className="px-6 py-2 bg-slate-800 hover:bg-slate-700 dark:bg-slate-200 dark:hover:bg-white text-white dark:text-slate-900 font-medium rounded-md flex items-center gap-2 transition"
-         >
-           {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-           {saving ? 'Publishing...' : 'Save & Publish Live'}
-         </button>
-      </div>
-    </form>
-  );
 
   const renderTestEditor = () => (
     <form onSubmit={handleSaveTest} className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-md border border-slate-200 dark:border-slate-700 space-y-8 max-w-5xl mx-auto">
@@ -895,7 +759,7 @@ export default function AdminDashboard() {
     </form>
   );
 
-  if (loading && !editData && !editTestData && !stats && !allUsers.length) return (
+  if (loading && !editTestData && !stats && !allUsers.length) return (
      <div className="flex flex-col items-center justify-center p-20 space-y-4 h-[70vh]">
         <Loader2 className="animate-spin text-primary-500 uppercase" size={40} />
         <p className="text-slate-500 font-bold uppercase tracking-widest text-xs animate-pulse">Accessing Secure Admin Vault...</p>
@@ -921,36 +785,32 @@ export default function AdminDashboard() {
            </div>
         </div>
 
-        {!selectedDayId && (
-          <div className="flex flex-wrap bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 gap-0.5">
-            {[
-              { id: 'content', label: 'Curriculum', icon: <Layout size={14} /> },
-              { id: 'dsa', label: 'DSA', icon: <Code2 size={14} /> },
-              { id: 'sql', label: 'SQL', icon: <Database size={14} /> },
-              { id: 'theory', label: 'Theory', icon: <Brain size={14} /> },
-              { id: 'aptitude', label: 'Aptitude', icon: <Calculator size={14} /> },
-              { id: 'hr', label: 'HR', icon: <MessageCircle size={14} /> },
-              { id: 'assessments', label: 'Mocks', icon: <Target size={14} /> },
-              { id: 'users', label: 'Users', icon: <Users size={14} /> },
-              { id: 'comments', label: 'Comments', icon: <MessageSquare size={14} /> },
-              { id: 'stats', label: 'Analytics', icon: <PieChart size={14} /> },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-white dark:bg-slate-800 text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
-              >
-                {tab.icon} {tab.label}
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="flex flex-wrap bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 gap-0.5">
+          {[
+            { id: 'dsa', label: 'DSA', icon: <Code2 size={14} /> },
+            { id: 'sql', label: 'SQL', icon: <Database size={14} /> },
+            { id: 'theory', label: 'Theory', icon: <Brain size={14} /> },
+            { id: 'aptitude', label: 'Aptitude', icon: <Calculator size={14} /> },
+            { id: 'hr', label: 'HR', icon: <MessageCircle size={14} /> },
+            { id: 'assessments', label: 'Mocks', icon: <Target size={14} /> },
+            { id: 'users', label: 'Users', icon: <Users size={14} /> },
+            { id: 'comments', label: 'Comments', icon: <MessageSquare size={14} /> },
+            { id: 'stats', label: 'Analytics', icon: <PieChart size={14} /> },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-white dark:bg-slate-800 text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+            >
+              {tab.icon} {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Main Body */}
-      {selectedDayId ? renderEditor() : editTestId ? renderTestEditor() : (
+      {editTestId ? renderTestEditor() : (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {activeTab === 'content' && renderContentManager()}
           {activeTab === 'users' && renderUserManager()}
           {activeTab === 'assessments' && renderAssessmentsManager()}
           {activeTab === 'stats' && renderStats()}
@@ -987,13 +847,28 @@ export default function AdminDashboard() {
           onChange={setEditUser}
           onSave={handleSaveUser}
           onClose={() => setEditUser(null)}
+          onDownloadReport={() => downloadStudentReport(editUser)}
+          downloading={reportGeneratingId === editUser._id}
+        />
+      )}
+
+      {detailUserId && (
+        <UserDetailDrawer
+          userId={detailUserId}
+          token={token}
+          onClose={() => setDetailUserId(null)}
+          onDownloadReport={() => {
+            const target = allUsers.find(u => u._id === detailUserId);
+            if (target) downloadStudentReport(target);
+          }}
+          downloading={reportGeneratingId === detailUserId}
         />
       )}
     </div>
   );
 }
 
-function UserEditModal({ user, saving, onChange, onSave, onClose }) {
+function UserEditModal({ user, saving, onChange, onSave, onClose, onDownloadReport, downloading }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <form
@@ -1031,11 +906,22 @@ function UserEditModal({ user, saving, onChange, onSave, onClose }) {
           </ModalField>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <button type="button" onClick={onClose} className="px-5 py-2 font-bold text-slate-500 hover:text-slate-700">Cancel</button>
-          <button type="submit" disabled={saving} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg flex items-center gap-2">
-            {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}Save Changes
+        <div className="flex justify-between items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={onDownloadReport}
+            disabled={downloading}
+            className="px-5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold text-slate-700 dark:text-slate-200 rounded-lg flex items-center gap-2 text-sm disabled:opacity-50"
+          >
+            {downloading ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />}
+            {downloading ? 'Generating...' : 'Download PDF Report'}
           </button>
+          <div className="flex gap-3">
+            <button type="button" onClick={onClose} className="px-5 py-2 font-bold text-slate-500 hover:text-slate-700">Cancel</button>
+            <button type="submit" disabled={saving} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg flex items-center gap-2">
+              {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}Save Changes
+            </button>
+          </div>
         </div>
       </form>
     </div>

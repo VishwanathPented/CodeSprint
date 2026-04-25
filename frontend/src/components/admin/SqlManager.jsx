@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2, Edit, Save, ArrowLeft, Loader2, Search, Upload } from 'lucide-react';
 import { API_URL } from '../../utils/config';
+import BulkImportModal from './BulkImportModal';
 
 const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced'];
 const QUERY_DIFF = ['Easy', 'Medium', 'Hard'];
@@ -11,6 +12,7 @@ export default function SqlManager({ token }) {
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState('');
+  const [importing, setImporting] = useState(false);
 
   const headers = useMemo(() => ({
     'Content-Type': 'application/json',
@@ -61,16 +63,11 @@ export default function SqlManager({ token }) {
     if (res.ok) load();
   };
 
-  const handleBulkImport = async () => {
-    const json = window.prompt('Paste a JSON array of SQL lessons:');
-    if (!json) return;
-    try {
-      const parsed = JSON.parse(json);
-      const res = await fetch(`${API_URL}/admin/bulk-import/sql`, { method: 'POST', headers, body: JSON.stringify(parsed) });
-      const data = await res.json();
-      alert(`Imported ${data.inserted || 0} lessons${data.message ? ` (${data.message})` : ''}`);
-      load();
-    } catch (e) { alert(`Invalid JSON: ${e.message}`); }
+  const handleBulkImport = async (items) => {
+    const res = await fetch(`${API_URL}/admin/bulk-import/sql`, { method: 'POST', headers, body: JSON.stringify(items) });
+    const data = await res.json();
+    alert(`Imported ${data.inserted || 0} lessons${data.message ? ` (${data.message})` : ''}`);
+    load();
   };
 
   const filtered = items.filter(l => {
@@ -176,10 +173,18 @@ export default function SqlManager({ token }) {
           <input placeholder="Search lessons..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm" />
         </div>
         <div className="flex gap-2">
-          <button onClick={handleBulkImport} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg font-bold text-sm flex items-center gap-2"><Upload size={14} />Bulk</button>
+          <button onClick={() => setImporting(true)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg font-bold text-sm flex items-center gap-2"><Upload size={14} />Bulk</button>
           <button onClick={() => setEditing('new')} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-sm flex items-center gap-2"><Plus size={14} />New Lesson</button>
         </div>
       </div>
+
+      <BulkImportModal
+        open={importing}
+        onClose={() => setImporting(false)}
+        onImport={handleBulkImport}
+        label="SQL Lesson"
+        sampleObject={blank()}
+      />
 
       {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-slate-400" size={32} /></div> : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
