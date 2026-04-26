@@ -16,6 +16,13 @@ html, body {
   overflow-x: hidden;
 }
 
+html {
+  /* Reserve the vertical scrollbar gutter even when content is short, so
+     centered layouts (max-w-* mx-auto) don't shift horizontally when switching
+     between tall and short pages/tabs (e.g. Dashboard → Leaderboard). */
+  scrollbar-gutter: stable;
+}
+
 body {
   @apply bg-white text-slate-900 transition-colors duration-200 antialiased;
   -webkit-text-size-adjust: 100%;

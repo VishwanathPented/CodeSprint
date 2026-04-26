@@ -292,4 +292,66 @@ router.get('/leaderboard', protect, async (req, res) => {
   }
 });
 
+// GET /api/program/hall-of-fame — yesterday's top performers across the program.
+// "Performed well" = completed their Java day yesterday, ranked by composite
+// score: mcqScore (×10) + bonuses for cross-track activity (aptitude / sql / dsa).
+router.get('/hall-of-fame', protect, async (req, res) => {
+  try {
+    const yest = yesterdayStr();
+    const startOfYest = new Date(`${yest}T00:00:00`);
+    const startOfToday = new Date(`${dateStr()}T00:00:00`);
+
+    const candidates = await User.find({
+      role: { $ne: 'admin' },
+      lastDayCompletedDate: yest
+    }).select('name username streak longestStreak completedDays scores lastActivity');
+
+    const wasYesterday = (d) => {
+      if (!d) return false;
+      const t = new Date(d).getTime();
+      return t >= startOfYest.getTime() && t < startOfToday.getTime();
+    };
+
+    const champions = candidates.map((u) => {
+      // The day they finished yesterday is the most recently added scores entry
+      // whose dayNumber matches one in completedDays. Use the last score safely.
+      const recentScore = (u.scores || []).slice(-1)[0] || {};
+      const mcqScore = typeof recentScore.mcqScore === 'number' ? recentScore.mcqScore : 0;
+      const didAptitude = wasYesterday(u.lastActivity?.aptitude);
+      const didSql = wasYesterday(u.lastActivity?.sql);
+      const didDsa = wasYesterday(u.lastActivity?.dsa);
+
+      const score =
+        mcqScore * 10 +
+        (didAptitude ? 25 : 0) +
+        (didSql ? 25 : 0) +
+        (didDsa ? 25 : 0);
+
+      return {
+        _id: u._id,
+        name: u.name,
+        username: u.username,
+        dayCompleted: recentScore.dayNumber || (u.completedDays?.slice(-1)[0] ?? null),
+        mcqScore,
+        didAptitude,
+        didSql,
+        didDsa,
+        streak: u.streak || 0,
+        score
+      };
+    });
+
+    champions.sort((a, b) => b.score - a.score || b.streak - a.streak || b.mcqScore - a.mcqScore);
+    const top = champions.slice(0, 10);
+
+    res.json({
+      date: yest,
+      total: champions.length,
+      champions: top
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;

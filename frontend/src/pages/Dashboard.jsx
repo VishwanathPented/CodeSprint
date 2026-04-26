@@ -8,6 +8,7 @@ import PlacementReadinessCard from '../components/dashboard/PlacementReadinessCa
 import ProgramDayCard from '../components/dashboard/ProgramDayCard';
 import InsightsPanel from '../components/dashboard/InsightsPanel';
 import ActivityHeatmap from '../components/dashboard/ActivityHeatmap';
+import HallOfFame from '../components/dashboard/HallOfFame';
 import { Sparkles, Linkedin, Rocket, Share2, Brain, Database, ArrowRight, GraduationCap, MessageSquareText, Code2, Coffee } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
@@ -45,37 +46,37 @@ export default function Dashboard() {
   const unifiedIconBg = "bg-slate-50 dark:bg-slate-800/50 text-primary-600 dark:text-primary-400 border-slate-200 dark:border-slate-700/50";
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       {/* Onboarding Blocker */}
       {needsOnboarding && <OnboardingModal />}
-      
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-slate-900 dark:bg-slate-800 rounded-lg text-white shadow-sm">
-            <Sparkles size={20} />
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-6">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="p-2 sm:p-2.5 bg-slate-900 dark:bg-slate-800 rounded-lg text-white shadow-sm shrink-0">
+            <Sparkles size={18} className="sm:w-5 sm:h-5" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
               Dashboard
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm">
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm truncate">
               Welcome back, {user?.name?.split(' ')[0] || 'Explorer'}! Ready to code?
             </p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <button 
+        <div className="flex items-center gap-2 self-stretch sm:self-auto">
+          <button
             onClick={() => setIsWarmupOpen(true)}
-            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-2 px-4 rounded-lg transition flex items-center gap-2 text-sm shadow-sm"
+            className="flex-1 sm:flex-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-2 px-3 sm:px-4 rounded-lg transition flex items-center justify-center gap-2 text-sm shadow-sm"
           >
             <Brain size={16} className="text-primary-500" />
             Warmup
           </button>
-          <button 
+          <button
             onClick={copyProfileLink}
-            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-2 px-4 rounded-lg transition flex items-center gap-2 text-sm shadow-sm"
+            className="flex-1 sm:flex-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-2 px-3 sm:px-4 rounded-lg transition flex items-center justify-center gap-2 text-sm shadow-sm"
           >
             <Share2 size={16} className="text-slate-400" />
             {copied ? 'Copied!' : 'Profile'}
@@ -84,7 +85,7 @@ export default function Dashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-slate-200 dark:border-slate-800 mb-8 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-4 sm:gap-6 border-b border-slate-200 dark:border-slate-800 mb-6 sm:mb-8 overflow-x-auto no-scrollbar">
         <button
           onClick={() => setActiveTab('overview')}
           className={clsx(
@@ -122,10 +123,10 @@ export default function Dashboard() {
 
       {/* Tab Content */}
       {activeTab === 'overview' && (
-        <div className="space-y-6 animate-in fade-in duration-300">
+        <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-300">
           {isBeginner && !showFullOverview ? (
             <>
-              <div className="rounded-2xl border border-primary-200 dark:border-primary-800/50 bg-primary-50/50 dark:bg-primary-900/10 px-5 py-4">
+              <div className="rounded-2xl border border-primary-200 dark:border-primary-800/50 bg-primary-50/50 dark:bg-primary-900/10 px-4 sm:px-5 py-3 sm:py-4">
                 <p className="text-sm font-semibold text-primary-700 dark:text-primary-300 mb-0.5">
                   Welcome to CodeSprint 50 — start with Day 1 below.
                 </p>
@@ -147,8 +148,9 @@ export default function Dashboard() {
             <>
               <ProgressHeader user={user} />
               <ProgramDayCard />
+              <HallOfFame />
               <ActivityHeatmap />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <PlacementReadinessCard />
                 <InsightsPanel />
               </div>
@@ -159,12 +161,12 @@ export default function Dashboard() {
 
       {activeTab === 'tracks' && (
         <div className="animate-in fade-in duration-300">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Rocket className="text-primary-500" size={20} />
-              Placement Tracks
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 min-w-0">
+              <Rocket className="text-primary-500 shrink-0" size={20} />
+              <span className="truncate">Placement Tracks</span>
             </h2>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Tier-3 placement ready</span>
+            <span className="hidden sm:inline text-[10px] font-bold uppercase tracking-widest text-slate-400 shrink-0">Tier-3 placement ready</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
