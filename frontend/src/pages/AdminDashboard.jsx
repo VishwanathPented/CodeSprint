@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, Rocket, Github, Download, Search, AlertCircle, Phone, BookOpen, Clock, ShieldCheck, Target, TriangleAlert, Code2, Database, Brain, Calculator, MessageCircle, MessageSquare, Crown, RotateCcw, X, KeyRound, FileText } from 'lucide-react';
+import { Settings, Save, ArrowLeft, Loader2, Users, PieChart, Layout, Plus, Trash2, Edit, Rocket, Github, Download, Search, AlertCircle, Phone, BookOpen, Clock, ShieldCheck, Target, TriangleAlert, Code2, Database, Brain, Calculator, MessageCircle, MessageSquare, Crown, RotateCcw, X, KeyRound, FileText, CheckSquare, Square, Wand2 } from 'lucide-react';
 import { API_URL } from '../utils/config';
 import QuestionBankManager from '../components/admin/QuestionBankManager';
 import DsaManager from '../components/admin/DsaManager';
@@ -9,6 +9,7 @@ import SqlManager from '../components/admin/SqlManager';
 import HrManager from '../components/admin/HrManager';
 import CommentsManager from '../components/admin/CommentsManager';
 import UserDetailDrawer from '../components/admin/UserDetailDrawer';
+import AssessmentBuilder from '../components/admin/AssessmentBuilder';
 
 export default function AdminDashboard() {
   const { token, user } = useAuth();
@@ -33,6 +34,10 @@ export default function AdminDashboard() {
   // Users Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [userFilter, setUserFilter] = useState('all'); // all | premium | free | admin
+
+  // Multi-select state for bulk actions
+  const [selectedUserIds, setSelectedUserIds] = useState(() => new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   // Per-user edit modal
   const [editUser, setEditUser] = useState(null);
@@ -225,8 +230,58 @@ export default function AdminDashboard() {
     const res = await fetch(`${API_URL}/admin/users/${u._id}`, {
       method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
     });
-    if (res.ok) { alert('User deleted'); fetchData(); }
+    if (res.ok) {
+      alert('User deleted');
+      setSelectedUserIds(prev => {
+        const next = new Set(prev);
+        next.delete(u._id);
+        return next;
+      });
+      fetchData();
+    }
     else { const d = await res.json().catch(() => ({})); alert(d.message || 'Delete failed'); }
+  };
+
+  // ===== Multi-select helpers =====
+  const toggleSelectUser = (id) => {
+    setSelectedUserIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selectedUserIds).filter(id => id !== user?._id);
+    if (ids.length === 0) {
+      alert('No deletable users selected (you cannot delete your own admin account).');
+      return;
+    }
+    if (!window.confirm(`Permanently DELETE ${ids.length} user${ids.length === 1 ? '' : 's'}? All accounts, results, comments, and review cards will be removed. This cannot be undone.`)) return;
+    if (!window.confirm(`Final confirmation — proceed with deleting ${ids.length} user${ids.length === 1 ? '' : 's'}?`)) return;
+
+    setBulkDeleting(true);
+    try {
+      const res = await fetch(`${API_URL}/admin/users/bulk-delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ ids })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        alert(data.message || `Deleted ${data.deletedCount} user(s)`);
+        setSelectedUserIds(new Set());
+        fetchData();
+      } else {
+        alert(data.message || 'Bulk delete failed');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Bulk delete request failed');
+    } finally {
+      setBulkDeleting(false);
+    }
   };
 
   const handleSaveUser = async (e) => {
@@ -294,6 +349,24 @@ export default function AdminDashboard() {
     return true;
   });
 
+  // Self can never be selected, so the "select all" anchor is the filtered list
+  // minus the current admin's own row.
+  const selectableFiltered = filteredStudents.filter(s => s._id !== user?._id);
+  const visibleSelectedCount = selectableFiltered.filter(s => selectedUserIds.has(s._id)).length;
+  const allFilteredSelected = selectableFiltered.length > 0 && visibleSelectedCount === selectableFiltered.length;
+
+  const toggleSelectAllVisible = () => {
+    setSelectedUserIds(prev => {
+      const next = new Set(prev);
+      if (allFilteredSelected) {
+        selectableFiltered.forEach(s => next.delete(s._id));
+      } else {
+        selectableFiltered.forEach(s => next.add(s._id));
+      }
+      return next;
+    });
+  };
+
   const renderUserManager = () => (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-3 w-full relative z-10 justify-between items-stretch sm:items-center">
@@ -345,11 +418,53 @@ export default function AdminDashboard() {
          </div>
       </div>
 
+      {selectedUserIds.size > 0 && (
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between p-3 sm:p-4 bg-red-50 dark:bg-red-900/15 border border-red-200 dark:border-red-900/40 rounded-xl">
+          <div className="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-300">
+            <CheckSquare size={16} />
+            {selectedUserIds.size} user{selectedUserIds.size === 1 ? '' : 's'} selected
+            {visibleSelectedCount < selectedUserIds.size && (
+              <span className="text-xs font-normal text-red-700/70 dark:text-red-300/70">
+                ({selectedUserIds.size - visibleSelectedCount} hidden by current filter)
+              </span>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedUserIds(new Set())}
+              className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+            >
+              Clear selection
+            </button>
+            <button
+              onClick={handleBulkDelete}
+              disabled={bulkDeleting}
+              className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold transition flex items-center gap-2"
+            >
+              {bulkDeleting
+                ? <><Loader2 className="animate-spin" size={14} /> Deleting...</>
+                : <><Trash2 size={14} /> Delete selected</>}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
               <tr>
+                <th className="pl-6 pr-2 py-4 w-10">
+                  <button
+                    type="button"
+                    onClick={toggleSelectAllVisible}
+                    disabled={selectableFiltered.length === 0}
+                    title={allFilteredSelected ? 'Deselect all visible' : 'Select all visible'}
+                    className="text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 disabled:opacity-30"
+                  >
+                    {allFilteredSelected ? <CheckSquare size={18} /> : <Square size={18} />}
+                  </button>
+                </th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">User</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">USN</th>
                 <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider">Branch/Year</th>
@@ -359,8 +474,24 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-              {filteredStudents.map((s) => (
-                <tr key={s._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition group">
+              {filteredStudents.map((s) => {
+                const isSelf = s._id === user?._id;
+                const isSelected = selectedUserIds.has(s._id);
+                return (
+                <tr key={s._id} className={`transition group ${isSelected ? 'bg-red-50/60 dark:bg-red-900/10' : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/20'}`}>
+                  <td className="pl-6 pr-2 py-4 w-10">
+                    {!isSelf ? (
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectUser(s._id)}
+                        className="w-4 h-4 accent-indigo-600 cursor-pointer"
+                        aria-label={`Select ${s.name}`}
+                      />
+                    ) : (
+                      <span className="text-[10px] uppercase tracking-wider text-slate-400">self</span>
+                    )}
+                  </td>
                   <td className="px-6 py-4">
                     <button
                       type="button"
@@ -460,10 +591,11 @@ export default function AdminDashboard() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
               {filteredStudents.length === 0 && (
                 <tr>
-                  <td colSpan="6" className="px-6 py-20 text-center text-slate-500">
+                  <td colSpan="7" className="px-6 py-20 text-center text-slate-500">
                     <Users size={48} className="mx-auto text-slate-300 dark:text-slate-700 mb-4" />
                     <p className="text-lg">No users found matching your filters.</p>
                   </td>
@@ -793,6 +925,7 @@ export default function AdminDashboard() {
             { id: 'aptitude', label: 'Aptitude', icon: <Calculator size={14} /> },
             { id: 'hr', label: 'HR', icon: <MessageCircle size={14} /> },
             { id: 'assessments', label: 'Mocks', icon: <Target size={14} /> },
+            { id: 'builder', label: 'Builder', icon: <Wand2 size={14} /> },
             { id: 'users', label: 'Users', icon: <Users size={14} /> },
             { id: 'comments', label: 'Comments', icon: <MessageSquare size={14} /> },
             { id: 'stats', label: 'Analytics', icon: <PieChart size={14} /> },
@@ -813,6 +946,7 @@ export default function AdminDashboard() {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {activeTab === 'users' && renderUserManager()}
           {activeTab === 'assessments' && renderAssessmentsManager()}
+          {activeTab === 'builder' && <AssessmentBuilder token={token} />}
           {activeTab === 'stats' && renderStats()}
           {activeTab === 'dsa' && <DsaManager token={token} />}
           {activeTab === 'sql' && <SqlManager token={token} />}

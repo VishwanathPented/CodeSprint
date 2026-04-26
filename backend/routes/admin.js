@@ -1,4 +1,5 @@
 import express from 'express';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import DayContent from '../models/DayContent.js';
 import User from '../models/User.js';
 import TestResult from '../models/TestResult.js';
@@ -155,6 +156,40 @@ router.post('/users/:id/reset-progress', async (req, res) => {
   }
 });
 
+// @route   POST /api/admin/users/bulk-delete
+// @desc    Permanently delete multiple users and their associated data in one shot
+router.post('/users/bulk-delete', async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: 'ids must be a non-empty array' });
+    }
+
+    const selfId = req.user._id.toString();
+    const targetIds = ids.filter((id) => id && id.toString() !== selfId);
+    const skippedSelf = ids.length - targetIds.length;
+
+    if (targetIds.length === 0) {
+      return res.status(400).json({ message: 'You cannot delete your own admin account' });
+    }
+
+    const [userRes] = await Promise.all([
+      User.deleteMany({ _id: { $in: targetIds } }),
+      TestResult.deleteMany({ user: { $in: targetIds } }),
+      WrongAnswer.deleteMany({ user: { $in: targetIds } }),
+      Comment.deleteMany({ user: { $in: targetIds } })
+    ]);
+
+    res.json({
+      message: `Deleted ${userRes.deletedCount} user(s)${skippedSelf ? ' (skipped your own admin account)' : ''}`,
+      deletedCount: userRes.deletedCount,
+      skippedSelf
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // @route   DELETE /api/admin/users/:id
 // @desc    Permanently delete a user and their data
 router.delete('/users/:id', async (req, res) => {
@@ -219,6 +254,222 @@ router.delete('/day/:dayNumber', async (req, res) => {
     const deleted = await DayContent.findOneAndDelete({ dayNumber: req.params.dayNumber });
     if (!deleted) return res.status(404).json({ message: 'Day not found' });
     res.json({ message: 'Day deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ============================================================
+// ASSESSMENT BUILDER — AI-driven question generation per day
+// ============================================================
+
+// Pull the first JSON object/array out of a model response, even if it is
+// wrapped in ```json fences or has stray prose around it.
+function extractJsonBlock(text) {
+  if (!text) return null;
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = (fenced ? fenced[1] : text).trim();
+  // Find the first balanced brace/bracket region.
+  const firstBrace = candidate.search(/[{[]/);
+  if (firstBrace === -1) return null;
+  const sliced = candidate.slice(firstBrace);
+  try {
+    return JSON.parse(sliced);
+  } catch {
+    // Last resort: try to parse just up to the last closing brace/bracket.
+    const lastBrace = Math.max(sliced.lastIndexOf('}'), sliced.lastIndexOf(']'));
+    if (lastBrace === -1) return null;
+    try {
+      return JSON.parse(sliced.slice(0, lastBrace + 1));
+    } catch {
+      return null;
+    }
+  }
+}
+
+// Normalize whatever shape the model returns into our DayContent shape so the
+// admin UI can edit it directly.
+function normalizeGeneratedQuestions(parsed) {
+  if (!parsed || typeof parsed !== 'object') return { mcqs: [], predictOutput: [] };
+  const mcqsIn = Array.isArray(parsed.mcqs) ? parsed.mcqs : [];
+  const predIn = Array.isArray(parsed.predictOutput) ? parsed.predictOutput : [];
+
+  const mcqs = mcqsIn.map((m) => {
+    const question = m.question || m.q || '';
+    const optionsRaw = Array.isArray(m.options) ? m.options : [];
+    const options = optionsRaw.map((opt) => {
+      if (typeof opt === 'string') return { text: opt, isCorrect: false };
+      return {
+        text: opt.text ?? opt.t ?? '',
+        isCorrect: !!(opt.isCorrect ?? opt.c ?? false)
+      };
+    });
+    // If the model returned a separate correctIndex / answer rather than flagged
+    // options, mark the indicated one as correct.
+    if (!options.some((o) => o.isCorrect)) {
+      const idx = typeof m.correctIndex === 'number' ? m.correctIndex
+        : typeof m.answerIndex === 'number' ? m.answerIndex
+        : -1;
+      if (idx >= 0 && idx < options.length) options[idx].isCorrect = true;
+    }
+    return { question, options };
+  }).filter((m) => m.question && m.options.length >= 2);
+
+  const predictOutput = predIn.map((p) => ({
+    codeSnippet: p.codeSnippet || p.code || '',
+    expectedOutput: p.expectedOutput || p.output || '',
+    explanation: p.explanation || ''
+  })).filter((p) => p.codeSnippet && p.expectedOutput);
+
+  return { mcqs, predictOutput };
+}
+
+// @route   POST /api/admin/assessment-builder/generate
+// @desc    Use Gemini to draft MCQs + predict-output questions for a topic.
+//          Returns editable JSON — admin reviews/edits before saving onto a day.
+router.post('/assessment-builder/generate', async (req, res) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ message: 'AI is not configured (GEMINI_API_KEY missing).' });
+
+  const {
+    topicSummary,
+    dayNumber,
+    mcqCount = 10,
+    predictCount = 3,
+    difficulty = 'mixed'
+  } = req.body || {};
+
+  if (!topicSummary || typeof topicSummary !== 'string' || topicSummary.trim().length < 5) {
+    return res.status(400).json({ message: 'Provide a topic summary describing what the test should cover.' });
+  }
+
+  const safeMcq = Math.min(Math.max(parseInt(mcqCount, 10) || 0, 0), 25);
+  const safePred = Math.min(Math.max(parseInt(predictCount, 10) || 0, 0), 10);
+  if (safeMcq + safePred === 0) {
+    return res.status(400).json({ message: 'Request at least one MCQ or predict-output question.' });
+  }
+
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+
+    const prompt = `You are an expert Java instructor authoring an assessment for the "CodeSprint 50" placement-prep course.
+
+${dayNumber ? `Target Day: ${dayNumber}` : 'Target Day: ad-hoc'}
+Topic / Concept Summary:
+"""
+${topicSummary.trim().substring(0, 2000)}
+"""
+Difficulty target: ${difficulty}
+
+Generate exactly ${safeMcq} multiple-choice questions and exactly ${safePred} "predict the output" Java code snippets.
+
+Strict requirements:
+- Questions must be tightly relevant to the topic summary above.
+- MCQs must each have exactly 4 plausible options. Exactly ONE option is correct.
+- Avoid trivia. Test conceptual understanding, edge cases, and common bugs.
+- Predict-output snippets must be self-contained, compile-ready Java code (include necessary imports, class wrapper, public static void main). Output must be exact text (no trailing whitespace differences).
+- Do NOT repeat questions or reuse the exact same options.
+
+Respond with ONLY a JSON object — no markdown fences, no commentary — matching exactly this schema:
+{
+  "mcqs": [
+    {
+      "question": "string",
+      "options": [
+        { "text": "string", "isCorrect": false },
+        { "text": "string", "isCorrect": true },
+        { "text": "string", "isCorrect": false },
+        { "text": "string", "isCorrect": false }
+      ]
+    }
+  ],
+  "predictOutput": [
+    {
+      "codeSnippet": "string (full Java program)",
+      "expectedOutput": "string (exact expected console output)",
+      "explanation": "string (1-2 sentences on why)"
+    }
+  ]
+}`;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const parsed = extractJsonBlock(text);
+    if (!parsed) {
+      return res.status(502).json({
+        message: 'AI returned an unparseable response. Try regenerating or simplifying the topic.',
+        raw: text.slice(0, 500)
+      });
+    }
+
+    const normalized = normalizeGeneratedQuestions(parsed);
+    if (normalized.mcqs.length === 0 && normalized.predictOutput.length === 0) {
+      return res.status(502).json({
+        message: 'AI produced no usable questions. Try a more specific topic summary.',
+        raw: text.slice(0, 500)
+      });
+    }
+
+    res.json({
+      ...normalized,
+      meta: {
+        requestedMcq: safeMcq,
+        requestedPredict: safePred,
+        generatedMcq: normalized.mcqs.length,
+        generatedPredict: normalized.predictOutput.length
+      }
+    });
+  } catch (error) {
+    console.error('Assessment Builder AI error:', error);
+    res.status(500).json({ message: `AI generation failed: ${error.message || 'unknown error'}` });
+  }
+});
+
+// @route   POST /api/admin/assessment-builder/save
+// @desc    Persist a builder draft onto a day's content. mode = 'append' adds
+//          to the existing mcqs/predictOutput, mode = 'replace' overwrites.
+router.post('/assessment-builder/save', async (req, res) => {
+  try {
+    const { dayNumber, mcqs = [], predictOutput = [], mode = 'append' } = req.body || {};
+    if (!dayNumber || Number.isNaN(Number(dayNumber))) {
+      return res.status(400).json({ message: 'dayNumber is required.' });
+    }
+    if (!['append', 'replace'].includes(mode)) {
+      return res.status(400).json({ message: 'mode must be "append" or "replace".' });
+    }
+
+    const day = await DayContent.findOne({ dayNumber: Number(dayNumber) });
+    if (!day) return res.status(404).json({ message: `Day ${dayNumber} not found.` });
+
+    // Validate each MCQ has exactly one correct option.
+    for (const m of mcqs) {
+      if (!m.question || !Array.isArray(m.options) || m.options.length < 2) {
+        return res.status(400).json({ message: 'Every MCQ needs a question and at least 2 options.' });
+      }
+      const correctCount = m.options.filter((o) => o.isCorrect).length;
+      if (correctCount !== 1) {
+        return res.status(400).json({ message: `MCQ "${m.question.slice(0, 40)}..." must have exactly one correct option.` });
+      }
+    }
+
+    if (mode === 'replace') {
+      day.mcqs = mcqs;
+      day.predictOutput = predictOutput;
+    } else {
+      day.mcqs = [...(day.mcqs || []), ...mcqs];
+      day.predictOutput = [...(day.predictOutput || []), ...predictOutput];
+    }
+    await day.save();
+
+    res.json({
+      message: `Saved to Day ${dayNumber}: ${mcqs.length} MCQ(s) + ${predictOutput.length} predict-output question(s) (${mode}).`,
+      dayNumber: day.dayNumber,
+      totals: {
+        mcqs: day.mcqs.length,
+        predictOutput: day.predictOutput.length
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
