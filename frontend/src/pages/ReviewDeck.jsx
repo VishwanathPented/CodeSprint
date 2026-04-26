@@ -100,7 +100,7 @@ export default function ReviewDeck() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <div className="flex items-center justify-between mb-6">
         <Link to="/dashboard" className="text-sm font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1">
           <ArrowLeft size={14} /> Dashboard
@@ -117,7 +117,7 @@ export default function ReviewDeck() {
               <Brain className="text-fuchsia-300" size={14} />
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">Spaced Repetition</span>
             </div>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight mb-1">Drill what you actually got wrong.</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1">Drill what you actually got wrong.</h1>
             <p className="text-slate-300 text-sm">Cards resurface at 3d → 7d → 14d → 30d intervals. Get one wrong and it resets to 3d.</p>
           </div>
           <div className="md:col-span-5 grid grid-cols-3 gap-2">

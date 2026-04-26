@@ -106,7 +106,7 @@ export default function CodeEditorModule({ problem, dayNumber, dayTopic, onCompl
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 dark:divide-slate-800">
         
         {/* Left Pane: Editor */}
-        <div className="flex flex-col h-[500px]">
+        <div className="flex flex-col h-[360px] sm:h-[440px] lg:h-[500px]">
           <div className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center text-xs text-slate-500 font-mono font-bold">
             <span>Main.java</span>
             <span>Java 17</span>
@@ -131,7 +131,7 @@ export default function CodeEditorModule({ problem, dayNumber, dayTopic, onCompl
         </div>
 
         {/* Right Pane: Output & Actions */}
-        <div className="flex flex-col bg-slate-50 dark:bg-slate-900 min-h-[500px]">
+        <div className="flex flex-col bg-slate-50 dark:bg-slate-900 min-h-[400px] lg:min-h-[500px]">
           <div className="p-5 flex-1 space-y-5 overflow-y-auto">
             <div>
               <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{problem.title}</h4>

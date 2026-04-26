@@ -62,7 +62,7 @@ export default function WarmupModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm bg-slate-900/50">
-      <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="w-full max-w-lg max-h-[calc(100vh-2rem)] overflow-y-auto bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl animate-in zoom-in-95 duration-200">
         
         {/* Header */}
         <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800">
@@ -81,7 +81,7 @@ export default function WarmupModal({ isOpen, onClose }) {
         </div>
 
         {/* Content */}
-        <div className="p-6 sm:p-8 min-h-[350px] flex flex-col">
+        <div className="p-5 sm:p-8 min-h-[280px] sm:min-h-[350px] flex flex-col">
           {loading ? (
             <div className="flex-grow flex flex-col items-center justify-center space-y-4">
               <Loader2 className="animate-spin text-blue-500" size={32} />

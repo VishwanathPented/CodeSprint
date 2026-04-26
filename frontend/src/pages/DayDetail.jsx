@@ -194,14 +194,14 @@ export default function DayDetail() {
   if (!content) return <div className="p-8 text-center text-red-500 font-bold">Content not found.</div>;
 
   return (
-    <div className="max-w-7xl mx-auto w-full px-4 py-8 space-y-10">
-        <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800 relative">
+    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-10">
+        <div className="bg-white dark:bg-slate-900 rounded-lg p-4 sm:p-6 border border-slate-200 dark:border-slate-800 relative">
         <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 mb-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-400 text-sm font-bold rounded-full mb-4 uppercase tracking-wider">
+          <div className="min-w-0">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-400 text-xs sm:text-sm font-bold rounded-full mb-3 sm:mb-4 uppercase tracking-wider">
               Day {content.dayNumber}
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{content.topicTitle}</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-2 break-words">{content.topicTitle}</h1>
           </div>
           
           <button 

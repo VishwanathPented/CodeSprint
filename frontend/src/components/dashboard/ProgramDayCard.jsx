@@ -85,7 +85,7 @@ export default function ProgramDayCard() {
   return (
     <div className="space-y-4">
       {/* Hero strip — day, streak, longest */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 border border-slate-800 p-6">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 border border-slate-800 p-5 sm:p-6">
         <div className="absolute -right-20 -top-20 w-64 h-64 bg-orange-400/10 blur-3xl rounded-full" />
         <div className="absolute -left-16 -bottom-16 w-56 h-56 bg-emerald-500/10 blur-3xl rounded-full" />
 
@@ -95,7 +95,7 @@ export default function ProgramDayCard() {
               <Calendar className="text-orange-300" size={16} />
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">CodeSprint Daily Program</span>
             </div>
-            <h2 className="text-3xl font-extrabold text-white tracking-tight mb-1">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1">
               Day {day} <span className="text-slate-500 font-bold">/ {total}</span>
             </h2>
             <p className="text-slate-300 text-sm">

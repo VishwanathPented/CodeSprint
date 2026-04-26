@@ -131,9 +131,9 @@ export default function HrPrep() {
   const practicedCount = questions.filter((q) => q.practiced).length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 border border-slate-800 p-8 mb-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 border border-slate-800 p-5 sm:p-8 mb-6 sm:mb-8">
         <div className="absolute -right-20 -top-20 w-72 h-72 bg-rose-500/10 blur-3xl rounded-full" />
         <div className="absolute -left-16 -bottom-16 w-64 h-64 bg-amber-500/10 blur-3xl rounded-full" />
         <div className="relative">
@@ -141,7 +141,7 @@ export default function HrPrep() {
             <MessageSquareText className="text-rose-300" size={14} />
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">HR Interview Prep</span>
           </div>
-          <h1 className="text-4xl font-extrabold text-white tracking-tight mb-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-2">
             Practice your answers. Get AI feedback.
           </h1>
           <p className="text-slate-300 max-w-2xl">
@@ -294,7 +294,7 @@ export default function HrPrep() {
                     'bg-gradient-to-br from-rose-500 to-pink-600'
                   )}>
                     <Sparkles className="mx-auto mb-2" size={28} />
-                    <p className="text-5xl font-black mb-1">{feedback.score}<span className="text-2xl opacity-70">/100</span></p>
+                    <p className="text-4xl sm:text-5xl font-black mb-1">{feedback.score}<span className="text-xl sm:text-2xl opacity-70">/100</span></p>
                     <p className="text-sm opacity-90 italic mt-2 max-w-lg mx-auto">"{feedback.verdict}"</p>
                   </div>
 

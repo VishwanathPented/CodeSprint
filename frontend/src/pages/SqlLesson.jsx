@@ -134,18 +134,18 @@ export default function SqlLesson() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto w-full px-4 py-8 space-y-8">
+    <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
       <Link to="/sql" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
         <ArrowLeft size={14} /> Back to SQL track
       </Link>
 
       {/* Header */}
-      <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800">
+      <div className="bg-white dark:bg-slate-900 rounded-lg p-5 sm:p-6 border border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-2 mb-3">
           <Database className="text-primary-600" size={20} />
           <span className="text-[10px] font-bold uppercase tracking-widest text-primary-600">SQL Lesson {lesson.lessonNumber}</span>
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{lesson.title}</h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-2 break-words">{lesson.title}</h1>
         <p className="text-slate-600 dark:text-slate-400 max-w-3xl">{lesson.description}</p>
       </div>
 

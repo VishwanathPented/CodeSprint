@@ -72,10 +72,10 @@ export default function AITutorBot({ dayNumber, dayTopic, token }) {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end max-w-[calc(100vw-2rem)]">
       {/* Chat Window */}
       {isOpen && (
-        <div className="w-[350px] sm:w-[420px] h-[600px] bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden mb-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="w-[calc(100vw-2rem)] sm:w-[380px] md:w-[420px] h-[min(600px,calc(100vh-6rem))] bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden mb-4 animate-in fade-in zoom-in-95 duration-200">
           
           {/* Header */}
           <div className="p-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 relative text-slate-900 dark:text-white">

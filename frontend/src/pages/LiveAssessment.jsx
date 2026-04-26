@@ -171,22 +171,22 @@ export default function LiveAssessment() {
 
   if (submittedResult) return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
-      <div className="max-w-lg w-full bg-white dark:bg-slate-800 p-10 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 text-center animate-in zoom-in-95 duration-500">
+      <div className="max-w-lg w-full bg-white dark:bg-slate-800 p-6 sm:p-10 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 text-center animate-in zoom-in-95 duration-500">
          {submittedResult.warnings >= 3 ? (
-            <ShieldAlert size={80} className="mx-auto text-red-500 mb-6 drop-shadow-md" />
+            <ShieldAlert size={64} className="mx-auto text-red-500 mb-4 sm:mb-6 drop-shadow-md sm:w-20 sm:h-20" />
          ) : (
-            <CircleCheckBig size={80} className="mx-auto text-emerald-500 mb-6 drop-shadow-md" />
+            <CircleCheckBig size={64} className="mx-auto text-emerald-500 mb-4 sm:mb-6 drop-shadow-md sm:w-20 sm:h-20" />
          )}
-         
-         <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2">
+
+         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2">
             {submittedResult.warnings >= 3 ? 'Terminated' : 'Assessment Complete'}
          </h1>
-         <p className="text-slate-500 dark:text-slate-400 mb-8">{submittedResult.message}</p>
-         
-         <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-6 mb-8 border border-slate-100 dark:border-slate-800">
+         <p className="text-slate-500 dark:text-slate-400 mb-6 sm:mb-8 text-sm sm:text-base">{submittedResult.message}</p>
+
+         <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-slate-100 dark:border-slate-800">
             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Final Score</div>
-            <div className={`text-6xl font-black ${submittedResult.warnings >= 3 ? 'text-red-500' : 'text-emerald-500'}`}>
-               {submittedResult.score} <span className="text-2xl text-slate-300 dark:text-slate-700">/ {submittedResult.total}</span>
+            <div className={`text-4xl sm:text-6xl font-black ${submittedResult.warnings >= 3 ? 'text-red-500' : 'text-emerald-500'}`}>
+               {submittedResult.score} <span className="text-xl sm:text-2xl text-slate-300 dark:text-slate-700">/ {submittedResult.total}</span>
             </div>
          </div>
          
@@ -201,19 +201,19 @@ export default function LiveAssessment() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 select-none">
       
       {/* Sticky Proctor Header */}
-      <div className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm px-4 md:px-8 py-4 flex items-center justify-between">
-         <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700">
-               <Briefcase size={20} className="text-primary-500" />
+      <div className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm px-3 sm:px-4 md:px-8 py-3 sm:py-4 flex items-center justify-between gap-2">
+         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 shrink-0">
+               <Briefcase size={18} className="text-primary-500 sm:w-5 sm:h-5" />
             </div>
-            <div>
-               <h2 className="font-bold text-slate-900 dark:text-white leading-tight">{test.companyName}</h2>
-               <p className="text-xs text-slate-500 font-medium">Placement Assessment</p>
+            <div className="min-w-0">
+               <h2 className="font-bold text-slate-900 dark:text-white leading-tight text-sm sm:text-base truncate">{test.companyName}</h2>
+               <p className="text-[10px] sm:text-xs text-slate-500 font-medium hidden sm:block">Placement Assessment</p>
             </div>
          </div>
 
-         <div className="flex items-center gap-4 md:gap-8">
-            <div className={`flex flex-col items-center justify-center px-4 py-1.5 rounded-lg border ${tabSwitches > 0 ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' : 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800'}`}>
+         <div className="flex items-center gap-3 sm:gap-4 md:gap-8 shrink-0">
+            <div className={`hidden sm:flex flex-col items-center justify-center px-4 py-1.5 rounded-lg border ${tabSwitches > 0 ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' : 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800'}`}>
                <span className={`text-[10px] font-black uppercase tracking-wider ${tabSwitches > 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                  Proctor Strike
                </span>
@@ -225,18 +225,18 @@ export default function LiveAssessment() {
             </div>
 
             <div className="flex flex-col items-end">
-               <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-0.5"><Clock size={10} className="inline mr-1 -mt-0.5" /> Time Remaining</span>
-               <span className={`text-2xl font-mono font-bold tracking-tight ${timeLeft < 300 ? 'text-red-500 animate-pulse' : 'text-slate-800 dark:text-white'}`}>
+               <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-0.5"><Clock size={10} className="inline mr-1 -mt-0.5" /> <span className="hidden sm:inline">Time Remaining</span><span className="sm:hidden">Time</span></span>
+               <span className={`text-lg sm:text-2xl font-mono font-bold tracking-tight ${timeLeft < 300 ? 'text-red-500 animate-pulse' : 'text-slate-800 dark:text-white'}`}>
                  {formatTime(timeLeft)}
                </span>
             </div>
          </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-28 sm:pb-32">
          {/* Questions Loop */}
          {test.mcqs.map((mcq, idx) => (
-           <div key={idx} className="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-10 mb-8 border border-slate-200 dark:border-slate-700 shadow-sm relative">
+           <div key={idx} className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-10 mb-6 sm:mb-8 border border-slate-200 dark:border-slate-700 shadow-sm relative">
              <div className="absolute top-0 left-0 w-12 h-12 bg-indigo-600 rounded-br-3xl flex items-center justify-center text-white font-black text-lg shadow-md">
                {idx + 1}
              </div>
@@ -277,17 +277,17 @@ export default function LiveAssessment() {
       </div>
 
       {/* Footer Submit Bar */}
-      <div className="fixed bottom-0 left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-4 md:px-8 z-40 transform translate-y-0 shadow-[-0_-10px_40px_rgba(0,0,0,0.2)]">
-         <div className="max-w-4xl mx-auto flex items-center justify-between">
-           <div className="text-slate-400 text-sm font-medium">
+      <div className="fixed bottom-0 left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 sm:p-4 md:px-8 z-40 transform translate-y-0 shadow-[-0_-10px_40px_rgba(0,0,0,0.2)]">
+         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+           <div className="text-slate-400 text-xs sm:text-sm font-medium">
              Attempted: <strong className="text-white">{Object.keys(answers).length}</strong> / {test.mcqs.length}
            </div>
-           <button 
+           <button
              onClick={handleManualSubmit}
              disabled={submitting || isTerminated}
-             className="px-8 py-3.5 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-black rounded-xl uppercase tracking-widest shadow-lg shadow-emerald-500/20 transition flex items-center gap-2"
+             className="px-4 sm:px-8 py-2.5 sm:py-3.5 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-black rounded-xl uppercase tracking-widest text-xs sm:text-base shadow-lg shadow-emerald-500/20 transition flex items-center gap-2"
            >
-             {submitting ? <Loader2 className="animate-spin" size={18} /> : 'Submit Execution'} <ArrowRight size={18} />
+             {submitting ? <Loader2 className="animate-spin" size={18} /> : 'Submit'} <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px]" />
            </button>
          </div>
       </div>

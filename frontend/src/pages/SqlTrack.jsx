@@ -42,9 +42,9 @@ export default function SqlTrack() {
   const percent = lessons.length ? Math.round((totalSolved / lessons.length) * 100) : 0;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 border border-slate-800 p-8 mb-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 border border-slate-800 p-5 sm:p-8 mb-6 sm:mb-8">
         <div className="absolute -right-20 -top-20 w-72 h-72 bg-indigo-500/10 blur-3xl rounded-full" />
         <div className="absolute -left-16 -bottom-16 w-64 h-64 bg-purple-500/10 blur-3xl rounded-full" />
         <div className="relative">
@@ -52,7 +52,7 @@ export default function SqlTrack() {
             <Database className="text-indigo-400" size={14} />
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">SQL &amp; DBMS Track</span>
           </div>
-          <h1 className="text-4xl font-extrabold text-white tracking-tight mb-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-2">
             Write queries, ace DBMS rounds.
           </h1>
           <p className="text-slate-300 max-w-2xl">

@@ -10,10 +10,29 @@
   --color-dark-card: #1e293b;
 }
 
+html, body {
+  /* Prevent stray content from inducing horizontal scroll on small screens. */
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 body {
   @apply bg-white text-slate-900 transition-colors duration-200 antialiased;
+  -webkit-text-size-adjust: 100%;
 }
 
 .dark body {
   @apply bg-[#1a1a1a] text-slate-100;
+}
+
+/* Hide scrollbar utility for tab strips that should scroll without a visible bar */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Image / media safety: never overflow a flex/grid track on small screens */
+img, video, canvas, svg { max-width: 100%; height: auto; }
+
+/* Tap targets on touch devices feel tighter without this */
+@media (hover: none) {
+  button, a { -webkit-tap-highlight-color: transparent; }
 }

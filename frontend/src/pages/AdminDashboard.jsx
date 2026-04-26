@@ -767,25 +767,25 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto w-full px-4 py-10 min-h-screen">
+    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-        <div className="flex items-center gap-5">
-           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-xl flex items-center justify-center scale-110">
-              <Settings size={32} />
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 sm:mb-12">
+        <div className="flex items-center gap-4 sm:gap-5">
+           <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-xl flex items-center justify-center sm:scale-110">
+              <Settings size={28} className="sm:w-8 sm:h-8" />
            </div>
-           <div>
-              <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">Command Center</h1>
+           <div className="min-w-0">
+              <h1 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">Command Center</h1>
               <div className="flex items-center gap-2">
-                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                 <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                   CodeSprint Control Panel <span className="text-slate-300 dark:text-slate-600 mx-2">|</span> Admin: {user?.name}
+                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0"></span>
+                 <p className="text-[11px] sm:text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest truncate">
+                   CodeSprint Control Panel <span className="text-slate-300 dark:text-slate-600 mx-2 hidden sm:inline">|</span> <span className="hidden sm:inline">Admin: {user?.name}</span>
                  </p>
               </div>
            </div>
         </div>
 
-        <div className="flex flex-wrap bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 gap-0.5">
+        <div className="flex flex-wrap overflow-x-auto bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 gap-0.5">
           {[
             { id: 'dsa', label: 'DSA', icon: <Code2 size={14} /> },
             { id: 'sql', label: 'SQL', icon: <Database size={14} /> },
@@ -874,7 +874,7 @@ function UserEditModal({ user, saving, onChange, onSave, onClose, onDownloadRepo
       <form
         onClick={e => e.stopPropagation()}
         onSubmit={onSave}
-        className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 space-y-5 border border-slate-200 dark:border-slate-800"
+        className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-5 sm:p-8 space-y-5 border border-slate-200 dark:border-slate-800"
       >
         <div className="flex justify-between items-center pb-4 border-b border-slate-200 dark:border-slate-800">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">Edit User: {user.name}</h2>

@@ -5,8 +5,8 @@ export default function ProgressHeader({ user }) {
   const percentage = Math.round(((user.completedDays?.length || 0) / 50) * 100);
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-6 w-full">
-      <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-5 sm:p-6 w-full">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-6 items-stretch md:items-center justify-between">
         
         <div className="flex-1 w-full">
           <h2 className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-white mb-2">

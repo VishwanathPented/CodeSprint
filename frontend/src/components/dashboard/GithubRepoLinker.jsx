@@ -78,8 +78,8 @@ export default function GithubRepoLinker({ user, token, onUpdate }) {
         </form>
       ) : (
         <div className="space-y-3">
-          <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-            <span className="text-xs font-mono text-slate-600 dark:text-slate-400 truncate max-w-[200px]">
+          <div className="flex items-center justify-between gap-2 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+            <span className="text-xs font-mono text-slate-600 dark:text-slate-400 truncate min-w-0 flex-1">
               {user.githubRepo}
             </span>
             <a 

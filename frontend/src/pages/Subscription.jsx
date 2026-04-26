@@ -57,12 +57,12 @@ export default function Subscription() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto w-full px-4 py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+    <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12">
+      <div className="text-center mb-8 sm:mb-12">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
           Unlock the Full Journey
         </h1>
-        <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
           Get lifetime access to all 50 days of coding lectures, quizzes, challenges, and aptitude preparation.
         </p>
       </div>

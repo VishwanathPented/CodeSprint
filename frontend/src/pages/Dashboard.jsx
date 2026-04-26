@@ -54,11 +54,11 @@ export default function Dashboard() {
           <div className="p-2.5 bg-slate-900 dark:bg-slate-800 rounded-lg text-white shadow-sm">
             <Sparkles size={20} />
           </div>
-          <div>
-            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Dashboard
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm">
               Welcome back, {user?.name?.split(' ')[0] || 'Explorer'}! Ready to code?
             </p>
           </div>
@@ -167,7 +167,7 @@ export default function Dashboard() {
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Tier-3 placement ready</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <TrackCard
               to="/java"
               title="Java 50"

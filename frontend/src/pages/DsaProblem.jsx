@@ -160,7 +160,7 @@ export default function DsaProblem() {
                 </span>
               )}
             </div>
-            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white mb-3">{problem.title}</h1>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mb-3 break-words">{problem.title}</h1>
             <div className="prose prose-sm dark:prose-invert max-w-none">
               <ReactMarkdown>{problem.description}</ReactMarkdown>
             </div>
@@ -245,7 +245,7 @@ export default function DsaProblem() {
               <span className="text-slate-400">Java 17</span>
             </div>
 
-            <div className="h-[420px] bg-[#1e1e1e]">
+            <div className="h-[320px] sm:h-[380px] lg:h-[460px] bg-[#1e1e1e]">
               <Editor
                 height="100%"
                 defaultLanguage="java"

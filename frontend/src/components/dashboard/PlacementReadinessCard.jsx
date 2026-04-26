@@ -67,14 +67,14 @@ export default function PlacementReadinessCard() {
   const ringPercent = Math.max(0, Math.min(100, data.composite));
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 border border-slate-800 p-6 md:p-8">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:to-slate-950 border border-slate-800 p-5 sm:p-6 md:p-8">
       <div className="absolute -right-20 -top-20 w-72 h-72 bg-indigo-500/10 blur-3xl rounded-full" />
       <div className="absolute -left-16 -bottom-16 w-64 h-64 bg-emerald-500/10 blur-3xl rounded-full" />
 
-      <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+      <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-center">
         {/* Big circular score */}
         <div className="lg:col-span-3 flex justify-center">
-          <div className="relative w-40 h-40">
+          <div className="relative w-32 h-32 sm:w-40 sm:h-40">
             <div
               className={`absolute inset-0 rounded-full bg-gradient-to-br ${tierStyle.ring} opacity-90`}
               style={{
@@ -85,27 +85,27 @@ export default function PlacementReadinessCard() {
               }}
             />
             <div className="absolute inset-2 rounded-full bg-slate-900 flex flex-col items-center justify-center border border-white/10">
-              <p className="text-5xl font-black text-white leading-none">{data.composite}</p>
+              <p className="text-4xl sm:text-5xl font-black text-white leading-none">{data.composite}</p>
               <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">/ 100</p>
             </div>
           </div>
         </div>
 
         {/* Tier + components */}
-        <div className="lg:col-span-9 space-y-4">
+        <div className="lg:col-span-9 space-y-4 min-w-0">
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <Award className={tierStyle.accent} size={18} />
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Placement Readiness</span>
               <span className={clsx('text-[10px] font-bold uppercase tracking-widest text-white px-2 py-0.5 rounded', tierStyle.badge)}>
                 {data.tier?.label}
               </span>
             </div>
-            <h2 className="text-2xl font-extrabold text-white tracking-tight">{data.tier?.message}</h2>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">{data.tier?.message}</h2>
           </div>
 
           {/* Component breakdown */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
             {data.components?.map((c) => (
               <div key={c.key} className="bg-white/5 backdrop-blur rounded-md p-2.5 border border-white/10">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1">{c.label}</p>

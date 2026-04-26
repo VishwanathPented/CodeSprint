@@ -37,19 +37,19 @@ export default function AssessmentList() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 animate-in fade-in duration-500">
-      <div className="bg-slate-900 rounded-[2rem] p-8 md:p-12 shadow-2xl border border-slate-800 mb-10 relative overflow-hidden">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 animate-in fade-in duration-500">
+      <div className="bg-slate-900 rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 md:p-12 shadow-2xl border border-slate-800 mb-8 sm:mb-10 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary-600/20 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="max-w-xl">
              <div className="flex items-center gap-3 mb-3 text-primary-400">
-                <Briefcase size={28} />
-                <span className="font-bold tracking-widest uppercase text-sm">Placement Readiness</span>
+                <Briefcase size={24} className="sm:w-7 sm:h-7" />
+                <span className="font-bold tracking-widest uppercase text-xs sm:text-sm">Placement Readiness</span>
              </div>
-             <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight leading-none">
+             <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white mb-3 sm:mb-4 tracking-tight leading-tight sm:leading-none">
                Company Mock Assessments
              </h1>
-             <p className="text-slate-400 font-medium text-lg leading-relaxed">
+             <p className="text-slate-400 font-medium text-sm sm:text-lg leading-relaxed">
                Simulate high-stakes hiring tests from top tech giants. These tests feature strict time limits, automated anti-cheat proctoring, and comprehensive scoring.
              </p>
           </div>
@@ -73,7 +73,7 @@ export default function AssessmentList() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {assessments.map(test => (
-          <div key={test._id} className="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-shadow group relative overflow-hidden">
+          <div key={test._id} className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-shadow group relative overflow-hidden">
             
             {/* Completion Ribbon */}
             {test.isCompleted && (

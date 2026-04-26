@@ -78,7 +78,7 @@ export default function HrManager({ token }) {
   if (editing) {
     const data = editing === 'new' ? blank() : editing;
     return (
-      <form onSubmit={handleSave} className="bg-white dark:bg-slate-900 rounded-lg p-8 border border-slate-200 dark:border-slate-800 space-y-6 max-w-4xl mx-auto">
+      <form onSubmit={handleSave} className="bg-white dark:bg-slate-900 rounded-lg p-5 sm:p-8 border border-slate-200 dark:border-slate-800 space-y-6 max-w-4xl mx-auto">
         <div className="flex justify-between items-center pb-4 border-b border-slate-200 dark:border-slate-800">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{editing === 'new' ? 'New HR Question' : `Edit Q${data.order}`}</h2>
           <button type="button" onClick={() => setEditing(null)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500"><ArrowLeft size={22} /></button>

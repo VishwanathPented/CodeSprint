@@ -127,8 +127,8 @@ export default function ActivityHeatmap() {
       </div>
 
       {/* Legend + hover tooltip line */}
-      <div className="mt-4 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-        <div className="min-h-[18px]">
+      <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+        <div className="min-h-[18px] order-2 sm:order-1">
           {hovered ? (
             <span className="font-medium text-slate-700 dark:text-slate-300">
               {hovered.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
@@ -141,7 +141,7 @@ export default function ActivityHeatmap() {
             <span>Hover a square for details</span>
           )}
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 order-1 sm:order-2">
           <span>Less</span>
           {[0, 1, 2, 3, 4].map(n => (
             <div key={n} className={clsx('w-3 h-3 rounded-sm', intensityClass(n))} />

@@ -91,7 +91,7 @@ export default function SqlQueryEditor({ problem, setupSql, onSolved, alreadySol
               </p>
             )}
           </div>
-          <div className="h-[260px] bg-[#1e1e1e]">
+          <div className="h-[220px] sm:h-[260px] lg:h-[300px] bg-[#1e1e1e]">
             <Editor
               height="100%"
               defaultLanguage="sql"
@@ -131,7 +131,7 @@ export default function SqlQueryEditor({ problem, setupSql, onSolved, alreadySol
         </div>
 
         {/* Right: result table + verdict */}
-        <div className="flex flex-col bg-slate-50 dark:bg-slate-900 min-h-[360px]">
+        <div className="flex flex-col bg-slate-50 dark:bg-slate-900 min-h-[280px] lg:min-h-[360px]">
           <div className="px-4 py-2 text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
             Result
           </div>

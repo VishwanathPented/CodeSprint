@@ -74,18 +74,18 @@ export default function OnboardingModal() {
       <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm"></div>
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-300">
-        
+      <div className="relative w-full max-w-lg max-h-[calc(100vh-2rem)] overflow-y-auto bg-white dark:bg-slate-900 rounded-3xl sm:rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+
         {/* Header */}
-        <div className="px-8 pt-10 pb-6 bg-gradient-to-br from-indigo-600 via-primary-600 to-violet-600 relative overflow-hidden">
+        <div className="px-6 sm:px-8 pt-8 sm:pt-10 pb-6 bg-gradient-to-br from-indigo-600 via-primary-600 to-violet-600 relative overflow-hidden">
            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-           
-           <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner mb-6 relative z-10">
-              <GraduationCap size={32} className="text-white" />
+
+           <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner mb-4 sm:mb-6 relative z-10">
+              <GraduationCap size={28} className="text-white sm:w-8 sm:h-8" />
            </div>
-           
-           <h2 className="text-3xl font-black text-white mb-2 relative z-10">Welcome to CodeSprint!</h2>
-           <p className="text-indigo-100 font-medium relative z-10 opacity-90">Please complete your collegiate profile to unlock the dashboard.</p>
+
+           <h2 className="text-2xl sm:text-3xl font-black text-white mb-2 relative z-10">Welcome to CodeSprint!</h2>
+           <p className="text-indigo-100 text-sm sm:text-base font-medium relative z-10 opacity-90">Please complete your collegiate profile to unlock the dashboard.</p>
         </div>
 
         {/* Form */}

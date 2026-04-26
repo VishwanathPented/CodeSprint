@@ -122,9 +122,9 @@ export default function AptitudePractice() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       {/* Top bar: progress + timer */}
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex items-center justify-between gap-2 sm:gap-4 mb-6 flex-wrap">
         <Link to="/aptitude" className="text-sm font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1">
           <ArrowLeft size={14} /> Exit
         </Link>
@@ -334,16 +334,16 @@ const ResultsScreen = ({ result, section, count, onRestart }) => {
   const passed = summary.accuracy >= 60;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <div className={clsx(
-        'relative overflow-hidden rounded-2xl p-8 mb-6 text-center',
+        'relative overflow-hidden rounded-2xl p-5 sm:p-8 mb-6 text-center',
         passed
           ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white'
           : 'bg-gradient-to-br from-amber-500 to-orange-600 text-white'
       )}>
-        <Trophy className="mx-auto mb-4" size={48} />
-        <h1 className="text-4xl font-black mb-2">{summary.accuracy}%</h1>
-        <p className="font-bold text-lg opacity-90 mb-1">
+        <Trophy className="mx-auto mb-3 sm:mb-4 sm:w-12 sm:h-12" size={40} />
+        <h1 className="text-3xl sm:text-4xl font-black mb-2">{summary.accuracy}%</h1>
+        <p className="font-bold text-base sm:text-lg opacity-90 mb-1">
           {summary.correct} correct out of {summary.attempted}
         </p>
         <p className="text-sm opacity-80">

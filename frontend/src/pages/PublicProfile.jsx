@@ -59,11 +59,11 @@ export default function PublicProfile() {
   const completionPercentage = (profile.completedDays?.length / 50) * 100;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12 px-4 selection:bg-primary-500 selection:text-white">
-      <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
-        
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-6 sm:py-12 px-4 selection:bg-primary-500 selection:text-white">
+      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+
         {/* Header / Brand */}
-        <div className="flex justify-between items-center mb-12">
+        <div className="flex justify-between items-center mb-6 sm:mb-12 gap-3">
            <Link to="/" className="flex items-center gap-2 group">
               <div className="p-2 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 transition group-hover:border-primary-500">
                  <ArrowLeft size={16} className="text-slate-600 dark:text-slate-400" />
@@ -80,29 +80,29 @@ export default function PublicProfile() {
         </div>
 
         {/* Profile Card */}
-        <div className="relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-primary-500/5 border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div className="relative bg-white dark:bg-slate-900 rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-8 md:p-12 shadow-2xl shadow-primary-500/5 border border-slate-200 dark:border-slate-800 overflow-hidden">
           {/* Decorative Elements */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 blur-[100px] pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/5 blur-[100px] pointer-events-none"></div>
           
-          <div className="relative flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12">
+          <div className="relative flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 md:gap-12">
             {/* Avatar / Rank */}
-            <div className="relative">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center text-4xl md:text-5xl font-black text-slate-400 border-4 border-white dark:border-slate-800 shadow-xl overflow-hidden">
+            <div className="relative shrink-0">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center text-3xl sm:text-4xl md:text-5xl font-black text-slate-400 border-4 border-white dark:border-slate-800 shadow-xl overflow-hidden">
                 {profile.name.charAt(0)}
               </div>
-              <div className="absolute -bottom-2 -right-2 bg-primary-500 text-white p-3 rounded-2xl shadow-lg transform rotate-12">
-                <Trophy size={24} />
+              <div className="absolute -bottom-2 -right-2 bg-primary-500 text-white p-2 sm:p-3 rounded-2xl shadow-lg transform rotate-12">
+                <Trophy size={20} className="sm:w-6 sm:h-6" />
               </div>
             </div>
 
             {/* Profile Info */}
-            <div className="flex-grow text-center md:text-left space-y-4">
+            <div className="flex-grow min-w-0 text-center md:text-left space-y-3 sm:space-y-4">
                <div>
-                  <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-2 break-words">
                     {profile.name}
                   </h1>
-                  <p className="text-lg font-medium text-slate-500 dark:text-slate-400 flex items-center justify-center md:justify-start gap-2">
+                  <p className="text-base sm:text-lg font-medium text-slate-500 dark:text-slate-400 flex items-center justify-center md:justify-start gap-2 flex-wrap">
                     @{profile.username}
                     <span className="w-1.5 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full"></span>
                     <span className="text-sm uppercase tracking-widest font-bold">50-Day Challenger</span>
@@ -136,8 +136,8 @@ export default function PublicProfile() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-           <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
               <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                 <Calendar size={16} /> Progress
               </h3>
@@ -155,7 +155,7 @@ export default function PublicProfile() {
               </div>
            </div>
 
-           <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
               <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                 <Share2 size={16} /> Certified
               </h3>
@@ -171,7 +171,7 @@ export default function PublicProfile() {
               </div>
            </div>
 
-           <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
+           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
               <Linkedin className="text-[#0077b5]" size={40} />
               <button 
                 onClick={() => {
