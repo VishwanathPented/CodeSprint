@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import VideoModule from '../components/day/VideoModule';
+import ConceptModule from '../components/day/ConceptModule';
+import RequiredTasksPanel from '../components/day/RequiredTasksPanel';
 import McqModule from '../components/day/McqModule';
 import PredictOutputModule from '../components/day/PredictOutputModule';
 import CodeEditorModule from '../components/day/CodeEditorModule';
@@ -44,6 +45,33 @@ export default function DayDetail() {
 
   // LinkedIn share modal
   const [shareOpen, setShareOpen] = useState(false);
+
+  // Cross-track gate state (DSA / SQL / Aptitude)
+  const [taskGates, setTaskGates] = useState(null);
+  const [gatesLoading, setGatesLoading] = useState(false);
+
+  const fetchTaskGates = async () => {
+    if (!token || !id) return;
+    setGatesLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/user/day-tasks-status/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTaskGates(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch task gates', err);
+    } finally {
+      setGatesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTaskGates();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, token]);
 
   const isAlreadyCompleted = user?.completedDays?.includes(Number(id));
   const persistKey = `day_${id}_progress_${user?._id}`;
@@ -178,6 +206,9 @@ export default function DayDetail() {
         alert(data.message);
         navigate('/');
       } else {
+        // 400 from backend gating returns the latest gate state — refresh the panel.
+        if (data.gates) setTaskGates(data.gates);
+        else fetchTaskGates();
         alert(data.message);
       }
     } catch (err) {
@@ -236,7 +267,7 @@ export default function DayDetail() {
       </div>
 
       <div className="space-y-6">
-        <VideoModule content={content} onComplete={() => setVideoWatched(true)} isCompleted={videoWatched} />
+        <ConceptModule content={content} onComplete={() => setVideoWatched(true)} isCompleted={videoWatched} token={token} />
         
         {videoWatched && (
           <McqModule mcqs={content.mcqs} onComplete={(score) => setMcqScore(score)} score={mcqScore} />
@@ -289,6 +320,15 @@ export default function DayDetail() {
         )}
       </div>
 
+      {isDayFinished && !isAlreadyCompleted && (
+        <RequiredTasksPanel
+          gates={taskGates}
+          loading={gatesLoading}
+          onRefresh={fetchTaskGates}
+          dayNumber={Number(id)}
+        />
+      )}
+
       {isDayFinished && (
         <div className="bg-emerald-50 dark:bg-emerald-900/10 p-6 rounded-lg border border-emerald-200 dark:border-emerald-800 text-center">
           <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-800/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -296,12 +336,17 @@ export default function DayDetail() {
           </div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Excellent Work!</h2>
           <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-md mx-auto">
-            You have successfully completed all tasks for today. Keep this streak alive and return tomorrow!
+            {isAlreadyCompleted
+              ? "You've already completed this day. Keep the streak alive!"
+              : taskGates && !taskGates.allDone
+                ? "You're done with the lesson — finish today's required cross-track tasks above to unlock the next day."
+                : "You have successfully completed all tasks for today. Keep this streak alive and return tomorrow!"}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <button
               onClick={handleCompleteDay}
-              className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-md transition flex items-center gap-2"
+              disabled={!isAlreadyCompleted && taskGates && !taskGates.allDone}
+              className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-medium rounded-md transition flex items-center gap-2"
             >
               <CircleCheckBig size={18} />
               {isAlreadyCompleted ? 'Return to Dashboard' : 'Mark Day as Complete & Unlock Next'}

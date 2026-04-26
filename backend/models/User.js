@@ -108,6 +108,16 @@ const userSchema = new mongoose.Schema({
   // Used to render the dashboard activity heatmap. Updated alongside lastActivity.
   activityLog: { type: Map, of: [String], default: {} },
 
+  // Snapshot of cross-track progress counters captured each time a Java day is
+  // completed. The next day's completion is gated on these counters having
+  // grown — i.e. the student must do at least one SQL lesson + one aptitude
+  // session per Java day before unlocking the next one.
+  dailyTaskBaseline: {
+    sqlLessonsAtUnlock: { type: Number, default: 0 },
+    aptitudeSessionsAtUnlock: { type: Number, default: 0 },
+    dsaSolvedAtUnlock: { type: Number, default: 0 }
+  },
+
   // Per-track activity timestamps (for Daily Mission "did this today" checks)
   lastActivity: {
     aptitude: { type: Date },
