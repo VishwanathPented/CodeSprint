@@ -202,36 +202,34 @@ export default function ConceptModule({ content, onComplete, isCompleted, token 
           </section>
         )}
 
-        {/* Generate Simple Response — calls the existing /api/ai/eli5 endpoint. */}
-        <section className="rounded-xl border border-indigo-200 dark:border-indigo-900/40 bg-indigo-50/60 dark:bg-indigo-900/10 p-4">
+        <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/30 p-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <p className="font-semibold text-indigo-900 dark:text-indigo-200 text-sm">
-                Need this in plain English?
+              <p className="font-semibold text-slate-800 dark:text-slate-200 text-sm">
+                Need a clearer explanation?
               </p>
-              <p className="text-xs text-indigo-700/80 dark:text-indigo-300/70">
-                One click for an AI-rewritten beginner-friendly version.
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                Generate a plain-English summary of this concept.
               </p>
             </div>
             <button
               onClick={handleGenerateSimple}
               disabled={simpleLoading}
-              className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-semibold text-sm shadow-sm transition"
+              className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-60 text-white font-medium text-sm shadow-sm transition"
             >
               {simpleLoading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-              {simpleLoading ? 'Generating...' : showSimple ? 'Hide Simple Response' : 'Generate Simple Response'}
+              {simpleLoading ? 'Generating...' : showSimple ? 'Hide summary' : 'Generate summary'}
             </button>
           </div>
 
           {showSimple && simpleText && (
-            <div className="mt-4 prose prose-sm dark:prose-invert max-w-none bg-white dark:bg-slate-900 p-4 rounded-md border border-indigo-100 dark:border-indigo-900/40">
-              <div className="flex items-center gap-2 mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">
-                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                <span className="text-[10px] uppercase font-black tracking-widest text-indigo-700 dark:text-indigo-400">Simplified by Sprint-AI</span>
+            <div className="mt-4 prose prose-sm dark:prose-invert max-w-none bg-white dark:bg-slate-900 p-4 rounded-md border border-slate-200 dark:border-slate-800">
+              <div className="text-[11px] font-semibold tracking-wide text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+                Plain-English summary
               </div>
               <ReactMarkdown
                 components={{
-                  strong: ({ children }) => <strong className="font-black text-indigo-900 dark:text-indigo-200">{children}</strong>,
+                  strong: ({ children }) => <strong className="font-semibold text-slate-900 dark:text-slate-100">{children}</strong>,
                   p: ({ children }) => <p className="mb-3 text-slate-700 dark:text-slate-300 leading-relaxed">{children}</p>,
                   ul: ({ children }) => <ul className="list-disc ml-4 space-y-1.5 mb-3 text-slate-700 dark:text-slate-300">{children}</ul>,
                   li: ({ children }) => <li className="leading-relaxed">{children}</li>,

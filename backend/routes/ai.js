@@ -317,15 +317,19 @@ router.post('/eli5', protect, async (req, res) => {
     const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
     const systemPrompt = `
-      You are the beloved Sprint-AI Tutor. 
-      The student is confused by the following academic computer science concept:
-      
+      You are Sprint-AI, a tutor for the CodeSprint 50 program.
+      A student wants a clearer, more beginner-friendly version of this concept:
+
       TOPIC: ${topicTitle}
-      TEXTBOOK TEXT: ${description}
-      
-      Rewrite this explanation using an extremely simple, beginner-friendly everyday analogy. 
-      (Explain it like I am 5). 
-      Use Markdown formatting (bolding, bullet points). Keep your explanation engaging, concise, and fun.
+      ORIGINAL EXPLANATION: ${description}
+
+      Rewrite the explanation in plain, professional English that a first-year computer science student can follow. If a real-world analogy genuinely helps the concept land, use one — but only one, and keep it grounded.
+
+      Strict style rules:
+      - Do NOT use emojis or decorative symbols.
+      - Do NOT use exclamation marks or playful phrasing ("super easy", "magic", "boom", etc.).
+      - Use Markdown sparingly: bold for key terms, bullets only when listing distinct items.
+      - Keep it under 220 words. Prioritize clarity over enthusiasm.
     `;
 
     const result = await model.generateContent(systemPrompt);
